@@ -323,6 +323,14 @@ button{font-family:inherit;cursor:pointer;}
 .card.span-6{grid-column:span 6;}
 .card.span-4{grid-column:span 4;}
 .card.span-3{grid-column:span 3;}
+.admin-row{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr auto;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--hair);font-size:12px;}
+.admin-row:first-child{border-top:0;}
+.admin-actions{display:flex;gap:7px;flex-wrap:wrap;}
+.admin-btn{border:1px solid var(--hair-strong);background:rgba(232,233,235,.04);color:var(--bone);border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer;}
+.admin-btn.approve{border-color:rgba(100,220,170,.35);color:var(--blue);}
+.admin-btn.reject{border-color:rgba(220,100,100,.35);color:var(--danger);}
+.admin-photo{width:42px;height:42px;border-radius:8px;object-fit:cover;border:1px solid var(--hair-strong);background:var(--graphite);}
+@media(max-width:800px){.admin-row{grid-template-columns:1fr 1fr;}.admin-actions{grid-column:1/-1;}}
 
 .welcome-card{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
 .welcome-card h2{font-size:22px;font-weight:600;margin-bottom:6px;}
@@ -516,6 +524,10 @@ button{font-family:inherit;cursor:pointer;}
       <div class="glyph">ÆZ SECURE ACCESS</div>
       <div class="sub">IDENTIFY YOURSELF TO PROCEED</div>
     </div>
+    <div class="field" id="fieldEmail">
+      <label>Email</label>
+      <input type="email" placeholder="you@example.com" id="emailInput" autocomplete="email" oninput="clearFieldError('fieldEmail')" onkeydown="if(event.key==='Enter')login()">
+    </div>
     <div class="field" id="fieldGang">
       <label>Gang</label>
       <select id="gangSelect" onchange="clearFieldError('fieldGang')">
@@ -548,7 +560,7 @@ button{font-family:inherit;cursor:pointer;}
     </div>
     <div class="login-error" id="loginError" style="display:none"></div>
     <button class="enter-full" id="loginSubmitBtn" onclick="login()">Enter the Arena</button>
-    <div class="login-note">Unauthorized access is logged and reported to Division Command.</div>
+    <div class="login-note">Unauthorized access is logged and reported to Division Command. Approved accounts only.</div>
     <div class="login-switch">New agent? <a onclick="showScreen('signup')">Register with your gang</a></div>
   </div>
 </section>
@@ -562,6 +574,10 @@ button{font-family:inherit;cursor:pointer;}
     </div>
 
     <div id="signupForm">
+      <div class="field" id="suFieldEmail">
+        <label>Email</label>
+        <input type="email" placeholder="you@example.com" id="suEmailInput" autocomplete="email" oninput="clearFieldError('suFieldEmail')">
+      </div>
       <div class="field" id="suFieldGang">
         <label>Gang</label>
         <select id="suGangSelect" onchange="clearFieldError('suFieldGang')">
@@ -615,6 +631,7 @@ button{font-family:inherit;cursor:pointer;}
       <div class="pending-photo-wrap"><img id="pendingPhoto"></div>
       <div class="pending-name" id="pendingCodename">—</div>
       <div class="page-sub" id="pendingGang">—</div>
+      <div class="kv-row"><span class="k">Email</span><span class="v" id="pendingEmail">—</span></div>
       <div class="kv-row"><span class="k">Facebook UID</span><span class="v" id="pendingFb">—</span></div>
       <div class="kv-row"><span class="k">Joined gang</span><span class="v" id="pendingJoined">—</span></div>
       <div class="kv-row"><span class="k">Submitted</span><span class="v">Just now</span></div>
@@ -637,6 +654,7 @@ button{font-family:inherit;cursor:pointer;}
       <div class="nav-group-label">HOME</div>
       <a class="nav-item active" data-view="dashboard" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
       <a class="nav-item" data-view="activities" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Activities</a>
+      <a class="nav-item" id="adminNavItem" data-view="admin" onclick="nav(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>Admin Review</a>
       <a class="nav-item" data-view="schedule" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Schedule</a>
       <a class="nav-item" data-view="rankings" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Rankings</a>
       <a class="nav-item" data-view="points" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>Points</a>
@@ -1016,6 +1034,18 @@ button{font-family:inherit;cursor:pointer;}
   </div>
 </div>
 
+<!-- ADMIN REVIEW -->
+<div class="view" id="view-admin">
+  <div class="page-head">
+    <div><h1>Admin Review</h1><div class="page-sub">Review and approve new ÆZ registrations.</div></div>
+    <button class="enter-full" style="width:auto;padding:10px 16px;margin:0" onclick="loadAdminApplications()">Refresh</button>
+  </div>
+  <div class="card span-12">
+    <div id="adminStatus" class="page-sub" style="margin-bottom:16px">Loading applications…</div>
+    <div id="adminApplications"></div>
+  </div>
+</div>
+
 <!-- QUICK SEARCH -->
 <div class="modal-veil" id="searchModal" onclick="closeSearchOutside(event)">
   <div class="sheet" style="max-width:520px;">
@@ -1047,30 +1077,22 @@ button{font-family:inherit;cursor:pointer;}
   <a class="bn-item" data-view="profile" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><span>Profile</span></a>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ============ AGENT ROSTER (mock access-control data) ============ */
-/* Passwords are stored here as SHA-256 hashes rather than plaintext, and
-   checked with the browser's own crypto engine (SubtleCrypto). That stops
-   a password from being readable at a glance in the page source — but
-   this is still a static file with no server behind it, so it's a model
-   of an access-control flow, not real production security. A real build
-   would verify credentials against a server, over HTTPS, with the actual
-   hashing (properly salted) done server-side. */
-var roster = [
-  {codename:'Ashford-9', gang:'Cadence Gang', passwordHash:'2fc18b097e202941cc039f7a6df8fb17855624b1d36eaed987bfdce084b22731', accessLevel:'III', points:184500, divisionRank:2, individualRank:1, attendance:96, titles:'1 — Trojan of Cadence', passes:3},
-  {codename:'Marlowe-2', gang:'Discourse Gang', passwordHash:'0c5a00ce1d2f7344db6729bff874976fe22d3d372824c85c2255faf86bffd266', accessLevel:'III', points:179200, divisionRank:1, individualRank:2, attendance:91, titles:'0', passes:2},
-  {codename:'Vesper-6', gang:'Verse Gang', passwordHash:'255c5ffb820e9d21f8f78e5994dcb49eaa8d6a59c4363daa270f7af9541e5a61', accessLevel:'II', points:171050, divisionRank:3, individualRank:3, attendance:94, titles:'1 — Trojan of Verse', passes:4},
-  {codename:'Odessa-4', gang:'Charm Gang', passwordHash:'505d566f11c90a67250d92d54b910caa54101c305f6466a398c26084d3bb2b8b', accessLevel:'II', points:168400, divisionRank:4, individualRank:4, attendance:89, titles:'0', passes:1},
-  {codename:'Kestrel-1', gang:'Retort Gang', passwordHash:'13d7bbe43da33624a31829793d9a5bf79ca0f7a8dd7a8a06dcb4fa66115bb6d7', accessLevel:'III', points:159900, divisionRank:5, individualRank:5, attendance:97, titles:'1 — Trojan of Charm', passes:2},
-  {codename:'Dresden-3', gang:'Strife Gang', passwordHash:'fca7a7ec3fb02ea3f1004c35d81a21fbf5d3bd7722e94565e6800fa017df5317', accessLevel:'I', points:151200, divisionRank:6, individualRank:6, attendance:85, titles:'0', passes:0}
-];
-var currentAgent = null;
+/* ============ SUPABASE CONFIG ============ */
+/* Replace these two placeholders with your Supabase Project URL and
+   Publishable Key. NEVER put a service_role/secret key in this HTML. */
+var SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+var SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+var supabaseReady = SUPABASE_URL.indexOf("YOUR_") !== 0 && SUPABASE_PUBLISHABLE_KEY.indexOf("YOUR_") !== 0;
+var supabaseClient = supabaseReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 
-async function sha256Hex(str){
-  var enc = new TextEncoder().encode(str);
-  var buf = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-}
+/* ============ LIVE ACCESS CONTROL ============ */
+/* Authentication, passwords, registration records, approval status, and ID
+   documents are handled by Supabase. The browser never stores user passwords
+   or a client-side roster. */
+var currentAgent = null;
+var currentProfile = null;
 
 /* ============ FAILED-ATTEMPT LOCKOUT ============ */
 var failedAttempts = 0;
@@ -1166,64 +1188,65 @@ function togglePasswordVisibility(){
 }
 async function login(){
   if(lockoutTimer) return;
-  ['fieldGang','fieldCodename','fieldPassword'].forEach(clearFieldError);
+  ['fieldEmail','fieldGang','fieldCodename','fieldPassword'].forEach(clearFieldError);
+  if(!supabaseReady){ showLoginError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.'); return; }
 
+  var email = document.getElementById('emailInput').value.trim().toLowerCase();
   var gang = document.getElementById('gangSelect').value;
   var cn = document.getElementById('codenameInput').value.trim();
   var pw = document.getElementById('passwordInput').value;
+  var missing=[];
+  if(!email){markFieldError('fieldEmail');missing.push('email');}
+  if(!gang){markFieldError('fieldGang');missing.push('gang');}
+  if(!cn){markFieldError('fieldCodename');missing.push('codename');}
+  if(!pw){markFieldError('fieldPassword');missing.push('password');}
+  if(missing.length){showLoginError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to continue.');return;}
 
-  var missing = [];
-  if(!gang){ markFieldError('fieldGang'); missing.push('gang'); }
-  if(!cn){ markFieldError('fieldCodename'); missing.push('codename'); }
-  if(!pw){ markFieldError('fieldPassword'); missing.push('password'); }
-  if(missing.length){
-    var label = missing.length===1 ? missing[0] : missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1];
-    showLoginError('Enter your '+label+' to continue.');
-    return;
-  }
-
-  var btn = document.getElementById('loginSubmitBtn');
-  btn.textContent = 'Verifying…';
-  var pwHash = await sha256Hex(pw);
-  btn.textContent = 'Enter the Arena';
-
-  var match = roster.find(function(a){
-    return a.gang===gang && a.codename.toLowerCase()===cn.toLowerCase() && a.passwordHash===pwHash;
-  });
-
-  if(!match){
+  var btn=document.getElementById('loginSubmitBtn');
+  btn.textContent='Verifying…'; btn.disabled=true;
+  var result=await supabaseClient.auth.signInWithPassword({email:email,password:pw});
+  btn.textContent='Enter the Arena'; btn.disabled=false;
+  if(result.error){
     failedAttempts++;
-    markFieldError('fieldGang'); markFieldError('fieldCodename'); markFieldError('fieldPassword');
-    if(failedAttempts>=LOCKOUT_AFTER){
-      startLockout();
-    } else {
-      var left = LOCKOUT_AFTER - failedAttempts;
-      showLoginError('Access denied. That gang, codename, and password combination is not on file. '+left+' attempt'+(left===1?'':'s')+' remaining before lockout.');
-    }
+    if(failedAttempts>=LOCKOUT_AFTER) startLockout();
+    else showLoginError('Access denied. Check your email and password.');
     return;
   }
 
-  failedAttempts = 0;
-  hideLoginError();
-  currentAgent = match;
-  applyAgentToUI(match);
+  var user=result.data.user;
+  var profileResult=await supabaseClient.from('profiles').select('*').eq('id',user.id).single();
+  if(profileResult.error || !profileResult.data){ await supabaseClient.auth.signOut(); showLoginError('Your application record could not be found. Contact Division Command.'); return; }
+  var profile=profileResult.data;
+  if(profile.gang!==gang || profile.codename.toLowerCase()!==cn.toLowerCase()){
+    await supabaseClient.auth.signOut(); showLoginError('The selected gang and codename do not match this account.'); return;
+  }
+  if(profile.status!=='approved'){
+    await supabaseClient.auth.signOut();
+    if(profile.status==='pending') showLoginError('Your registration is still pending admin approval.');
+    else if(profile.status==='rejected') showLoginError('Your registration was rejected. Contact Division Command.');
+    else showLoginError('This account is currently suspended.');
+    return;
+  }
 
-  // Remove the login and landing screens completely after successful login.
-  var loginScreen = document.getElementById('login');
-  var landingScreen = document.getElementById('landing');
-
-  if (loginScreen) loginScreen.remove();
-  if (landingScreen) landingScreen.remove();
-
-  // Show only the main application.
-  showScreen('app');
+  failedAttempts=0; hideLoginError(); currentProfile=profile;
+  currentAgent=profileToAgent(profile); applyAgentToUI(currentAgent);
+  removeAuthScreensAndShowApp();
   nav(document.querySelector('.nav-item[data-view="dashboard"]'));
   animateCounters();
-  document.querySelectorAll('#view-dashboard .card').forEach(function(card,i){
-    card.classList.add('stagger-in');
-    card.style.animationDelay = (i*45)+'ms';
-  });
+  document.querySelectorAll('#view-dashboard .card').forEach(function(card,i){card.classList.add('stagger-in');card.style.animationDelay=(i*45)+'ms';});
 }
+
+function profileToAgent(p){
+  return {codename:p.codename,gang:p.gang,passwordHash:'',accessLevel:p.access_level||'I',points:p.points||0,divisionRank:p.division_rank||6,individualRank:p.individual_rank||1,attendance:p.attendance||100,titles:p.titles||'0',passes:p.passes||0,role:p.role,email:p.email};
+}
+
+function removeAuthScreensAndShowApp(){
+  ['landing','login','signup'].forEach(function(id){var el=document.getElementById(id);if(el)el.remove();});
+  showScreen('app');
+  var adminNav=document.getElementById('adminNavItem');
+  if(adminNav) adminNav.style.display=(currentProfile && (currentProfile.role==='admin'||currentProfile.role==='owner'))?'flex':'none';
+}
+
 function applyAgentToUI(a){
   document.getElementById('topCodename').textContent = a.codename;
   document.getElementById('wcCodename').textContent = a.codename;
@@ -1275,97 +1298,64 @@ function showSignupError(msg){
 }
 
 async function submitSignup(){
-  var fieldIds = ['suFieldGang','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
+  var fieldIds=['suFieldEmail','suFieldGang','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
   fieldIds.forEach(clearFieldError);
+  if(!supabaseReady){showSignupError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.');return;}
 
-  var gang = document.getElementById('suGangSelect').value;
-  var codename = document.getElementById('suCodenameInput').value.trim();
-  var fbUid = document.getElementById('suFbInput').value.trim();
-  var joined = document.getElementById('suJoinedInput').value;
-  var pw = document.getElementById('suPasswordInput').value;
-  var photoSrc = document.getElementById('uploadPreview').src;
-  var hasPhoto = document.getElementById('uploadPreview').style.display === 'block';
+  var email=document.getElementById('suEmailInput').value.trim().toLowerCase();
+  var gang=document.getElementById('suGangSelect').value;
+  var codename=document.getElementById('suCodenameInput').value.trim();
+  var fbUid=document.getElementById('suFbInput').value.trim();
+  var joined=document.getElementById('suJoinedInput').value;
+  var pw=document.getElementById('suPasswordInput').value;
+  var file=document.getElementById('suIdFile').files[0];
+  var missing=[];
+  if(!email){markFieldError('suFieldEmail');missing.push('email');}
+  if(!gang){markFieldError('suFieldGang');missing.push('gang');}
+  if(!codename){markFieldError('suFieldCodename');missing.push('codename');}
+  if(!fbUid){markFieldError('suFieldFb');missing.push('Facebook UID');}
+  if(!joined){markFieldError('suFieldJoined');missing.push('join date');}
+  if(!pw){markFieldError('suFieldPassword');missing.push('password');}
+  if(!file){markFieldError('suFieldId');missing.push('ID picture');}
+  if(missing.length){showSignupError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to submit for verification.');return;}
+  if(file.size>5*1024*1024){markFieldError('suFieldId');showSignupError('ID picture must be 5 MB or smaller.');return;}
 
-  var missing = [];
-  if(!gang){ markFieldError('suFieldGang'); missing.push('gang'); }
-  if(!codename){ markFieldError('suFieldCodename'); missing.push('codename'); }
-  if(!fbUid){ markFieldError('suFieldFb'); missing.push('Facebook UID'); }
-  if(!joined){ markFieldError('suFieldJoined'); missing.push('join date'); }
-  if(!pw){ markFieldError('suFieldPassword'); missing.push('password'); }
-  if(!hasPhoto){ markFieldError('suFieldId'); missing.push('ID picture'); }
-  if(missing.length){
-    var label = missing.length===1 ? missing[0] : missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1];
-    showSignupError('Enter your '+label+' to submit for verification.');
-    return;
-  }
+  var btn=document.querySelector('#signupForm .enter-full'); btn.disabled=true; btn.textContent='Submitting…';
+  var auth=await supabaseClient.auth.signUp({email:email,password:pw,options:{data:{codename:codename,gang:gang,facebook_uid:fbUid,joined_date:joined}}});
+  if(auth.error){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError(auth.error.message);return;}
+  var user=auth.data.user;
+  if(!user){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Registration could not be completed.');return;}
 
-  var takenByGang = roster.find(function(a){
-    return a.gang===gang && a.codename.toLowerCase()===codename.toLowerCase();
-  });
-  if(takenByGang){
-    markFieldError('suFieldCodename');
-    showSignupError('That codename is already on file for '+gang+'. Choose another.');
-    return;
-  }
+  /* For this static-browser build, email confirmations should be OFF during setup
+     so the signup receives a session and can upload the private ID document. */
+  var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+  var path=user.id+'/'+crypto.randomUUID()+'.'+ext;
+  var upload=await supabaseClient.storage.from('id-documents').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
+  if(upload.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Account created, but the ID upload failed: '+upload.error.message);return;}
 
-  var pwHash = await sha256Hex(pw);
-  pendingApplicant = {
-    codename: codename, gang: gang, fbUid: fbUid, joined: joined,
-    passwordHash: pwHash, photoSrc: photoSrc
-  };
+  var upd=await supabaseClient.from('profiles').update({id_photo_path:path}).eq('id',user.id);
+  if(upd.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Your application was created but could not save the ID reference. Contact Command.');return;}
 
-  document.getElementById('pendingCodename').textContent = codename;
-  document.getElementById('pendingGang').textContent = gang;
-  document.getElementById('pendingGangInline').textContent = gang+' Command';
-  document.getElementById('pendingFb').textContent = fbUid;
-  document.getElementById('pendingJoined').textContent = new Date(joined+'T00:00:00').toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
-  document.getElementById('pendingPhoto').src = photoSrc;
-
-  var stamp = document.getElementById('pendingStamp');
-  stamp.textContent = 'PENDING VERIFICATION';
-  stamp.className = 'stamp neutral';
-  var btn = document.getElementById('verifyDemoBtn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Simulate Gang Verification (Demo)';
-  btn.disabled = false;
-
-  document.getElementById('signupForm').style.display = 'none';
-  document.getElementById('signupPending').style.display = 'block';
+  pendingApplicant={codename:codename,gang:gang,fbUid:fbUid,joined:joined,email:email,photoPath:path};
+  document.getElementById('pendingCodename').textContent=codename;
+  document.getElementById('pendingGang').textContent=gang;
+  document.getElementById('pendingGangInline').textContent=gang+' Command';
+  document.getElementById('pendingEmail').textContent=email;
+  document.getElementById('pendingFb').textContent=fbUid;
+  document.getElementById('pendingJoined').textContent=new Date(joined+'T00:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('pendingPhoto').src=document.getElementById('uploadPreview').src;
+  document.getElementById('pendingStamp').textContent='PENDING ADMIN APPROVAL';
+  document.getElementById('pendingStamp').className='stamp neutral';
+  document.getElementById('verifyDemoBtn').style.display='none';
+  document.getElementById('pendingNote').innerHTML='Your registration is now stored securely and waiting for ÆZ Owner/Admin approval. You cannot enter the Arena until an authorized administrator approves the application.';
+  document.getElementById('signupForm').style.display='none';
+  document.getElementById('signupPending').style.display='block';
+  btn.disabled=false;btn.textContent='Submit for Verification';
+  await supabaseClient.auth.signOut();
 }
 
 function simulateGangVerification(){
-  if(!pendingApplicant) return;
-  var stamp = document.getElementById('pendingStamp');
-  stamp.textContent = 'VERIFIED · APPROVED';
-  stamp.className = 'stamp verified';
-
-  var btn = document.getElementById('verifyDemoBtn');
-  btn.textContent = 'Verified ✓';
-  btn.disabled = true;
-
-  document.getElementById('pendingNote').innerHTML =
-    'Your gang has confirmed this registration against the submitted ID and Facebook profile. You can now sign in with your codename and password.';
-
-  // Add the newly verified agent to the roster (in-memory, this session only)
-  // so they can actually log in — a brand-new agent starting from zero.
-  roster.push({
-    codename: pendingApplicant.codename,
-    gang: pendingApplicant.gang,
-    passwordHash: pendingApplicant.passwordHash,
-    accessLevel: 'I',
-    points: 0,
-    divisionRank: 6,
-    individualRank: roster.length + 1,
-    attendance: 100,
-    titles: '0',
-    passes: 0
-  });
-  rankData.agents.push([
-    String(rankData.agents.length + 1),
-    pendingApplicant.codename,
-    pendingApplicant.gang.replace(' Gang',''),
-    '0'
-  ]);
+  showSignupError('Demo verification has been disabled. Approvals are now controlled by the Supabase Admin Review panel.');
 }
 
 function nav(el){
@@ -1374,7 +1364,10 @@ function nav(el){
     n.classList.toggle('active', n.getAttribute('data-view')===view);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+view).classList.add('active');
+  var target=document.getElementById('view-'+view);
+  if(!target) return;
+  target.classList.add('active');
+  if(view==='admin') loadAdminApplications();
 }
 
 /* ============ ACCOUNT MENU / LOGOUT ============ */
@@ -1387,15 +1380,62 @@ document.addEventListener('click', function(e){
     document.getElementById('avatarMenu').classList.remove('show');
   }
 });
-function logout(){
-  currentAgent = null;
+async function logout(){
+  currentAgent=null; currentProfile=null;
   document.getElementById('avatarMenu').classList.remove('show');
-  document.getElementById('passwordInput').value = '';
-  hideLoginError();
-  ['fieldGang','fieldCodename','fieldPassword'].forEach(clearFieldError);
-  // A returning agent already knows what ÆZ is — logging out drops them
-  // straight back at Secure Access, not the landing splash.
-  showScreen('login');
+  if(supabaseClient) await supabaseClient.auth.signOut();
+  location.reload();
+}
+
+/* ============ SUPABASE SESSION / ADMIN REVIEW ============ */
+async function restoreSupabaseSession(){
+  if(!supabaseReady) return;
+  var sessionResult=await supabaseClient.auth.getSession();
+  var session=sessionResult.data && sessionResult.data.session;
+  if(!session) return;
+  var pr=await supabaseClient.from('profiles').select('*').eq('id',session.user.id).single();
+  if(pr.error || !pr.data){await supabaseClient.auth.signOut();return;}
+  if(pr.data.status!=='approved'){
+    await supabaseClient.auth.signOut();
+    return;
+  }
+  currentProfile=pr.data;
+  currentAgent=profileToAgent(pr.data);
+  applyAgentToUI(currentAgent);
+  removeAuthScreensAndShowApp();
+  nav(document.querySelector('.nav-item[data-view="dashboard"]'));
+  animateCounters();
+}
+
+async function loadAdminApplications(){
+  var statusEl=document.getElementById('adminStatus');
+  var box=document.getElementById('adminApplications');
+  if(!currentProfile || !['admin','owner'].includes(currentProfile.role)){statusEl.textContent='Restricted: admin access only.';box.innerHTML='';return;}
+  statusEl.textContent='Loading pending applications…'; box.innerHTML='';
+  var res=await supabaseClient.from('profiles').select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at').eq('status','pending').order('created_at',{ascending:true});
+  if(res.error){statusEl.textContent='Could not load applications: '+res.error.message;return;}
+  if(!res.data.length){statusEl.textContent='No pending applications.';return;}
+  statusEl.textContent=res.data.length+' pending application'+(res.data.length===1?'':'s');
+  box.innerHTML=res.data.map(function(a){
+    var safeEmail=escapeHtml(a.email||''); var safeCode=escapeHtml(a.codename||''); var safeGang=escapeHtml(a.gang||''); var safeFb=escapeHtml(a.facebook_uid||'');
+    return '<div class="admin-row"><div><strong>'+safeCode+'</strong><div class="page-sub">'+safeEmail+'</div></div><div>'+safeGang+'</div><div>FB: '+safeFb+'</div><div>'+formatAdminDate(a.created_at)+'</div><div class="admin-actions"><button class="admin-btn approve" onclick="approveApplication(\''+a.id+'\')">Approve</button><button class="admin-btn reject" onclick="rejectApplication(\''+a.id+'\')">Reject</button></div></div>';
+  }).join('');
+}
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
+function formatAdminDate(v){try{return new Date(v).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});}catch(e){return v||'';}}
+async function approveApplication(id){
+  if(!confirm('Approve this registration?')) return;
+  var r=await supabaseClient.from('profiles').update({status:'approved',approved_by:(await supabaseClient.auth.getUser()).data.user.id,approved_at:new Date().toISOString(),rejection_reason:null}).eq('id',id);
+  if(r.error){alert('Approval failed: '+r.error.message);return;}
+  loadAdminApplications();
+}
+async function rejectApplication(id){
+  var reason=prompt('Optional rejection reason:','');
+  if(reason===null) return;
+  var user=(await supabaseClient.auth.getUser()).data.user;
+  var r=await supabaseClient.from('profiles').update({status:'rejected',approved_by:user.id,approved_at:new Date().toISOString(),rejection_reason:reason||null}).eq('id',id);
+  if(r.error){alert('Rejection failed: '+r.error.message);return;}
+  loadAdminApplications();
 }
 
 /* ============ ANIMATED COUNTERS ============ */
@@ -1784,6 +1824,7 @@ function renderRules(filter){
 }
 function filterRules(v){ renderRules(v); }
 renderRules('');
+restoreSupabaseSession();
 </script>
 </body>
 </html>
