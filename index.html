@@ -1458,7 +1458,7 @@ body.admin-capable .bn-item.admin-mobile{display:flex;}
           <div class="sheet-handle"></div>
           <div class="page-sub" style="margin-bottom:4px">PROFILE UPDATE</div>
           <h2 style="font-size:22px;margin-bottom:8px">Request Profile Changes</h2>
-          <div class="profile-edit-note" style="margin-bottom:18px">Changes are submitted to Division Command for approval. Your current approved profile stays active until the request is approved.</div>
+          <div class="profile-edit-note" style="margin-bottom:18px">Changes are submitted to Division Command for approval. Your current approved profile stays active until the request is approved. Your current approved profile stays active until the request is approved.</div>
           <div class="profile-edit-form">
             <div class="field">
               <label>Email <span style="color:var(--ash-dim)">(locked)</span></label>
@@ -2260,34 +2260,132 @@ function handleProfileEditPhoto(input){
 }
 function showProfileEditError(msg){var el=document.getElementById('profileEditError');if(el){el.textContent=msg;el.style.display='flex';}}
 async function submitProfileEditRequest(){
-  if(!supabaseReady || !currentProfile || !currentProfile.id){showProfileEditError('Your approved session could not be verified.');return;}
-  var btn=document.getElementById('profileEditSubmitBtn'); if(btn){btn.disabled=true;btn.textContent='Submitting…';}
-  var requested={
-    gang:document.getElementById('editGangInput').value,
-    position:document.getElementById('editPositionInput').value,
-    codename:document.getElementById('editCodenameInput').value.trim(),
-    facebook_uid:document.getElementById('editFacebookInput').value.trim(),
-    joined_date:document.getElementById('editJoinedInput').value
-  };
-  if(!requested.gang||!requested.position||!requested.codename||!requested.facebook_uid||!requested.joined_date){showProfileEditError('Complete all profile fields before submitting.');if(btn){btn.disabled=false;btn.textContent='Submit for Approval';}return;}
-  if(profileEditPhotoFile){
-    var ext=(profileEditPhotoFile.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
-    var path=currentProfile.id+'/edit-'+crypto.randomUUID()+'.'+ext;
-    var upload=await supabaseClient.storage.from('id-documents').upload(path,profileEditPhotoFile,{upsert:false,contentType:profileEditPhotoFile.type||'image/jpeg'});
-    if(upload.error){showProfileEditError('The new ID picture could not be uploaded: '+upload.error.message);if(btn){btn.disabled=false;btn.textContent='Submit for Approval';}return;}
-    requested.id_photo_path=path;
+  if(!supabaseReady || !currentProfile || !currentProfile.id){
+    showProfileEditError('Your approved session could not be verified.');
+    return;
   }
-  var currentVals={gang:currentProfile.gang||'',position:currentProfile.position||'Member',codename:currentProfile.codename||'',facebook_uid:currentProfile.facebook_uid||'',joined_date:currentProfile.joined_date||'',id_photo_path:currentProfile.id_photo_path||null};
-  var same=Object.keys(requested).every(function(k){return requested[k]===currentVals[k];});
-  if(same){showProfileEditError('No changes were detected.');if(btn){btn.disabled=false;btn.textContent='Submit for Approval';}return;}
-  var res=await supabaseClient.from('profile_change_requests').insert({profile_id:currentProfile.id,requested_by:currentProfile.id,current_values:currentVals,requested_values:requested,status:'pending'}).select('id,requested_at,status').single();
-  if(res.error){showProfileEditError('Profile edits could not be submitted. Make sure the profile_change_requests table and policies are configured in Supabase.');if(btn){btn.disabled=false;btn.textContent='Submit for Approval';}return;}
-  lastProfileChangeRequest=res.data;
-  await logAgentActivity('Profile Change Request', 'PROFILE', 'Submitted profile changes for Owner/Admin approval.', {request_id:res.data.id});
-  closeProfileEdit();
-  var status=document.getElementById('profileEditStatus');
-  if(status){status.className='profile-edit-status pending';status.style.display='block';status.textContent='Profile changes submitted for approval. Your current approved information remains active until Command reviews the request.';}
-  if(btn){btn.disabled=false;btn.textContent='Submit for Approval';}
+
+  var btn=document.getElementById('profileEditSubmitBtn');
+  if(btn){btn.disabled=true;btn.textContent='Submitting…';}
+
+  try{
+    /* Always verify the browser session against Supabase before writing. */
+    var authResult=await supabaseClient.auth.getUser();
+    var authUser=authResult.data && authResult.data.user;
+    if(authResult.error || !authUser || authUser.id!==currentProfile.id){
+      throw new Error('Your secure session is no longer valid. Please log in again.');
+    }
+
+    var requested={
+      gang:document.getElementById('editGangInput').value,
+      position:document.getElementById('editPositionInput').value,
+      codename:document.getElementById('editCodenameInput').value.trim(),
+      facebook_uid:document.getElementById('editFacebookInput').value.trim(),
+      joined_date:document.getElementById('editJoinedInput').value
+    };
+
+    if(!requested.gang||!requested.position||!requested.codename||!requested.facebook_uid||!requested.joined_date){
+      throw new Error('Complete all profile fields before submitting.');
+    }
+
+    /* Keep the current photo unless the member selected a replacement. */
+    if(profileEditPhotoFile){
+      var ext=(profileEditPhotoFile.name.split('.').pop()||'jpg')
+        .toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+      var path=currentProfile.id+'/edit-'+crypto.randomUUID()+'.'+ext;
+
+      var upload=await supabaseClient.storage
+        .from('id-documents')
+        .upload(path,profileEditPhotoFile,{
+          upsert:false,
+          contentType:profileEditPhotoFile.type||'image/jpeg'
+        });
+
+      if(upload.error){
+        throw new Error('The new ID picture could not be uploaded: '+upload.error.message);
+      }
+      requested.id_photo_path=path;
+    }
+
+    var currentVals={
+      gang:currentProfile.gang||'',
+      position:currentProfile.position||'Member',
+      codename:currentProfile.codename||'',
+      facebook_uid:currentProfile.facebook_uid||'',
+      joined_date:currentProfile.joined_date||'',
+      id_photo_path:currentProfile.id_photo_path||null
+    };
+
+    var same=Object.keys(requested).every(function(k){
+      return requested[k]===currentVals[k];
+    });
+
+    if(same) throw new Error('No changes were detected.');
+
+    /* Do not allow multiple pending requests for the same member. */
+    var pendingCheck=await supabaseClient
+      .from('profile_change_requests')
+      .select('id,status,requested_at')
+      .eq('profile_id',currentProfile.id)
+      .eq('status','pending')
+      .limit(1)
+      .maybeSingle();
+
+    if(pendingCheck.error){
+      throw new Error('The profile-change system is not available yet: '+pendingCheck.error.message);
+    }
+
+    if(pendingCheck.data){
+      throw new Error('You already have a profile change request waiting for Owner/Admin approval.');
+    }
+
+    var res=await supabaseClient
+      .from('profile_change_requests')
+      .insert({
+        profile_id:currentProfile.id,
+        requested_by:authUser.id,
+        current_values:currentVals,
+        requested_values:requested,
+        status:'pending'
+      })
+      .select('id,requested_at,status')
+      .single();
+
+    if(res.error){
+      /* Show the real Supabase message so configuration/RLS problems are diagnosable. */
+      throw new Error(
+        'Profile change request could not be submitted. Supabase returned: '+
+        res.error.message
+      );
+    }
+
+    lastProfileChangeRequest=res.data;
+
+    await logAgentActivity(
+      'Profile Change Request',
+      'PROFILE',
+      'Submitted profile changes for Owner/Admin approval.',
+      {request_id:res.data.id}
+    );
+
+    closeProfileEdit();
+
+    var status=document.getElementById('profileEditStatus');
+    if(status){
+      status.className='profile-edit-status pending';
+      status.style.display='block';
+      status.textContent='Profile changes submitted for approval. Your current approved information remains active until Command reviews the request.';
+    }
+
+  }catch(err){
+    console.error('Profile edit submission failed:',err);
+    showProfileEditError(err && err.message ? err.message : 'Profile change request could not be submitted.');
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Submit for Approval';
+    }
+  }
 }
 async function loadLatestProfileChangeRequest(){
   if(!supabaseReady || !currentProfile) return;
@@ -2810,24 +2908,91 @@ async function loadProfileChangeRequests(){
   }).join('');
 }
 async function approveProfileChangeRequest(id){
-  if(!currentProfile || !['owner','admin'].includes(currentProfile.role)) return;
-  var r=await supabaseClient.from('profile_change_requests').select('*').eq('id',id).single();
-  if(r.error||!r.data){alert('Change request not found.');return;}
-  if(r.data.status!=='pending'){alert('This request has already been reviewed.');return;}
+  if(!currentProfile || !['owner','admin'].includes(currentProfile.role)){
+    alert('Restricted: only an ÆZ Owner or Admin can approve profile changes.');
+    return;
+  }
+
+  if(!confirm('Approve these profile changes?')) return;
+
+  var r=await supabaseClient
+    .from('profile_change_requests')
+    .select('*')
+    .eq('id',id)
+    .single();
+
+  if(r.error||!r.data){
+    alert('Change request not found: '+(r.error?r.error.message:'Unknown error'));
+    return;
+  }
+
+  if(r.data.status!=='pending'){
+    alert('This request has already been reviewed.');
+    return;
+  }
+
   var req=r.data.requested_values||{};
-  var upd=await supabaseClient.from('profiles').update({gang:req.gang,position:req.position,codename:req.codename,facebook_uid:req.facebook_uid,joined_date:req.joined_date,id_photo_path:Object.prototype.hasOwnProperty.call(req,'id_photo_path')?req.id_photo_path:r.data.current_values.id_photo_path}).eq('id',r.data.profile_id);
-  if(upd.error){alert('Profile update failed: '+upd.error.message);return;}
-  var done=await supabaseClient.from('profile_change_requests').update({status:'approved',reviewed_by:currentProfile.id,reviewed_at:new Date().toISOString(),rejection_reason:null}).eq('id',id);
-  if(done.error){alert('Profile was updated, but the request status could not be recorded: '+done.error.message);return;}
-  await logAgentActivity('Approved Profile Change', 'ADMIN', 'Approved a member profile change request.', {request_id:id});
-  await loadProfileChangeRequests(); loadAdminApplications();
+  var cur=r.data.current_values||{};
+
+  var updatePayload={
+    gang:req.gang,
+    position:req.position,
+    codename:req.codename,
+    facebook_uid:req.facebook_uid,
+    joined_date:req.joined_date,
+    id_photo_path:Object.prototype.hasOwnProperty.call(req,'id_photo_path')
+      ? req.id_photo_path
+      : (cur.id_photo_path||null)
+  };
+
+  var upd=await supabaseClient
+    .from('profiles')
+    .update(updatePayload)
+    .eq('id',r.data.profile_id)
+    .select('id')
+    .single();
+
+  if(upd.error){
+    alert(
+      'Profile update failed: '+upd.error.message+
+      '\n\nMake sure the Owner/Admin profiles UPDATE policy from the supplied SQL has been applied.'
+    );
+    return;
+  }
+
+  var done=await supabaseClient
+    .from('profile_change_requests')
+    .update({
+      status:'approved',
+      reviewed_by:currentProfile.id,
+      reviewed_at:new Date().toISOString(),
+      rejection_reason:null
+    })
+    .eq('id',id)
+    .eq('status','pending');
+
+  if(done.error){
+    alert('Profile was updated, but the request status could not be recorded: '+done.error.message);
+    return;
+  }
+
+  await logAgentActivity(
+    'Approved Profile Change',
+    'ADMIN',
+    'Approved a member profile change request.',
+    {request_id:id, profile_id:r.data.profile_id}
+  );
+
+  await loadProfileChangeRequests();
+  await loadAdminApplications();
 }
+
 async function rejectProfileChangeRequest(id){
   if(!currentProfile || !['owner','admin'].includes(currentProfile.role)) return;
   var reason=prompt('Reason for rejecting this profile change request:','Please revise the submitted information.');
   if(reason===null) return;
   var done=await supabaseClient.from('profile_change_requests').update({status:'rejected',reviewed_by:currentProfile.id,reviewed_at:new Date().toISOString(),rejection_reason:reason.trim()||null}).eq('id',id).eq('status','pending');
-  if(done.error){alert('Could not reject the request: '+done.error.message);return;}
+  if(done.error){alert('Could not reject the request: '+done.error.message+'\n\nMake sure the profile_change_requests UPDATE policy from the supplied SQL has been applied.');return;}
   await loadProfileChangeRequests();
 }
 
