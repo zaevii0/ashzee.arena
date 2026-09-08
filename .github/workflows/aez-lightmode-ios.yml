@@ -1,0 +1,81 @@
+name: ÆZ Light Mode — iOS Design
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  redesign:
+    if: ${{ !contains(github.event.head_commit.message, '[aez-lightmode]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add dedicated light mode design
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          required = ['<!DOCTYPE html>', 'SUPABASE_URL', 'function login()', 'function submitSignup()', 'function adminLogin()', '</body>', '</html>']
+          missing = [x for x in required if x not in s]
+          if missing:
+              raise SystemExit('ABORTED: missing app markers: ' + ', '.join(missing))
+          if len(s.splitlines()) < 900:
+              raise SystemExit('ABORTED: index.html unexpectedly short')
+          if 'aez-ios-lightmode-v2' in s:
+              raise SystemExit(0)
+
+          css = r'''<style id="aez-ios-lightmode-v2">
+          /* ÆZ — intentional iOS light theme. This is a visual layer only. */
+          :root{--aez-light-bg:#f5f5f7;--aez-light-surface:rgba(255,255,255,.78);--aez-light-surface-solid:#fff;--aez-light-text:#1d1d1f;--aez-light-secondary:#6e6e73;--aez-light-border:rgba(60,60,67,.14);--aez-light-gold:#8a6a12;--aez-light-shadow:0 12px 40px rgba(30,35,45,.08)}
+          body.light-mode{background:var(--aez-light-bg)!important;color:var(--aez-light-text)!important}
+          body.light-mode:before{background:radial-gradient(circle at 15% 0%,rgba(255,255,255,.95),transparent 35%),radial-gradient(circle at 90% 10%,rgba(226,228,235,.7),transparent 32%)!important;opacity:1!important}
+          body.light-mode *{border-color:var(--aez-light-border)}
+          body.light-mode .login-card,body.light-mode .card,body.light-mode .admin-application-card,body.light-mode .admin-detail-card,body.light-mode .admin-detail-empty,body.light-mode .day-col,body.light-mode .title-row,body.light-mode .idcard,body.light-mode .pass-card{background:var(--aez-light-surface)!important;color:var(--aez-light-text)!important;border:1px solid var(--aez-light-border)!important;box-shadow:var(--aez-light-shadow),inset 0 1px rgba(255,255,255,.95)!important;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
+          body.light-mode .enter-btn{background:rgba(255,255,255,.82)!important;color:#1d1d1f!important;border:1px solid var(--aez-light-border)!important;box-shadow:0 8px 24px rgba(30,35,45,.07),inset 0 1px rgba(255,255,255,.95)!important;border-radius:16px!important}
+          body.light-mode .entry-btn-admin{background:rgba(138,106,18,.08)!important;color:#6b510c!important;border-color:rgba(138,106,18,.22)!important}
+          body.light-mode .field input,body.light-mode .field select,body.light-mode .rules-search,body.light-mode .admin-search-input,body.light-mode .admin-search-category{background:rgba(118,118,128,.08)!important;color:#1d1d1f!important;border:1px solid rgba(60,60,67,.16)!important;box-shadow:inset 0 1px 2px rgba(0,0,0,.025)!important}
+          body.light-mode input::placeholder{color:#8e8e93!important}
+          body.light-mode .field label,body.light-mode .page-sub,body.light-mode .tagline,body.light-mode .ash,body.light-mode .ash-dim{color:var(--aez-light-secondary)!important}
+          body.light-mode .topbar{background:rgba(248,248,250,.78)!important;color:var(--aez-light-text)!important;border-bottom:1px solid var(--aez-light-border)!important;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
+          body.light-mode .sidebar{background:rgba(248,248,250,.78)!important;color:var(--aez-light-text)!important;border-right:1px solid var(--aez-light-border)!important;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
+          body.light-mode .bottom-nav{background:rgba(248,248,250,.86)!important;border-top:1px solid var(--aez-light-border)!important;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
+          body.light-mode .nav-item,body.light-mode .bn-item{color:#6e6e73!important}
+          body.light-mode .nav-item.active,body.light-mode .bn-item.active{background:rgba(138,106,18,.10)!important;color:#6b510c!important;border:1px solid rgba(138,106,18,.16)!important}
+          body.light-mode .icon-btn,body.light-mode .avatar-chip,body.light-mode .status-row,.light-mode .sheet-close{background:rgba(118,118,128,.08)!important;color:#1d1d1f!important;border:1px solid var(--aez-light-border)!important}
+          body.light-mode .modal-veil{background:rgba(20,20,24,.25)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+          body.light-mode .sheet{background:rgba(250,250,252,.94)!important;color:#1d1d1f!important;border:1px solid var(--aez-light-border)!important;box-shadow:0 -20px 70px rgba(30,35,45,.16)!important}
+          body.light-mode .pill,body.light-mode .chip,body.light-mode .rtab,body.light-mode .wk-btn{background:rgba(118,118,128,.08)!important;color:#3a3a3c!important;border:1px solid var(--aez-light-border)!important}
+          body.light-mode .admin-btn,body.light-mode .admin-page-btn{border-radius:12px!important}
+          body.light-mode .wordmark{color:#1d1d1f!important;text-shadow:0 18px 50px rgba(30,35,45,.08)!important}
+          body.light-mode .enter-full{background:#1d1d1f!important;color:#fff!important;border-radius:14px!important;box-shadow:0 8px 24px rgba(30,35,45,.16)!important}
+          body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color:#3a3a3c!important;border-radius:14px!important}
+          @media(max-width:600px){body.light-mode .login-card{border-radius:22px!important}body.light-mode .card{border-radius:20px!important}}
+          </style>'''
+          s=s.replace('</head>',css+'\n</head>',1)
+          p.write_text(s,encoding='utf-8')
+
+      - name: Verify and commit
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          assert '<!DOCTYPE html>' in s
+          assert 'SUPABASE_URL' in s
+          assert 'function login()' in s
+          assert 'function submitSignup()' in s
+          assert 'function adminLogin()' in s
+          assert 'aez-ios-lightmode-v2' in s
+          assert len(s.splitlines()) >= 900
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "[aez-lightmode] Redesign light mode with native iOS palette"
+          git push
