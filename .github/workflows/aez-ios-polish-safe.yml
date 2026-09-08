@@ -1,0 +1,227 @@
+name: ÆZ iOS Polish — Safe
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  polish:
+    if: ${{ !contains(github.event.head_commit.message, '[aez-ios-polish]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply safe iOS-style design layer
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Safety checks: never replace or reconstruct the application.
+          required = [
+              '<!DOCTYPE html>',
+              'SUPABASE_URL',
+              'function login()',
+              'function submitSignup()',
+              'function adminLogin()',
+              'function nav(el)',
+              'id="themeToggle"',
+              '</body>',
+              '</html>'
+          ]
+          missing = [x for x in required if x not in s]
+          if missing:
+              raise SystemExit('ABORTED: expected existing app markers are missing: ' + ', '.join(missing))
+          if len(s.splitlines()) < 900:
+              raise SystemExit('ABORTED: index.html is unexpectedly short; refusing to modify it.')
+          if 'id="aez-ios-polish-safe"' in s:
+              print('Already applied; nothing to do.')
+              raise SystemExit(0)
+
+          css = r'''
+          /* =========================================================
+             ÆZ iOS POLISH — visual layer only
+             Does not alter application logic, Supabase, IDs, or flows.
+             ========================================================= */
+          <style id="aez-ios-polish-safe">
+          :root{
+            --ios-radius-xl:28px;
+            --ios-radius-lg:22px;
+            --ios-radius-md:16px;
+            --ios-ease:cubic-bezier(.22,1,.36,1);
+          }
+
+          html{scroll-behavior:smooth;}
+          body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,"Segoe UI",sans-serif;}
+
+          /* Premium glass surfaces */
+          .login-card,.card,.admin-application-card,.admin-detail-card,.admin-detail-empty,.day-col,.title-row,.idcard,.pass-card{
+            border-radius:var(--ios-radius-lg)!important;
+            border-color:rgba(255,255,255,.09)!important;
+            box-shadow:0 14px 50px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.035);
+          }
+          .login-card,.card,.admin-application-card,.admin-detail-card,.admin-detail-empty{
+            background:rgba(22,24,28,.58)!important;
+            backdrop-filter:blur(28px) saturate(135%);
+            -webkit-backdrop-filter:blur(28px) saturate(135%);
+          }
+
+          /* Landing: quieter, more Apple-like hierarchy */
+          #landing{padding-top:64px;}
+          .wordmark{font-weight:650;letter-spacing:-.055em;text-shadow:0 20px 60px rgba(0,0,0,.25);}
+          .wordmark small{font-size:.17em;letter-spacing:.13em;text-transform:uppercase;}
+          .tagline{font-size:15px;color:var(--ash);}
+          .entry-choice-grid{gap:10px;margin-top:48px;}
+          .enter-btn{
+            min-height:58px!important;
+            border-radius:16px!important;
+            border-color:rgba(255,255,255,.12)!important;
+            background:rgba(255,255,255,.055)!important;
+            box-shadow:0 8px 28px rgba(0,0,0,.14),inset 0 1px rgba(255,255,255,.06);
+            backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+          }
+          .enter-btn:hover{transform:translateY(-2px) scale(1.005)!important;}
+          .entry-btn-admin{background:rgba(201,162,39,.075)!important;}
+
+          /* Forms */
+          .field{margin-bottom:18px;}
+          .field label{font-size:11px;font-weight:600;letter-spacing:.045em;text-transform:uppercase;color:var(--ash-dim);}
+          .field input,.field select,.rules-search,.admin-search-input,.admin-search-category{
+            min-height:48px;
+            border-radius:13px!important;
+            border-color:rgba(255,255,255,.10)!important;
+            background:rgba(0,0,0,.22)!important;
+            box-shadow:inset 0 1px rgba(255,255,255,.025);
+          }
+          .field input:focus,.field select:focus,.rules-search:focus,.admin-search-input:focus,.admin-search-category:focus{
+            border-color:rgba(201,162,39,.5)!important;
+            box-shadow:0 0 0 4px rgba(201,162,39,.07),inset 0 1px rgba(255,255,255,.03)!important;
+          }
+          .enter-full{
+            min-height:50px;
+            border-radius:13px!important;
+            box-shadow:0 8px 25px rgba(0,0,0,.18);
+          }
+          .entry-back-btn{border-radius:13px!important;min-height:44px;display:flex;align-items:center;justify-content:center;}
+
+          /* App chrome */
+          .sidebar{width:258px;padding:20px 14px;border-right-color:rgba(255,255,255,.07);}
+          .side-brand{padding:7px 10px 26px;}
+          .side-brand .glyph{border-radius:11px;box-shadow:inset 0 1px rgba(255,255,255,.08);}
+          .nav-item{min-height:42px;border-radius:12px;margin-bottom:4px;}
+          .nav-item.active{box-shadow:inset 0 1px rgba(255,255,255,.035);}
+          .topbar{
+            height:68px;padding:0 30px;
+            background:rgba(9,10,12,.68)!important;
+            border-bottom-color:rgba(255,255,255,.07);
+            backdrop-filter:blur(28px) saturate(135%);
+            -webkit-backdrop-filter:blur(28px) saturate(135%);
+          }
+          .icon-btn{width:38px;height:38px;border-radius:12px;}
+          .avatar-chip{min-height:38px;padding-right:13px;border-radius:13px;}
+          .avatar-chip .av{width:28px;height:28px;}
+          .content{padding:30px;}
+          .page-head{margin-bottom:26px;}
+          .page-head h1{font-size:28px;font-weight:650;letter-spacing:-.025em;}
+          .page-head .page-sub{font-size:12.5px;}
+
+          /* Cards and controls */
+          .card{padding:23px;}
+          .card.clickable{transition:transform .28s var(--ios-ease),border-color .28s ease,box-shadow .28s ease;}
+          .card.clickable:hover{transform:translateY(-3px);box-shadow:0 20px 55px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.04);}
+          .pill,.chip,.rtab,.wk-btn{border-radius:999px!important;}
+          .chip,.rtab,.wk-btn{min-height:38px;padding:9px 15px;}
+          .list-row{min-height:62px;}
+          .list-icon{width:38px;height:38px;border-radius:11px;}
+
+          /* Sheets / modals feel like native iOS sheets */
+          .modal-veil{background:rgba(2,3,5,.52);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+          .sheet{border-radius:28px 28px 0 0!important;background:rgba(18,20,24,.91)!important;box-shadow:0 -20px 70px rgba(0,0,0,.3);}
+          .sheet-handle{width:38px;height:5px;border-radius:99px;}
+          .sheet-close{border-radius:12px;width:34px;height:34px;}
+
+          /* Admin workspace */
+          .admin-roster-panel{border-radius:22px!important;}
+          .admin-roster-item{border-radius:14px;min-height:62px;}
+          .admin-detail-photo{border-radius:18px;}
+          .admin-btn,.admin-page-btn{border-radius:12px!important;min-height:42px;}
+
+          /* Mobile: native-app spacing and touch targets */
+          @media(max-width:960px){
+            .content{padding:18px 15px 94px;}
+            .topbar{padding:0 15px;height:62px;}
+            .top-right{gap:8px;}
+            .icon-btn{width:40px;height:40px;}
+            .avatar-chip{padding-right:9px;}
+            .bottom-nav{height:78px;padding:7px 7px 11px;background:rgba(12,14,17,.86);backdrop-filter:blur(28px) saturate(140%);-webkit-backdrop-filter:blur(28px) saturate(140%);}
+            .bn-item{flex-basis:70px;min-width:70px;height:58px;border-radius:14px;}
+            .bn-item.active{box-shadow:inset 0 1px rgba(255,255,255,.04);}
+            .page-head h1{font-size:24px;}
+            .card{padding:18px;border-radius:20px!important;}
+          }
+          @media(max-width:600px){
+            #landing{padding:44px 16px 76px;}
+            .wordmark{font-size:clamp(70px,25vw,112px);}
+            .tagline{margin-top:22px;font-size:14px;}
+            .entry-choice-grid{margin-top:40px;width:100%;}
+            .landing-foot{gap:12px;font-size:8px;letter-spacing:.08em;flex-wrap:wrap;padding:0 14px;}
+            .login-card{padding:28px 20px!important;border-radius:22px!important;}
+            #login,#signup,#adminLogin{padding:16px;}
+            .status-row{border-radius:14px;}
+          }
+
+          /* Light mode gets its own glass language instead of inversion */
+          body.light-mode .login-card,body.light-mode .card,body.light-mode .admin-application-card,body.light-mode .admin-detail-card,body.light-mode .admin-detail-empty{
+            background:rgba(255,255,255,.72)!important;
+            border-color:rgba(20,22,26,.09)!important;
+            box-shadow:0 18px 55px rgba(20,25,35,.08),inset 0 1px rgba(255,255,255,.8);
+          }
+          body.light-mode .enter-btn{background:rgba(255,255,255,.72)!important;border-color:rgba(20,22,26,.10)!important;box-shadow:0 10px 30px rgba(20,25,35,.07);}
+          body.light-mode .field input,body.light-mode .field select,body.light-mode .rules-search,body.light-mode .admin-search-input,body.light-mode .admin-search-category{background:rgba(20,22,26,.035)!important;border-color:rgba(20,22,26,.10)!important;}
+          body.light-mode .topbar{background:rgba(248,249,251,.78)!important;border-color:rgba(20,22,26,.08);}
+          body.light-mode .sidebar{background:rgba(248,249,251,.78);border-color:rgba(20,22,26,.08);}
+          body.light-mode .bottom-nav{background:rgba(248,249,251,.82);border-color:rgba(20,22,26,.08);}
+          body.light-mode .nav-item.active{background:rgba(154,119,16,.10);border-color:rgba(154,119,16,.22);}
+
+          /* Theme toggle itself becomes more native */
+          #themeToggle{width:68px!important;height:36px!important;border-radius:999px!important;box-shadow:0 10px 30px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.08)!important;}
+          #themeToggle .theme-knob{box-shadow:0 3px 9px rgba(0,0,0,.28)!important;}
+          @media(max-width:650px){#themeToggle{width:64px!important;height:34px!important;}}
+          </style>
+          '''
+
+          marker = '</head>'
+          s = s.replace(marker, css + '\n' + marker, 1)
+          p.write_text(s, encoding='utf-8')
+          print('Applied safe iOS visual layer to existing index.html; application logic was not rewritten.')
+
+      - name: Verify file integrity
+        shell: python
+        run: |
+          from pathlib import Path
+          s = Path('index.html').read_text(encoding='utf-8')
+          checks = ['<!DOCTYPE html>', 'SUPABASE_URL', 'function login()', 'function submitSignup()', 'function adminLogin()', 'function nav(el)', 'id="themeToggle"', 'id="aez-ios-polish-safe"', '</body>', '</html>']
+          for x in checks:
+              assert x in s, f'Missing integrity marker: {x}'
+          assert len(s.splitlines()) >= 900, 'index.html unexpectedly shortened'
+          print('Integrity verification passed. Lines:', len(s.splitlines()))
+
+      - name: Commit design layer
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "[aez-ios-polish] Apply safe iOS-style visual layer"
+          git push
