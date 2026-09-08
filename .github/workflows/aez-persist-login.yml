@@ -1,0 +1,143 @@
+name: ÆZ Persist Login
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  persist-login:
+    if: ${{ !contains(github.event.head_commit.message, '[aez-persist-login]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch session restoration
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          start = text.find('async function restoreSupabaseSession(){')
+          end_marker = "var ADMIN_GANGS=['NUDE Gang','DD Gang','SEBI Gang','STESI Gang','BBM Gang','SARAH Gang'];"
+          end = text.find(end_marker, start)
+
+          if start < 0 or end < 0:
+              raise SystemExit('Could not locate the Supabase session restoration block.')
+
+          new_block = r'''async function restoreSupabaseSession(){
+  /* Restore an existing Supabase session on refresh instead of forcing the
+     member back through the landing/login screen. The dashboard is shown
+     only after the session is confirmed and the profile is approved. */
+  if(!supabaseReady){
+    document.body.classList.remove('authenticated');
+    currentAgent=null;
+    currentProfile=null;
+    showScreen('landing');
+    return;
+  }
+
+  var sessionResult=await supabaseClient.auth.getSession();
+  var session=sessionResult.data && sessionResult.data.session;
+
+  if(!session || !session.user){
+    document.body.classList.remove('authenticated');
+    currentAgent=null;
+    currentProfile=null;
+    arenaEntryMode='member';
+    showScreen('landing');
+    return;
+  }
+
+  var profileResult=await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id',session.user.id)
+    .single();
+
+  if(profileResult.error || !profileResult.data){
+    await supabaseClient.auth.signOut();
+    document.body.classList.remove('authenticated');
+    currentAgent=null;
+    currentProfile=null;
+    showScreen('login');
+    return;
+  }
+
+  var profile=profileResult.data;
+  if(profile.status!=='approved'){
+    await supabaseClient.auth.signOut();
+    document.body.classList.remove('authenticated');
+    currentAgent=null;
+    currentProfile=null;
+    showScreen('login');
+    return;
+  }
+
+  currentProfile=profile;
+  currentAgent=profileToAgent(profile);
+  applyAgentToUI(currentAgent);
+  removeAuthScreensAndShowApp();
+  nav(document.querySelector('.nav-item[data-view="dashboard"]'));
+  animateCounters();
+}
+
+/* React to real auth changes after the initial session has been restored.
+   Refreshes are handled by restoreSupabaseSession() above. */
+if(supabaseReady){
+  supabaseClient.auth.onAuthStateChange(function(event, session){
+    if(event==='SIGNED_OUT' || !session){
+      document.body.classList.remove('authenticated');
+      currentAgent=null;
+      currentProfile=null;
+      if(aezLoggingOut){ return; }
+      showScreen('landing');
+      return;
+    }
+
+    if(event==='TOKEN_REFRESHED' && session && session.user && currentProfile){
+      return;
+    }
+  });
+}
+
+'''
+
+          updated = text[:start] + new_block + text[end:]
+
+          if 'getSession()' not in updated or 'async function restoreSupabaseSession()' not in updated:
+              raise SystemExit('Session restoration patch verification failed.')
+
+          path.write_text(updated, encoding='utf-8')
+          print('Persistent login patch applied.')
+          PY
+
+      - name: Verify
+        shell: bash
+        run: |
+          grep -q "async function restoreSupabaseSession()" index.html
+          grep -q "supabaseClient.auth.getSession()" index.html
+          grep -q "event==='SIGNED_OUT'" index.html
+          grep -q "profile.status!=='approved'" index.html
+          echo "ÆZ persistent login verification passed."
+
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "[aez-persist-login] Restore approved session on refresh"
+          git push
