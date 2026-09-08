@@ -1,0 +1,73 @@
+name: ÆZ Arena PWA Setup
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install-pwa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add PWA metadata and registration
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          marker = '<!-- AEZ PWA INSTALLED -->'
+          if marker not in text:
+              head_patch = '''<!-- AEZ PWA INSTALLED -->
+          <link rel="manifest" href="./manifest.json">
+          <meta name="theme-color" content="#0A0A0B">
+          <meta name="mobile-web-app-capable" content="yes">
+          <meta name="apple-mobile-web-app-capable" content="yes">
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+          <meta name="apple-mobile-web-app-title" content="ÆZ Arena">
+          <link rel="apple-touch-icon" href="./icon-192.svg">
+          '''
+
+              title = '<title>ÆZ Arena — Beyond the source code.</title>'
+              if title not in text:
+                  raise SystemExit('Expected ÆZ title was not found; refusing to modify index.html.')
+              text = text.replace(title, title + '\n' + head_patch, 1)
+
+              body_patch = '''
+          <script id="aez-pwa-registration">
+          (function(){
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function(){
+                navigator.serviceWorker.register('./sw.js', {scope:'./'})
+                  .catch(function(err){ console.warn('ÆZ PWA service worker registration failed:', err); });
+              });
+            }
+          })();
+          </script>
+          '''
+              if '</body>' not in text:
+                  raise SystemExit('Expected closing body tag was not found; refusing to modify index.html.')
+              text = text.replace('</body>', body_patch + '\n</body>', 1)
+              path.write_text(text, encoding='utf-8')
+          else:
+              print('PWA metadata already installed; no changes needed.')
+
+      - name: Commit PWA integration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html manifest.json sw.js icon-192.svg icon-512.svg
+          if git diff --cached --quiet; then
+            echo "No PWA changes to commit."
+          else
+            git commit -m "Add installable ÆZ Arena PWA"
+            git push
+          fi
