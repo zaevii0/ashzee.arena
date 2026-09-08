@@ -51,6 +51,17 @@ button{font-family:inherit;cursor:pointer;}
 #app{display:none !important;}
 body.authenticated #app{display:flex !important;}
 
+/* Public/auth entry screens must never show the app navigation.
+   Home, Activity, Intel, Ranks, and Profile appear only after an
+   approved login has placed the document into the authenticated state. */
+body:not(.authenticated) .sidebar,
+body:not(.authenticated) .bottom-nav{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+
 /* ============ LANDING ============ */
 #landing{
   position:relative;
@@ -838,7 +849,7 @@ body.authenticated #app{display:flex !important;}
       <div class="login-error" id="signupError" style="display:none"></div>
       <button class="enter-full" onclick="submitSignup()">Submit for Verification</button>
       <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
-      <div class="login-switch"><a href="javascript:void(0)" onclick="closeRegistration(); goToMemberSecureAccess(); return false;">Back to Æ Secure Access</a></div>
+      <button type="button" class="entry-back-btn" onclick="closeRegistration(); goToMemberSecureAccess(); return false;">Back to ÆZ Secure Access</button>
       <div class="login-note">Your gang reviews new registrations against the ID and Facebook profile submitted here.</div>
     </div>
 
@@ -1574,43 +1585,58 @@ function goToMemberSecureAccess(){
   window.aezRegistrationOpen=false;
   arenaEntryMode='member';
   sessionStorage.setItem('aez_arena_entered','1');
+
   document.querySelectorAll('.screen').forEach(function(screen){
     screen.classList.remove('active');
     screen.style.setProperty('display','none','important');
     screen.setAttribute('aria-hidden','true');
   });
+
   var login=document.getElementById('login');
   if(login){
     login.classList.add('active');
     login.style.setProperty('display','flex','important');
     login.setAttribute('aria-hidden','false');
   }
+
   var admin=document.getElementById('adminLogin');
   if(admin){
     admin.classList.remove('active');
     admin.style.setProperty('display','none','important');
     admin.setAttribute('aria-hidden','true');
   }
+
   var signup=document.getElementById('signup');
   if(signup){
     signup.classList.remove('active');
     signup.style.setProperty('display','none','important');
     signup.setAttribute('aria-hidden','true');
   }
+
   var title=document.querySelector('#login .login-head .glyph');
   var sub=document.querySelector('#login .login-head .sub');
   var btn=document.getElementById('loginSubmitBtn');
   var note=document.querySelector('#login .login-note');
-  var gangField=document.getElementById('fieldGang');
-  var codenameField=document.getElementById('fieldCodename');
+  var switcher=document.querySelector('#login .login-switch');
+
   if(title) title.textContent='ÆZ SECURE ACCESS';
   if(sub) sub.textContent='IDENTIFY YOURSELF TO PROCEED';
   if(btn) btn.textContent='Enter the Arena';
   if(note) note.textContent='Unauthorized access is logged and reported to Division Command. Approved accounts only.';
+  if(switcher) switcher.innerHTML='';
+
+  var gangField=document.getElementById('fieldGang');
+  var codenameField=document.getElementById('fieldCodename');
+  var gangSelect=document.getElementById('gangSelect');
+  var codenameInput=document.getElementById('codenameInput');
   if(gangField) gangField.style.display='';
   if(codenameField) codenameField.style.display='';
+  if(gangSelect) gangSelect.disabled=false;
+  if(codenameInput) codenameInput.disabled=false;
+
+  hideLoginError();
   var email=document.getElementById('emailInput');
-  if(email) setTimeout(function(){email.focus();},50);
+  if(email) setTimeout(function(){ email.focus(); },50);
 }
 
 function backToEntryFromRegistration(){
