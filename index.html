@@ -892,6 +892,45 @@ body.admin-capable .bn-item.admin-mobile{display:flex;}
   .activity-log-time{text-align:left;}
 }
 
+
+/* Date entry: easy manual typing + calendar picker */
+.date-entry-wrap{
+  position:relative;
+  display:flex;
+  width:100%;
+}
+.date-entry-wrap > input[type="text"]{
+  width:100%;
+  padding-right:48px;
+}
+.date-calendar-btn{
+  position:absolute;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  width:38px;
+  height:34px;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:var(--ash,#d8d8d8);
+  cursor:pointer;
+  font-size:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.date-calendar-btn:hover{
+  background:rgba(255,255,255,.08);
+}
+.hidden-date-picker{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  overflow:hidden !important;
+}
 </style>
 </head>
 <body>
@@ -1052,7 +1091,13 @@ body.admin-capable .bn-item.admin-mobile{display:flex;}
       </div>
       <div class="field" id="suFieldJoined">
         <label>Date joined the gang</label>
-        <input type="date" id="suJoinedInput" onchange="clearFieldError('suFieldJoined')">
+        <div class="date-entry-wrap">
+          <input type="text" id="suJoinedInput" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday"
+                 maxlength="10" onclick="openDatePicker('suJoinedInput')" oninput="formatDateEntry(this);clearFieldError('suFieldJoined')">
+          <button type="button" class="date-calendar-btn" aria-label="Choose date" onclick="openDatePicker('suJoinedInput')">📅</button>
+          <input type="date" id="suJoinedPicker" class="hidden-date-picker"
+                 onchange="syncDatePicker('suJoinedPicker','suJoinedInput');clearFieldError('suFieldJoined')">
+        </div>
       </div>
       <div class="field" id="suFieldPassword">
         <label>Password</label>
@@ -1496,7 +1541,13 @@ body.admin-capable .bn-item.admin-mobile{display:flex;}
             </div>
             <div class="field">
               <label>Date joined the gang</label>
-              <input id="editJoinedInput" type="date">
+              <div class="date-entry-wrap">
+          <input id="editJoinedInput" type="text" placeholder="MM/DD/YYYY" inputmode="numeric" autocomplete="bday"
+                 maxlength="10" onclick="openDatePicker('editJoinedInput')" oninput="formatDateEntry(this)">
+          <button type="button" class="date-calendar-btn" aria-label="Choose date" onclick="openDatePicker('editJoinedInput')">📅</button>
+          <input type="date" id="editJoinedPicker" class="hidden-date-picker"
+                 onchange="syncDatePicker('editJoinedPicker','editJoinedInput')">
+        </div>
             </div>
             <div class="field">
               <label>ID picture <span style="color:var(--ash-dim)">(optional replacement)</span></label>
@@ -2243,7 +2294,7 @@ function openProfileEdit(){
   document.getElementById('editPositionInput').value=currentProfile.position||'Member';
   document.getElementById('editCodenameInput').value=currentProfile.codename||'';
   document.getElementById('editFacebookInput').value=currentProfile.facebook_uid||'';
-  document.getElementById('editJoinedInput').value=currentProfile.joined_date||'';
+  document.getElementById('editJoinedInput').value=isoToDateText(currentProfile.joined_date||'');
   profileEditPhotoFile=null;
   var preview=document.getElementById('editProfilePhotoPreview');
   if(preview) preview.src=document.getElementById('idCardPhoto').src||'';
@@ -2259,6 +2310,60 @@ function handleProfileEditPhoto(input){
   var reader=new FileReader(); reader.onload=function(){var img=document.getElementById('editProfilePhotoPreview');if(img)img.src=reader.result;}; reader.readAsDataURL(file);
 }
 function showProfileEditError(msg){var el=document.getElementById('profileEditError');if(el){el.textContent=msg;el.style.display='flex';}}
+
+function formatDateEntry(input){
+  var digits=(input.value||'').replace(/\D/g,'').slice(0,8);
+  var out='';
+  if(digits.length<=2) out=digits;
+  else if(digits.length<=4) out=digits.slice(0,2)+'/'+digits.slice(2);
+  else out=digits.slice(0,2)+'/'+digits.slice(2,4)+'/'+digits.slice(4);
+  input.value=out;
+}
+
+function dateTextToIso(value){
+  var m=(value||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if(!m) return '';
+  var mm=Number(m[1]), dd=Number(m[2]), yy=Number(m[3]);
+  var d=new Date(yy,mm-1,dd);
+  if(d.getFullYear()!==yy || d.getMonth()!==mm-1 || d.getDate()!==dd) return '';
+  return yy+'-'+String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+}
+
+function isoToDateText(value){
+  var m=(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? m[2]+'/'+m[3]+'/'+m[1] : '';
+}
+
+function openDatePicker(textId){
+  var pickerId=textId==='suJoinedInput'?'suJoinedPicker':'editJoinedPicker';
+  var textInput=document.getElementById(textId);
+  var picker=document.getElementById(pickerId);
+  if(!picker) return;
+
+  var iso=dateTextToIso(textInput.value);
+  if(iso) picker.value=iso;
+
+  try{
+    if(typeof picker.showPicker==='function'){
+      picker.showPicker();
+    }else{
+      picker.focus();
+      picker.click();
+    }
+  }catch(e){
+    picker.focus();
+    picker.click();
+  }
+}
+
+function syncDatePicker(pickerId,textId){
+  var picker=document.getElementById(pickerId);
+  var textInput=document.getElementById(textId);
+  if(picker && textInput && picker.value){
+    textInput.value=isoToDateText(picker.value);
+  }
+}
+
 async function submitProfileEditRequest(){
   if(!supabaseReady || !currentProfile || !currentProfile.id){
     showProfileEditError('Your approved session could not be verified.');
@@ -2281,7 +2386,7 @@ async function submitProfileEditRequest(){
       position:document.getElementById('editPositionInput').value,
       codename:document.getElementById('editCodenameInput').value.trim(),
       facebook_uid:document.getElementById('editFacebookInput').value.trim(),
-      joined_date:document.getElementById('editJoinedInput').value
+      joined_date:dateTextToIso(document.getElementById('editJoinedInput').value)
     };
 
     if(!requested.gang||!requested.position||!requested.codename||!requested.facebook_uid||!requested.joined_date){
@@ -2437,7 +2542,7 @@ async function submitSignup(){
   var position=document.getElementById('suPositionSelect').value;
   var codename=document.getElementById('suCodenameInput').value.trim();
   var fbUid=document.getElementById('suFbInput').value.trim();
-  var joined=document.getElementById('suJoinedInput').value;
+  var joined=dateTextToIso(document.getElementById('suJoinedInput').value);
   var pw=document.getElementById('suPasswordInput').value;
   var file=document.getElementById('suIdFile').files[0];
   var missing=[];
