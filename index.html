@@ -51,6 +51,28 @@ button{font-family:inherit;cursor:pointer;}
 #app{display:none !important;}
 body.authenticated #app{display:flex !important;}
 
+/* Admin Review is a true standalone page. When opened, the normal Arena app
+   is completely hidden and only the Admin Review workspace is rendered. */
+body.admin-review-mode #app{
+  display:none !important;
+}
+body.admin-review-mode #view-admin{
+  display:block !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:999 !important;
+  width:100vw !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding:34px !important;
+  background:var(--void) !important;
+}
+body.admin-review-mode #view-admin .admin-review-shell{
+  width:100% !important;
+}
+
 /* Public/auth entry screens must never show the app navigation.
    Home, Activity, Intel, Ranks, and Profile appear only after an
    approved login has placed the document into the authenticated state. */
@@ -421,73 +443,200 @@ body:not(.authenticated) .bottom-nav{
 .admin-btn.approve{border-color:rgba(100,220,170,.35);color:var(--blue);}
 .admin-btn.reject{border-color:rgba(220,100,100,.35);color:var(--danger);}
 .admin-photo{width:42px;height:42px;border-radius:8px;object-fit:cover;border:1px solid var(--hair-strong);background:var(--graphite);}
-/* Admin Review — command layout with registrants kept on the side */
+/* Admin Review — desktop command layout: roster on the left, selected
+   member information permanently in the RIGHT content area. Never stack
+   the detail panel underneath on desktop-sized screens. */
+#view-admin{
+  width:100%;
+  min-width:0;
+}
 .admin-review-shell{
-  display:grid;
-  grid-template-columns:360px minmax(0,1fr);
-  gap:16px;
+  display:grid !important;
+  grid-template-columns:320px minmax(0,1fr) !important;
+  gap:18px;
   align-items:start;
+  width:100%;
+  min-width:0;
 }
 .admin-roster-panel{
+  grid-column:1;
+  grid-row:1;
   position:sticky;
   top:88px;
   max-height:calc(100vh - 120px);
   overflow-y:auto;
   padding:18px;
+  min-width:0;
 }
-.admin-roster-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:14px;
-}
-.admin-roster-head .title{
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:.08em;
-}
-.admin-roster-item{
+.admin-command-panel{
+  grid-column:2;
+  grid-row:1;
+  min-width:0;
   width:100%;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:11px;
-  margin-bottom:8px;
-  border-radius:11px;
-  border:1px solid var(--hair);
-  background:rgba(232,233,235,.025);
 }
-.admin-roster-item:last-child{margin-bottom:0;}
-.admin-roster-avatar{
-  width:36px;height:36px;border-radius:10px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(145deg,#3A3D44,#1A1C20);
-  border:1px solid var(--hair-strong);
-  font-size:11px;font-weight:700;
+.admin-roster-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
+.admin-roster-head .title{font-size:12px;font-weight:600;letter-spacing:.08em;}
+.admin-filter-row{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 9px;}
+.admin-filter-btn{appearance:none;border:1px solid var(--hair);background:rgba(232,233,235,.025);color:var(--ash-dim);border-radius:999px;padding:7px 10px;font:inherit;font-size:10px;letter-spacing:.04em;cursor:pointer;transition:.2s;}
+.admin-filter-btn:hover{background:rgba(232,233,235,.06);color:var(--bone);border-color:var(--hair-strong);}
+.admin-filter-btn.active{background:rgba(232,233,235,.085);color:var(--bone);border-color:var(--hair-strong);}
+.admin-filter-status{padding-bottom:4px;border-bottom:1px solid var(--hair);margin-bottom:12px;}
+.admin-search-row{display:flex;gap:8px;align-items:center;margin:0 0 12px;}
+.admin-search-wrap{position:relative;flex:1;min-width:0;}
+.admin-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--ash-dim);pointer-events:none;}
+.admin-search-input{width:100%;padding:10px 12px 10px 33px;border-radius:10px;border:1px solid var(--hair);background:rgba(0,0,0,.22);color:var(--bone);font:inherit;font-size:11.5px;}
+.admin-search-input::placeholder{color:var(--ash-dim);}
+.admin-search-input:focus{outline:none;border-color:var(--hair-strong);background:rgba(0,0,0,.32);}
+.admin-search-category{width:145px;flex:0 0 145px;padding:10px 30px 10px 11px;border-radius:10px;border:1px solid var(--hair);background:rgba(0,0,0,.22);color:var(--ash);font:inherit;font-size:10.5px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A8F98' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px;}
+.admin-search-category:focus{outline:none;border-color:var(--hair-strong);}
+@media(max-width:520px){.admin-search-row{flex-direction:column;align-items:stretch}.admin-search-category{width:100%;flex-basis:auto}}
+.admin-gang-section{margin-bottom:16px;}
+.admin-gang-section:last-child{margin-bottom:0;}
+.admin-gang-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 8px;}
+.admin-gang-heading .name{font-size:11px;font-weight:700;letter-spacing:.08em;}
+.admin-gang-heading .count{font-size:10px;color:var(--ash-dim);}
+.admin-member-list{display:flex;flex-direction:column;gap:7px;}
+.admin-roster-item{
+  width:100%;display:flex;align-items:center;gap:10px;padding:10px;
+  border-radius:11px;border:1px solid var(--hair);background:rgba(232,233,235,.025);
+  color:inherit;text-align:left;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;
 }
-.admin-roster-copy{min-width:0;flex:1;text-align:left;}
-.admin-roster-copy strong{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.admin-roster-copy .sub{font-size:10.5px;color:var(--ash-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.admin-roster-copy .gang{font-size:10px;color:var(--gold);margin-top:3px;}
+.admin-roster-item:hover{background:rgba(232,233,235,.055);border-color:var(--hair-strong);transform:translateY(-1px);}
+.admin-roster-item.active{background:rgba(232,233,235,.075);border-color:var(--hair-strong);box-shadow:0 0 0 1px rgba(232,233,235,.025) inset;}
+.admin-roster-avatar{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#3A3D44,#1A1C20);border:1px solid var(--hair-strong);font-size:11px;font-weight:700;overflow:hidden;}
+.admin-roster-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.admin-roster-copy{min-width:0;flex:1;}
+.admin-roster-copy strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-roster-copy .sub{font-size:10px;color:var(--ash-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-roster-copy .gang{font-size:9.5px;color:var(--gold);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-roster-status{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:999px;border:1px solid var(--hair);white-space:nowrap;}
+.admin-roster-status.pending{color:var(--gold);border-color:rgba(214,180,100,.28);background:rgba(214,180,100,.07);}
+.admin-roster-status.approved{color:var(--blue);border-color:rgba(100,220,170,.28);background:rgba(100,220,170,.055);}
+.admin-roster-status.rejected{color:var(--danger);border-color:rgba(220,100,100,.28);background:rgba(220,100,100,.055);}
 .admin-command-panel{min-width:0;}
-.admin-empty-card{
-  min-height:240px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
+.admin-detail-card{padding:22px;min-height:420px;}
+.admin-detail-empty{min-height:420px;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;}
+.admin-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--hair);}
+.admin-detail-identity{display:flex;align-items:center;gap:14px;min-width:0;}
+.admin-detail-photo{width:76px;height:76px;border-radius:16px;object-fit:cover;background:var(--graphite);border:1px solid var(--hair-strong);display:flex;align-items:center;justify-content:center;color:var(--ash-dim);font-size:17px;font-weight:700;overflow:hidden;flex-shrink:0;}
+.admin-detail-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.admin-detail-name{font-size:21px;font-weight:650;line-height:1.2;}
+.admin-detail-email{font-size:11px;color:var(--ash-dim);margin-top:5px;word-break:break-word;}
+.admin-detail-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+.admin-detail-meta .mini{font-size:9px;padding:5px 7px;border:1px solid var(--hair);border-radius:999px;color:var(--ash-dim);background:rgba(232,233,235,.025);}
+.admin-status-badge{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:6px 8px;border-radius:999px;border:1px solid var(--hair);white-space:nowrap;}
+.admin-status-pending{color:var(--gold);border-color:rgba(214,180,100,.28);background:rgba(214,180,100,.07);}
+.admin-status-approved{color:var(--blue);border-color:rgba(100,220,170,.28);background:rgba(100,220,170,.055);}
+.admin-status-rejected{color:var(--danger);border-color:rgba(220,100,100,.28);background:rgba(220,100,100,.055);}
+.admin-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px;}
+.admin-member-field{padding:11px 12px;border:1px solid var(--hair);border-radius:10px;background:rgba(0,0,0,.06);min-width:0;}
+.admin-member-field .label{font-size:9px;color:var(--ash-dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+.admin-member-field .value{font-size:12px;color:var(--bone);line-height:1.45;word-break:break-word;}
+.admin-member-field.full{grid-column:1/-1;}
+.admin-member-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.admin-member-actions .admin-btn{flex:0 1 180px;}
+.admin-btn{border:1px solid var(--hair-strong);background:rgba(232,233,235,.04);color:var(--bone);border-radius:9px;padding:10px 12px;font-size:11px;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;}
+.admin-btn:hover{background:rgba(232,233,235,.08);transform:translateY(-1px);}
+.admin-btn.approve{border-color:rgba(100,220,170,.35);color:var(--blue);}
+.admin-btn.reject{border-color:rgba(220,100,100,.35);color:var(--danger);}
+.admin-readonly-note{font-size:9.5px;color:var(--ash-dim);margin-top:13px;line-height:1.5;padding-top:12px;border-top:1px solid var(--hair);}
+
+/* Dedicated Admin Review page controls. The Admin Review is its own view;
+   clicking it hides all other view content, and this control returns directly
+   to the main dashboard view. */
+.admin-review-page-head{align-items:center;}
+.admin-review-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.admin-page-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  appearance:none;border:1px solid var(--hair-strong);background:rgba(232,233,235,.04);
+  color:var(--ash);border-radius:10px;padding:10px 14px;font:inherit;font-size:11px;
+  letter-spacing:.02em;cursor:pointer;transition:background .2s,border-color .2s,color .2s,transform .2s;
 }
-.admin-application-card{grid-column:span 12;}
-@media(max-width:1000px){
-  .admin-review-shell{grid-template-columns:1fr;}
-  .admin-roster-panel{position:static;max-height:none;}
-  .admin-command-panel{order:2;}
-}
+.admin-page-btn:hover{background:rgba(232,233,235,.08);color:var(--bone);border-color:var(--hair-strong);transform:translateY(-1px);}
+.admin-page-btn.primary{background:rgba(201,162,39,.10);border-color:rgba(201,162,39,.32);color:var(--bone);}
+.admin-page-btn.primary:hover{background:rgba(201,162,39,.16);border-color:rgba(201,162,39,.45);}
 @media(max-width:600px){
-  .admin-details{grid-template-columns:1fr;}
-  .admin-application-top{flex-direction:column;}
-  .admin-pending{align-self:flex-start;}
+  .admin-review-page-head{align-items:flex-start;}
+  .admin-review-head-actions{width:100%;}
+  .admin-page-btn{flex:1;}
+}
+
+@media(max-width:780px){
+  /* Mobile Admin Review: use a true single-column mobile workspace so every
+     control remains readable and tappable. Selecting a member swaps the list
+     for the full record instead of forcing an oversized desktop canvas. */
+  body.admin-review-mode #view-admin{
+    padding:18px 14px 28px !important;
+    overflow-x:hidden !important;
+  }
+  body.admin-review-mode #view-admin .page-head{
+    position:sticky;top:0;z-index:5;
+    padding:10px 0 14px;
+    margin:0 0 14px;
+    background:linear-gradient(180deg,var(--void) 78%,rgba(10,10,11,0));
+  }
+  .admin-review-shell{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+    min-width:0 !important;
+  }
+  .admin-roster-panel{
+    position:static !important;
+    max-height:none !important;
+    width:100% !important;
+    padding:14px !important;
+    overflow:visible !important;
+  }
+  .admin-command-panel{
+    width:100% !important;
+    grid-column:auto !important;
+    grid-row:auto !important;
+  }
+  .admin-search-row{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:8px !important;
+  }
+  .admin-search-category{
+    width:100% !important;
+    flex:0 0 auto !important;
+  }
+  .admin-roster-item{
+    min-height:58px;
+    padding:10px 9px;
+  }
+  .admin-roster-status{font-size:7.5px;padding:5px 6px;}
+  .admin-detail-card,.admin-detail-empty{
+    min-height:0 !important;
+    padding:16px !important;
+  }
+  .admin-detail-head{
+    flex-direction:column !important;
+    align-items:stretch !important;
+  }
+  .admin-detail-identity{align-items:flex-start;}
+  .admin-detail-name{font-size:18px;}
+  .admin-detail-grid{grid-template-columns:1fr !important;}
+  .admin-member-actions{
+    flex-direction:column !important;
+  }
+  .admin-member-actions .admin-btn{
+    flex:1 1 auto !important;
+    width:100%;
+  }
+}
+
+/* On phones, keep only the roster visible initially. Tapping a member opens
+   the complete record as the mobile detail page; the back button returns to
+   the roster list. */
+@media(max-width:600px){
+  body.admin-review-mode #adminSelectedMemberPanel{display:none;}
+  body.admin-review-mode.admin-member-selected #adminSelectedMemberPanel{display:block;}
+  body.admin-review-mode.admin-member-selected #adminRosterPanel{}
+  .admin-mobile-back{display:none;}
+  body.admin-review-mode.admin-member-selected .admin-mobile-back{display:inline-flex;}
 }
 
 .welcome-card{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
@@ -644,10 +793,23 @@ body:not(.authenticated) .bottom-nav{
 .pass-desc{font-size:12px;color:var(--ash-dim);margin-top:3px;}
 
 /* bottom nav (mobile) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:74px;background:rgba(12,14,17,0.85);backdrop-filter:blur(24px);border-top:1px solid var(--hair);z-index:50;align-items:center;justify-content:space-around;padding-bottom:10px;}
-.bn-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ash-dim);font-size:9.5px;flex:1;}
+.bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;height:74px;
+  background:rgba(12,14,17,0.88);backdrop-filter:blur(24px);
+  border-top:1px solid var(--hair);z-index:50;align-items:center;
+  justify-content:flex-start;gap:2px;padding:6px 8px 10px;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.bottom-nav::-webkit-scrollbar{display:none;}
+.bn-item{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;color:var(--ash-dim);font-size:9.5px;flex:0 0 68px;min-width:68px;
+  height:56px;border-radius:10px;padding:5px 4px;
+}
 .bn-item svg{width:20px;height:20px;}
-.bn-item.active{color:var(--bone);}
+.bn-item.active{color:var(--bone);background:rgba(232,233,235,0.055);}
+.bn-item.admin-mobile{display:none;}
+body.admin-capable .bn-item.admin-mobile{display:flex;}
 
 @media (max-width:960px){
   .sidebar{display:none;}
@@ -815,6 +977,18 @@ body:not(.authenticated) .bottom-nav{
           <option value="BBM Gang">BBM Gang</option>
           <option value="SARAH Gang">SARAH Gang</option>
 </select>
+      </div>
+      <div class="field" id="suFieldPosition">
+        <label>Position</label>
+        <select id="suPositionSelect" onchange="clearFieldError('suFieldPosition')">
+          <option value="" disabled selected>Select your position</option>
+          <option value="Leader">Leader</option>
+          <option value="Co-leader">Co-leader</option>
+          <option value="Secretary">Secretary</option>
+          <option value="Warrior">Warrior</option>
+          <option value="Editor">Editor</option>
+          <option value="Member">Member</option>
+        </select>
       </div>
       <div class="field" id="suFieldCodename">
         <label>Codename</label>
@@ -1263,34 +1437,55 @@ body:not(.authenticated) .bottom-nav{
   </div>
 </div>
 
-<!-- ADMIN REVIEW -->
-<div class="view" id="view-admin">
-  <div class="page-head">
-    <div><h1>Admin Review</h1><div class="page-sub">Review and approve new ÆZ registrations.</div></div>
-    <button class="enter-full" style="width:auto;padding:10px 16px;margin:0" onclick="loadAdminApplications()">Refresh</button>
+<!-- ADMIN REVIEW (standalone page; hidden until Admin Review is opened) -->
+<div class="view" id="view-admin" style="display:none">
+  <div class="page-head admin-review-page-head">
+    <div>
+      <h1>Admin Review</h1>
+      <div class="page-sub">Review and approve new ÆZ registrations.</div>
+    </div>
+    <div class="admin-review-head-actions">
+      <button type="button" class="admin-page-btn" onclick="exitAdminReviewPage(); return false;">Back to Main Page</button>
+      <button type="button" class="admin-page-btn primary" onclick="loadAdminApplications(); return false;">Refresh</button>
+    </div>
   </div>
   <div class="admin-review-shell">
     <div class="card admin-roster-panel">
       <div class="admin-roster-head">
-        <div class="title">REGISTRANTS</div>
+        <div>
+          <div class="title">REGISTERED MEMBERS</div>
+          <div class="page-sub" style="margin-top:3px">Select a member to inspect the full record.</div>
+        </div>
         <div id="adminStatus" class="pill">Loading…</div>
       </div>
-      <div id="adminApplications" class="admin-review-list"></div>
+      <div id="adminGangFilters" class="admin-filter-row"></div>
+      <div id="adminStatusFilters" class="admin-filter-row admin-filter-status"></div>
+      <div class="admin-search-row">
+        <div class="admin-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="adminSearchInput" class="admin-search-input" type="search" placeholder="Search registered members…" autocomplete="off" oninput="setAdminSearch(this.value)">
+        </div>
+        <select id="adminSearchCategory" class="admin-search-category" onchange="setAdminSearchCategory(this.value)" aria-label="Search category">
+          <option value="all">All categories</option>
+          <option value="gang">Gang</option>
+          <option value="status">Status</option>
+          <option value="codename">Codename</option>
+          <option value="email">Email</option>
+          <option value="facebook_uid">Facebook UID</option>
+          <option value="role">Role</option>
+        </select>
+      </div>
+      <div id="adminApplications"></div>
     </div>
 
-    <div class="admin-command-panel">
-      <div class="card admin-empty-card">
+    <div class="admin-command-panel" id="adminSelectedMemberPanel">
+      <div class="card admin-detail-empty">
         <div>
           <div class="stamp active" style="margin-bottom:14px">COMMAND REVIEW</div>
-          <h2 style="font-size:20px;margin-bottom:8px">Member Approval Desk</h2>
-          <div class="page-sub" style="max-width:560px;margin:0 auto;line-height:1.6">
-            Pending ÆZ registrations are listed in the registrant panel. Review the member's
-            submitted information, then use <strong>Approve</strong> or <strong>Reject</strong>
-            on the application card.
-          </div>
-          <div class="page-sub" style="max-width:560px;margin:16px auto 0;line-height:1.6">
-            Only an approved <strong>Owner</strong> or <strong>Admin</strong> can change
-            a registration from <strong>pending</strong> to <strong>approved</strong>.
+          <h2 style="font-size:20px;margin-bottom:8px">Select a Member</h2>
+          <div class="page-sub" style="max-width:620px;margin:0 auto;line-height:1.6">
+            Choose a registered member from the left-side roster. Their complete submitted information,
+            ID picture, status, registration date/time, gang details, and decision history will appear here.
           </div>
         </div>
       </div>
@@ -1325,8 +1520,17 @@ body:not(.authenticated) .bottom-nav{
   <a class="bn-item active" data-view="dashboard" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Home</span></a>
   <a class="bn-item" data-view="activities" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span>Activity</span></a>
   <a class="bn-item" data-view="intel" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/></svg><span>Intel</span></a>
+  <a class="bn-item" data-view="schedule" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Schedule</span></a>
   <a class="bn-item" data-view="rankings" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M12 20V4M20 20v-7"/></svg><span>Ranks</span></a>
+  <a class="bn-item" data-view="points" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg><span>Points</span></a>
+  <a class="bn-item" data-view="blackop" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg><span>Black Op</span></a>
+  <a class="bn-item" data-view="codeclass" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13 6l-2 12"/></svg><span>Code Class</span></a>
+  <a class="bn-item" data-view="campaign" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v16M4 4h11l-1.5 4L15 12H4"/></svg><span>Campaign</span></a>
+  <a class="bn-item" data-view="casereview" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M4.2 8l3.4 2M4.2 16l3.4-2M12 22v-4M19.8 16l-3.4-2M19.8 8l-3.4 2"/><circle cx="12" cy="12" r="3"/></svg><span>Case Review</span></a>
   <a class="bn-item" data-view="profile" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><span>Profile</span></a>
+  <a class="bn-item" data-view="passes" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg><span>Passes</span></a>
+  <a class="bn-item" data-view="rules" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l1 4H8l1-4Z"/><path d="M6 6h12l1 15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1L6 6Z"/></svg><span>Rules</span></a>
+  <a class="bn-item admin-mobile" data-view="admin" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 7v5c0 5 3 8 8 9 5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>Admin Review</span></a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1860,8 +2064,10 @@ function removeAuthScreensAndShowApp(){
   var dashboard=document.getElementById('view-dashboard');
   if(dashboard) dashboard.classList.add('active');
   showScreen('app');
+  var isAdminCapable=(currentProfile.role==='admin'||currentProfile.role==='owner');
   var adminNav=document.getElementById('adminNavItem');
-  if(adminNav) adminNav.style.display=(currentProfile.role==='admin'||currentProfile.role==='owner')?'flex':'none';
+  if(adminNav) adminNav.style.display=isAdminCapable?'flex':'none';
+  document.body.classList.toggle('admin-capable',isAdminCapable);
 }
 
 function applyAgentToUI(a){
@@ -1921,12 +2127,13 @@ function showSignupError(msg){
 }
 
 async function submitSignup(){
-  var fieldIds=['suFieldEmail','suFieldGang','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
+  var fieldIds=['suFieldEmail','suFieldGang','suFieldPosition','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
   fieldIds.forEach(clearFieldError);
   if(!supabaseReady){showSignupError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.');return;}
 
   var email=document.getElementById('suEmailInput').value.trim().toLowerCase();
   var gang=document.getElementById('suGangSelect').value;
+  var position=document.getElementById('suPositionSelect').value;
   var codename=document.getElementById('suCodenameInput').value.trim();
   var fbUid=document.getElementById('suFbInput').value.trim();
   var joined=document.getElementById('suJoinedInput').value;
@@ -1935,6 +2142,7 @@ async function submitSignup(){
   var missing=[];
   if(!email){markFieldError('suFieldEmail');missing.push('email');}
   if(!gang){markFieldError('suFieldGang');missing.push('gang');}
+  if(!position){markFieldError('suFieldPosition');missing.push('position');}
   if(!codename){markFieldError('suFieldCodename');missing.push('codename');}
   if(!fbUid){markFieldError('suFieldFb');missing.push('Facebook UID');}
   if(!joined){markFieldError('suFieldJoined');missing.push('join date');}
@@ -1944,7 +2152,7 @@ async function submitSignup(){
   if(file.size>5*1024*1024){markFieldError('suFieldId');showSignupError('ID picture must be 5 MB or smaller.');return;}
 
   var btn=document.querySelector('#signupForm .enter-full'); btn.disabled=true; btn.textContent='Submitting…';
-  var auth=await supabaseClient.auth.signUp({email:email,password:pw,options:{data:{codename:codename,gang:gang,facebook_uid:fbUid,joined_date:joined}}});
+  var auth=await supabaseClient.auth.signUp({email:email,password:pw,options:{data:{codename:codename,gang:gang,position:position,facebook_uid:fbUid,joined_date:joined}}});
   if(auth.error){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError(auth.error.message);return;}
   var user=auth.data.user;
   if(!user){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Registration could not be completed.');return;}
@@ -2034,6 +2242,32 @@ function simulateGangVerification(){
   showSignupError('Demo verification has been disabled. Approvals are now controlled by the Supabase Admin Review panel.');
 }
 
+function exitAdminReviewPage(){
+  document.body.classList.remove('admin-review-mode');
+  var adminPage=document.getElementById('view-admin');
+  if(adminPage){
+    adminPage.classList.remove('active');
+    adminPage.style.setProperty('display','none','important');
+  }
+  var app=document.getElementById('app');
+  if(app){
+    app.style.removeProperty('display');
+  }
+  var dashboard=document.querySelector('.nav-item[data-view="dashboard"]');
+  if(dashboard){
+    document.querySelectorAll('.nav-item, .bn-item').forEach(function(n){
+      n.classList.toggle('active', n.getAttribute('data-view')==='dashboard');
+    });
+    document.querySelectorAll('#app .view').forEach(function(v){
+      v.classList.remove('active');
+      v.style.display='none';
+    });
+    var dash=document.getElementById('view-dashboard');
+    if(dash){ dash.classList.add('active'); dash.style.display='block'; }
+  }
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
 function nav(el){
   if(!currentProfile || currentProfile.status!=='approved'){ showScreen('login'); return; }
   var view = el.getAttribute('data-view');
@@ -2045,11 +2279,41 @@ function nav(el){
   document.querySelectorAll('.nav-item, .bn-item').forEach(function(n){
     n.classList.toggle('active', n.getAttribute('data-view')===view);
   });
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+
+  /* Admin Review is a standalone page outside #app. Never leave an empty
+     dashboard shell behind it, and never show a transition/blank view first. */
+  if(view==='admin'){
+    document.body.classList.add('admin-review-mode');
+    var app=document.getElementById('app');
+    if(app){ app.style.setProperty('display','none','important'); }
+    var adminPage=document.getElementById('view-admin');
+    if(adminPage){
+      adminPage.classList.add('active');
+      adminPage.style.setProperty('display','block','important');
+    }
+    window.scrollTo({top:0,behavior:'instant'});
+    loadAdminApplications();
+    return;
+  }
+
+  document.body.classList.remove('admin-review-mode');
+  var adminPage=document.getElementById('view-admin');
+  if(adminPage){
+    adminPage.classList.remove('active');
+    adminPage.style.setProperty('display','none','important');
+  }
+  var app=document.getElementById('app');
+  if(app){ app.style.removeProperty('display'); }
+
+  /* Only switch among the normal Arena views inside #app. */
+  document.querySelectorAll('#app .view').forEach(function(v){
+    v.classList.remove('active');
+    v.style.display='none';
+  });
   var target=document.getElementById('view-'+view);
   if(!target) return;
   target.classList.add('active');
-  if(view==='admin') loadAdminApplications();
+  target.style.display='block';
 }
 
 /* ============ ACCOUNT MENU / LOGOUT ============ */
@@ -2072,6 +2336,7 @@ async function logout(){
   sessionStorage.removeItem('aez_arena_entered');
   arenaEntryMode='member';
   document.body.classList.remove('authenticated');
+  document.body.classList.remove('admin-review-mode');
   currentAgent=null;
   currentProfile=null;
   var menu=document.getElementById('avatarMenu');
@@ -2131,64 +2396,223 @@ if(supabaseReady){
   });
 }
 
+var ADMIN_GANGS=['NUDE Gang','DD Gang','SEBI Gang','STESI Gang','BBM Gang','SARAH Gang'];
+var adminGangFilter='ALL';
+var adminStatusFilter='ALL';
+var adminSearchQuery='';
+var adminSearchCategory='all';
+var adminRosterData=[];
+
+function renderAdminFilters(){
+  var gangBox=document.getElementById('adminGangFilters');
+  var statusBox=document.getElementById('adminStatusFilters');
+  if(gangBox){
+    gangBox.innerHTML=['ALL'].concat(ADMIN_GANGS).map(function(g){
+      return '<button type="button" class="admin-filter-btn '+(adminGangFilter===g?'active':'')+'" onclick="setAdminGangFilter(this.dataset.gang)" data-gang="'+escapeHtml(g)+'">'+escapeHtml(g)+'</button>';
+    }).join('');
+  }
+  if(statusBox){
+    var statuses=[['ALL','All statuses'],['pending','Pending'],['approved','Approved'],['rejected','Rejected']];
+    statusBox.innerHTML=statuses.map(function(it){
+      return '<button type="button" class="admin-filter-btn '+(adminStatusFilter===it[0]?'active':'')+'" onclick="setAdminStatusFilter(this.dataset.status)" data-status="'+it[0]+'">'+it[1]+'</button>';
+    }).join('');
+  }
+}
+function setAdminGangFilter(v){adminGangFilter=v||'ALL';renderAdminFilters();renderAdminApplications();}
+function setAdminStatusFilter(v){adminStatusFilter=v||'ALL';renderAdminFilters();renderAdminApplications();}
+function setAdminSearch(v){adminSearchQuery=String(v||'').trim().toLowerCase();renderAdminApplications();}
+function setAdminSearchCategory(v){adminSearchCategory=v||'all';renderAdminApplications();}
+function getAdminSearchValue(a){
+  if(adminSearchCategory==='gang') return String(a.gang||'');
+  if(adminSearchCategory==='status') return String(a.status||'');
+  if(adminSearchCategory==='codename') return String(a.codename||'');
+  if(adminSearchCategory==='email') return String(a.email||'');
+  if(adminSearchCategory==='facebook_uid') return String(a.facebook_uid||'');
+  if(adminSearchCategory==='role') return String(a.role||'');
+  return [a.gang,a.status,a.codename,a.email,a.facebook_uid,a.role].filter(Boolean).join(' ');
+}
+function adminStatusClass(status){
+  return status==='approved'?'admin-status-approved':status==='rejected'?'admin-status-rejected':'admin-status-pending';
+}
+function adminStatusLabel(status){
+  return status?status:'unknown';
+}
+function signedAdminPhoto(path,cb){
+  if(!path || !supabaseClient){cb(null);return;}
+  supabaseClient.storage.from('id-documents').createSignedUrl(path,3600).then(function(r){cb(r && r.data ? r.data.signedUrl : null);});
+}
+
+function renderAdminApplications(){
+  var box=document.getElementById('adminApplications');
+  var statusEl=document.getElementById('adminStatus');
+  if(!box) return;
+  if(!adminRosterData.length){
+    box.innerHTML='<div class="page-sub" style="padding:12px 2px">No registrations found.</div>';
+    if(statusEl) statusEl.textContent='0 members';
+    renderAdminSelectedMember(null);
+    return;
+  }
+  var filtered=adminRosterData.filter(function(a){
+    var matchesGang=(adminGangFilter==='ALL' || (a.gang||'')===adminGangFilter);
+    var matchesStatus=(adminStatusFilter==='ALL' || (a.status||'pending')===adminStatusFilter);
+    var haystack=getAdminSearchValue(a).toLowerCase();
+    var matchesSearch=!adminSearchQuery || haystack.indexOf(adminSearchQuery)!==-1;
+    return matchesGang && matchesStatus && matchesSearch;
+  });
+  if(statusEl){
+    var pending=adminRosterData.filter(function(a){return a.status==='pending';}).length;
+    var approved=adminRosterData.filter(function(a){return a.status==='approved';}).length;
+    var rejected=adminRosterData.filter(function(a){return a.status==='rejected';}).length;
+    statusEl.textContent=adminRosterData.length+' total · '+pending+' pending';
+    statusEl.title=approved+' approved · '+rejected+' rejected';
+  }
+  if(!filtered.length){
+    box.innerHTML='<div class="page-sub" style="padding:12px 2px">No registrations match the selected filters or search.</div>';
+    renderAdminSelectedMember(null);
+    return;
+  }
+  if(!adminSelectedMemberId || !filtered.some(function(a){return a.id===adminSelectedMemberId;})){
+    adminSelectedMemberId=filtered[0].id;
+  }
+  var groups={};
+  filtered.forEach(function(a){var g=a.gang||'Unassigned';(groups[g]||(groups[g]=[])).push(a);});
+  var order=(adminGangFilter==='ALL'?ADMIN_GANGS.concat(['Unassigned']):[adminGangFilter]);
+  var html='';
+  order.forEach(function(g){
+    if(!groups[g] || !groups[g].length) return;
+    html+='<section class="admin-gang-section">';
+    html+='<div class="admin-gang-heading"><div class="name">'+escapeHtml(g)+'</div><div class="count">'+groups[g].length+' member'+(groups[g].length===1?'':'s')+'</div></div>';
+    html+='<div class="admin-member-list">';
+    groups[g].forEach(function(a){
+      var safeId=escapeHtml(a.id||'');
+      var status=a.status||'pending';
+      var safeCode=escapeHtml(a.codename||'Unnamed');
+      var safeEmail=escapeHtml(a.email||'—');
+      var initials=(a.codename||'AEZ').trim().slice(0,2).toUpperCase();
+      html+='<button type="button" class="admin-roster-item '+(a.id===adminSelectedMemberId?'active':'')+'" data-member-id="'+safeId+'" onclick="selectAdminMember(this.dataset.memberId)">'
+        +'<div id="adminRosterPhoto_'+safeId+'" class="admin-roster-avatar">'+escapeHtml(initials)+'</div>'
+        +'<div class="admin-roster-copy"><strong>'+safeCode+'</strong><div class="sub">'+safeEmail+'</div><div class="gang">'+escapeHtml(a.gang||'Unassigned')+'</div></div>'
+        +'<span class="admin-roster-status '+adminStatusClass(status)+' '+escapeHtml(status)+'">'+escapeHtml(adminStatusLabel(status))+'</span>'
+        +'</button>';
+    });
+    html+='</div></section>';
+  });
+  box.innerHTML=html;
+  filtered.forEach(function(a){
+    if(!a.id_photo_path) return;
+    signedAdminPhoto(a.id_photo_path,function(url){
+      var wrap=document.getElementById('adminRosterPhoto_'+a.id);
+      if(!wrap || !url) return;
+      wrap.innerHTML='<img src="'+escapeHtml(url)+'" alt="ID picture">';
+    });
+  });
+  renderAdminSelectedMember(adminSelectedMemberId);
+}
+
+var adminSelectedMemberId=null;
+function selectAdminMember(id){
+  adminSelectedMemberId=id;
+  document.querySelectorAll('.admin-roster-item').forEach(function(el){
+    el.classList.toggle('active',el.dataset.memberId===id);
+  });
+  if(window.matchMedia && window.matchMedia('(max-width:600px)').matches){
+    document.body.classList.add('admin-member-selected');
+  }
+  renderAdminSelectedMember(id);
+  setTimeout(function(){ window.scrollTo({top:0,behavior:'smooth'}); },20);
+}
+function backToAdminRosterMobile(){
+  document.body.classList.remove('admin-member-selected');
+  var panel=document.getElementById('adminSelectedMemberPanel');
+  if(panel){ panel.scrollIntoView({behavior:'smooth',block:'start'}); }
+}
+function renderAdminSelectedMember(id){
+  var panel=document.getElementById('adminSelectedMemberPanel');
+  if(!panel) return;
+  var a=adminRosterData.find(function(x){return x.id===id;});
+  if(!a){
+    panel.innerHTML='<button type="button" class="admin-mobile-back admin-page-btn" onclick="backToAdminRosterMobile(); return false;" style="margin-bottom:12px;width:100%;justify-content:center;">← Back to Members</button><div class="card admin-detail-empty"><div><div class="stamp active" style="margin-bottom:14px">COMMAND REVIEW</div><h2 style="font-size:20px;margin-bottom:8px">Select a Member</h2><div class="page-sub" style="max-width:620px;margin:0 auto;line-height:1.6">Choose a registered member from the left-side roster. Their complete submitted information, ID picture, status, registration date/time, gang details, and decision history will appear here.</div></div></div>';
+    return;
+  }
+  var status=a.status||'pending';
+  var safeId=escapeHtml(a.id||'');
+  var initials=(a.codename||'AEZ').trim().slice(0,2).toUpperCase();
+  var approved=formatAdminDate(a.approved_at);
+  var submitted=formatAdminDate(a.created_at);
+  var joined=formatAdminJoinedDate(a.joined_date);
+  var rejection=escapeHtml(a.rejection_reason||'—');
+  var actions='';
+  if(status==='pending'){
+    actions='<div class="admin-member-actions">'
+      +'<button class="admin-btn approve" data-application-id="'+safeId+'" onclick="approveApplication(this.dataset.applicationId)">Approve Registration</button>'
+      +'<button class="admin-btn reject" data-application-id="'+safeId+'" onclick="rejectApplication(this.dataset.applicationId)">Reject Registration</button>'
+      +'</div>';
+  }
+  var mobileBack='<button type="button" class="admin-mobile-back admin-page-btn" onclick="backToAdminRosterMobile(); return false;" style="margin-bottom:12px;width:100%;justify-content:center;">← Back to Members</button>';
+  panel.innerHTML=mobileBack+'<div class="card admin-detail-card">'
+    +'<div class="admin-detail-head">'
+      +'<div class="admin-detail-identity">'
+        +'<div id="adminDetailPhoto_'+safeId+'" class="admin-detail-photo">'+escapeHtml(initials)+'</div>'
+        +'<div><div class="admin-detail-name">'+escapeHtml(a.codename||'Unnamed Member')+'</div><div class="admin-detail-email">'+escapeHtml(a.email||'—')+'</div>'
+        +'<div class="admin-detail-meta"><span class="mini">'+escapeHtml(a.gang||'Unassigned')+'</span><span class="mini">Role: '+escapeHtml(a.role||'member')+'</span><span class="mini">Facebook UID: '+escapeHtml(a.facebook_uid||'—')+'</span></div></div>'
+      +'</div>'
+      +'<span class="admin-status-badge '+adminStatusClass(status)+'">'+escapeHtml(adminStatusLabel(status))+'</span>'
+    +'</div>'
+    +'<div class="admin-detail-grid">'
+      +'<div class="admin-member-field"><div class="label">Email</div><div class="value">'+escapeHtml(a.email||'—')+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Gang</div><div class="value">'+escapeHtml(a.gang||'Unassigned')+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Codename</div><div class="value">'+escapeHtml(a.codename||'—')+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Facebook UID</div><div class="value">'+escapeHtml(a.facebook_uid||'—')+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Date joined the gang</div><div class="value">'+escapeHtml(joined)+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Registration submitted</div><div class="value">'+escapeHtml(submitted)+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Current status</div><div class="value">'+escapeHtml(adminStatusLabel(status))+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Decision date / time</div><div class="value">'+(a.approved_at?escapeHtml(approved):'—')+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Decision by</div><div class="value">'+escapeHtml(a.approved_by||'—')+'</div></div>'
+      +(status==='rejected'?'<div class="admin-member-field full"><div class="label">Rejection reason</div><div class="value">'+rejection+'</div></div>':'')
+    +'</div>'
+    +actions
+    +'<div class="admin-readonly-note">Password is never displayed or retrievable here. The ID picture is available only to authorized Command reviewers.</div>'
+    +'</div>';
+  if(a.id_photo_path){
+    signedAdminPhoto(a.id_photo_path,function(url){
+      var wrap=document.getElementById('adminDetailPhoto_'+a.id);
+      if(!wrap || !url) return;
+      wrap.innerHTML='<img src="'+escapeHtml(url)+'" alt="ID picture">';
+    });
+  }
+}
+
 async function loadAdminApplications(){
   var statusEl=document.getElementById('adminStatus');
   var box=document.getElementById('adminApplications');
 
   if(!currentProfile || currentProfile.status!=='approved' || !['admin','owner'].includes(currentProfile.role)){
-    statusEl.textContent='Restricted: ÆZ Owner/Admin access only.';
-    box.innerHTML='';
+    if(statusEl) statusEl.textContent='Restricted: ÆZ Owner/Admin access only.';
+    if(box) box.innerHTML='';
     return;
   }
+  if(!supabaseReady){if(statusEl) statusEl.textContent='Supabase not configured.';return;}
 
-  statusEl.textContent='Loading pending applications…';
-  box.innerHTML='';
+  if(statusEl) statusEl.textContent='Loading registrations…';
+  if(box) box.innerHTML='';
+  renderAdminFilters();
 
   var res=await supabaseClient
     .from('profiles')
-    .select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at')
-    .eq('status','pending')
+    .select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at,approved_at,approved_by,rejection_reason')
+    .order('gang',{ascending:true})
     .order('created_at',{ascending:true});
 
   if(res.error){
-    statusEl.textContent='Could not load applications: '+res.error.message;
+    if(statusEl) statusEl.textContent='Could not load registrations: '+res.error.message;
     return;
   }
-
-  if(!res.data.length){
-    statusEl.textContent='No pending applications.';
-    return;
-  }
-
-  statusEl.textContent=res.data.length+' pending application'+(res.data.length===1?'':'s');
-
-  box.innerHTML=res.data.map(function(a){
-    var safeId=escapeHtml(a.id||'');
-    var safeEmail=escapeHtml(a.email||'');
-    var safeCode=escapeHtml(a.codename||'');
-    var safeGang=escapeHtml(a.gang||'');
-    var safeFb=escapeHtml(a.facebook_uid||'');
-    var initials=(a.codename||'AEZ').trim().slice(0,2).toUpperCase();
-    return '<div class="admin-application-card">'
-      +'<div class="admin-application-top">'
-      +'<div class="admin-identity">'
-      +'<div class="admin-avatar">'+escapeHtml(initials)+'</div>'
-      +'<div><strong>'+safeCode+'</strong><div class="page-sub">'+safeEmail+'</div></div>'
-      +'</div>'
-      +'<span class="admin-pending">Pending</span>'
-      +'</div>'
-      +'<div class="admin-details">'
-      +'<div class="admin-detail"><div class="label">Gang</div><div class="value">'+safeGang+'</div></div>'
-      +'<div class="admin-detail"><div class="label">Facebook UID</div><div class="value">'+safeFb+'</div></div>'
-      +'<div class="admin-detail"><div class="label">Registered</div><div class="value">'+formatAdminDate(a.created_at)+'</div></div>'
-      +'<div class="admin-detail"><div class="label">Role</div><div class="value">'+escapeHtml(a.role||'member')+'</div></div>'
-      +'</div>'
-      +'<div class="admin-actions">'
-      +'<button class="admin-btn approve" data-application-id="'+safeId+'" onclick="approveApplication(this.dataset.applicationId)">Approve</button>'
-      +'<button class="admin-btn reject" data-application-id="'+safeId+'" onclick="rejectApplication(this.dataset.applicationId)">Reject</button>'
-      +'</div>'
-      +'</div>';
-  }).join('');
+  adminRosterData=res.data||[];
+  renderAdminApplications();
+}
+function formatAdminJoinedDate(v){
+  if(!v) return '—';
+  try{return new Date(v+'T00:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});}catch(e){return v;}
 }
 function escapeHtml(v){return String(v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
 function formatAdminDate(v){try{return new Date(v).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});}catch(e){return v||'';}}
