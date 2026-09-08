@@ -28,20 +28,30 @@ jobs:
               raise SystemExit('ABORTED: missing expected app markers: ' + ', '.join(missing))
           if len(s.splitlines()) < 900:
               raise SystemExit('ABORTED: index.html is unexpectedly short; refusing to rewrite it')
-          if 'aez-ios-design.css' not in s:
-              link = '<link rel="stylesheet" href="aez-ios-design.css">\n'
-              s = s.replace('</head>', link + '</head>', 1)
+          links = [
+              '<link rel="stylesheet" href="aez-ios-design.css">\n',
+              '<link rel="stylesheet" href="aez-light-palette.css">\n'
+          ]
+          changed = False
+          for link in links:
+              href = link.split('href="',1)[1].split('"',1)[0]
+              if href not in s:
+                  s = s.replace('</head>', link + '</head>', 1)
+                  changed = True
+          if changed:
               p.write_text(s, encoding='utf-8')
-              print('Attached aez-ios-design.css without changing app logic.')
+              print('Attached ÆZ iOS design and aesthetic light palette without changing app logic.')
           else:
-              print('Design stylesheet already attached.')
+              print('Design stylesheets already attached.')
           PY
 
       - name: Verify
         run: |
           test -s index.html
           test -s aez-ios-design.css
+          test -s aez-light-palette.css
           grep -q 'aez-ios-design.css' index.html
+          grep -q 'aez-light-palette.css' index.html
           grep -q 'SUPABASE_URL' index.html
           grep -q 'function login()' index.html
           grep -q 'function submitSignup()' index.html
@@ -52,7 +62,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html aez-ios-design.css
+          git add index.html aez-ios-design.css aez-light-palette.css
           if git diff --cached --quiet; then
             echo 'No changes to commit.'
             exit 0
