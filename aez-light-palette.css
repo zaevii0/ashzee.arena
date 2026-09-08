@@ -1,0 +1,105 @@
+/* ÆZ Arena — Aesthetic iOS Light Palette */
+body.light-mode{
+  --ios-bg:#f1eee8;
+  --ios-surface:rgba(255,253,248,.72);
+  --ios-surface-strong:rgba(255,253,248,.90);
+  --ios-line:rgba(54,48,42,.13);
+  --ios-line-strong:rgba(54,48,42,.20);
+  --ios-text:#252321;
+  --ios-secondary:#716c66;
+  --ios-tertiary:#99928a;
+  --ios-gold:#8a6b32;
+  --ios-gold-soft:rgba(138,107,50,.10);
+  --ios-blue:#63788a;
+  --ios-red:#a66f6b;
+  background:#f1eee8!important;
+  color:#252321!important;
+}
+body.light-mode #landing,body.light-mode #login,body.light-mode #signup,body.light-mode #adminLogin{
+  background:
+    radial-gradient(700px 430px at 12% 0%,rgba(214,198,169,.28),transparent 65%),
+    radial-gradient(620px 500px at 92% 100%,rgba(184,194,198,.20),transparent 68%),
+    linear-gradient(145deg,#f4f1eb 0%,#ece8e1 52%,#f5f2ed 100%)!important;
+}
+body.light-mode #landing::after,body.light-mode #login::after,body.light-mode #signup::after,body.light-mode #adminLogin::after{
+  background:linear-gradient(180deg,rgba(255,255,255,.42),transparent 38%,rgba(84,73,62,.035))!important;
+}
+body.light-mode .wordmark{
+  background:linear-gradient(180deg,#292724 0%,#5b554f 58%,#857b70 100%)!important;
+  -webkit-background-clip:text!important;background-clip:text!important;
+}
+body.light-mode .wordmark small{color:#766f67!important;}
+body.light-mode .tagline{color:#716c66!important;}
+body.light-mode .mark-glyph{color:#958d84!important;}
+body.light-mode .landing-foot{color:#958d84!important;}
+body.light-mode .entry-btn,body.light-mode .enter-btn,body.light-mode .entry-back-btn{
+  background:rgba(255,253,248,.62)!important;
+  color:#252321!important;
+  border-color:rgba(54,48,42,.13)!important;
+  box-shadow:0 12px 32px rgba(63,55,46,.075),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+body.light-mode .entry-btn:hover,body.light-mode .enter-btn:hover,body.light-mode .entry-back-btn:hover{
+  background:rgba(255,255,255,.82)!important;
+  border-color:rgba(54,48,42,.19)!important;
+  box-shadow:0 16px 38px rgba(63,55,46,.10),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+body.light-mode .entry-btn-admin{
+  background:rgba(138,107,50,.10)!important;
+  border-color:rgba(138,107,50,.24)!important;
+}
+body.light-mode .enter-full{
+  background:#292724!important;color:#fffdf8!important;
+  box-shadow:0 10px 28px rgba(47,42,37,.18)!important;
+}
+body.light-mode .login-card{
+  background:rgba(255,253,248,.66)!important;
+  border-color:rgba(54,48,42,.13)!important;
+  box-shadow:0 30px 85px rgba(63,55,46,.12),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  backdrop-filter:blur(34px) saturate(135%)!important;
+  -webkit-backdrop-filter:blur(34px) saturate(135%)!important;
+}
+body.light-mode .field label{color:#716c66!important;}
+body.light-mode .field input,body.light-mode .field select{
+  background:rgba(112,104,95,.075)!important;
+  color:#252321!important;
+  border-color:rgba(54,48,42,.13)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65)!important;
+}
+body.light-mode .field input::placeholder{color:#9a938b!important;}
+body.light-mode .field input:focus,body.light-mode .field select:focus{
+  background:rgba(255,253,248,.48)!important;
+  border-color:rgba(138,107,50,.45)!important;
+  box-shadow:0 0 0 3px rgba(138,107,50,.09),inset 0 1px 0 rgba(255,255,255,.7)!important;
+}
+body.light-mode .status-row{background:rgba(112,104,95,.055)!important;border-color:rgba(54,48,42,.11)!important;}
+body.light-mode .status-item .lbl{color:#99928a!important;}
+body.light-mode .status-item .val.ok{color:#63788a!important;}
+body.light-mode .sidebar,body.light-mode .topbar,body.light-mode .bottom-nav{
+  background:rgba(248,246,241,.68)!important;
+  border-color:rgba(54,48,42,.12)!important;
+  box-shadow:0 12px 38px rgba(63,55,46,.07)!important;
+  backdrop-filter:blur(28px) saturate(135%)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(135%)!important;
+}
+body.light-mode .nav-item:hover,body.light-mode .bottom-nav button:hover,body.light-mode .bottom-nav a:hover{background:rgba(112,104,95,.075)!important;}
+body.light-mode .nav-item.active{background:rgba(138,107,50,.085)!important;color:#73591f!important;}
+body.light-mode .card,body.light-mode .panel,body.light-mode .glass,body.light-mode .surface,body.light-mode .admin-card,body.light-mode .stat-card,body.light-mode .intel-card,body.light-mode .rank-card,body.light-mode .activity-card,body.light-mode .profile-card{
+  background:rgba(255,253,248,.62)!important;
+  border-color:rgba(54,48,42,.11)!important;
+  box-shadow:0 20px 52px rgba(63,55,46,.075),inset 0 1px 0 rgba(255,255,255,.88)!important;
+  backdrop-filter:blur(24px) saturate(130%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(130%)!important;
+}
+body.light-mode .badge,body.light-mode .pill,body.light-mode .chip,body.light-mode .tag,body.light-mode .status,body.light-mode .status-pill{
+  background:rgba(112,104,95,.065)!important;
+  border-color:rgba(54,48,42,.11)!important;
+  color:#716c66!important;
+}
+body.light-mode .modal,.body.light-mode .modal-content,body.light-mode .sheet,body.light-mode .dialog{
+  background:rgba(250,248,244,.86)!important;
+  color:#252321!important;
+  box-shadow:0 32px 95px rgba(63,55,46,.16)!important;
+  backdrop-filter:blur(34px) saturate(135%)!important;
+  -webkit-backdrop-filter:blur(34px) saturate(135%)!important;
+}
+body.light-mode .mark-glyph .dot{background:#8a6b32!important;box-shadow:0 0 12px rgba(138,107,50,.30)!important;}
