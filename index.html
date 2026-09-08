@@ -1208,7 +1208,14 @@ async function login(){
   currentAgent = match;
   applyAgentToUI(match);
 
-  // After successful authentication, continue to the main application.
+  // Remove the login and landing screens completely after successful login.
+  var loginScreen = document.getElementById('login');
+  var landingScreen = document.getElementById('landing');
+
+  if (loginScreen) loginScreen.remove();
+  if (landingScreen) landingScreen.remove();
+
+  // Show only the main application.
   showScreen('app');
   nav(document.querySelector('.nav-item[data-view="dashboard"]'));
   animateCounters();
