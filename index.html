@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ÆZ Arena — Beyond the source code.</title>
+<style>
+:root{
+  --void:#0A0A0B;
+  --charcoal:#18181A;
+  --panel:#1F2023;
+  --graphite:#2C2D30;
+  --hair:rgba(255,255,255,0.08);
+  --hair-strong:rgba(255,255,255,0.16);
+  --bone:#F1F0EC;
+  --ash:#9A9A9C;
+  --ash-dim:#67676A;
+  --silver:#B9BDC4;
+  --gold:#C9A227;
+  --gold-dim:#8F7419;
+  --blue:#5A82B4;
+  --blue-dim:#3C5A80;
+  --danger:#A65C5C;
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:9px;
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:var(--font-ui);
+  background:var(--void);
+  color:var(--bone);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--gold-dim);color:var(--bone);}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--graphite);border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+
+/* ============ SCREEN MANAGEMENT ============ */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* ============ LANDING ============ */
+#landing{
+  position:relative;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:
+    radial-gradient(ellipse 900px 500px at 50% 0%, rgba(201,162,39,0.06), transparent 60%),
+    var(--void);
+  text-align:center;
+  overflow:hidden;
+}
+.grid-veil{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(232,233,235,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,233,235,0.025) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 80%);
+  pointer-events:none;
+}
+.noise-drift{
+  position:absolute;inset:-20%;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(201,162,39,0.05), transparent 35%),
+    radial-gradient(circle at 80% 70%, rgba(185,189,196,0.04), transparent 35%);
+  animation:drift 22s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes drift{
+  0%{transform:translate(0,0) scale(1);}
+  100%{transform:translate(-3%,2%) scale(1.06);}
+}
+.mark-glyph{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:0.24em;
+  color:var(--ash-dim);
+  margin-bottom:28px;
+  display:flex;align-items:center;gap:10px;
+}
+.mark-glyph .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 2.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:1;}}
+.wordmark{
+  font-size:clamp(64px,14vw,148px);
+  font-weight:600;
+  letter-spacing:-0.03em;
+  line-height:0.9;
+  background:linear-gradient(180deg,#F5F6F7 10%, #9B9FA6 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  position:relative;z-index:2;
+}
+.wordmark small{display:block;font-size:0.19em;font-weight:400;letter-spacing:0.08em;color:var(--ash);-webkit-text-fill-color:var(--ash);margin-top:18px;}
+.tagline{
+  margin-top:28px;font-size:16px;color:var(--ash);font-style:italic;letter-spacing:0.01em;
+  position:relative;z-index:2;
+}
+.enter-btn{
+  margin-top:56px;
+  padding:16px 42px;
+  border-radius:999px;
+  border:1px solid var(--hair-strong);
+  background:rgba(232,233,235,0.05);
+  backdrop-filter:blur(20px);
+  color:var(--bone);
+  font-size:14px;letter-spacing:0.06em;font-weight:500;
+  display:inline-flex;align-items:center;gap:10px;
+  transition:all .35s cubic-bezier(.2,.8,.2,1);
+  position:relative;z-index:2;
+}
+.enter-btn:hover{background:rgba(232,233,235,0.1);border-color:var(--hair-strong);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.4);}
+.enter-btn svg{width:14px;height:14px;transition:transform .35s;}
+.enter-btn:hover svg{transform:translateX(3px);}
+.landing-foot{
+  position:absolute;bottom:28px;left:0;right:0;
+  display:flex;justify-content:center;gap:36px;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.12em;color:var(--ash-dim);
+}
+
+/* ============ LOGIN ============ */
+#login{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--void);
+  padding:24px;
+}
+.login-card{
+  width:100%;max-width:400px;
+  background:rgba(20,23,27,0.6);
+  backdrop-filter:blur(30px);
+  border:1px solid var(--hair);
+  border-radius:var(--radius-lg);
+  padding:40px 34px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.5);
+  animation:rise .6s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.login-head{text-align:center;margin-bottom:30px;}
+.login-head .glyph{font-size:22px;letter-spacing:0.05em;font-weight:600;margin-bottom:6px;}
+.login-head .sub{font-size:12px;color:var(--ash-dim);letter-spacing:0.14em;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:11.5px;color:var(--ash);margin-bottom:7px;letter-spacing:0.03em;}
+.field input, .field select{
+  width:100%;padding:13px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--hair);background:rgba(0,0,0,0.3);
+  color:var(--bone);font-size:14px;transition:border-color .2s, background .2s;
+  font-family:inherit;appearance:none;-webkit-appearance:none;
+}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A8F98' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;background-size:16px;
+}
+.field select option{background:var(--charcoal);color:var(--bone);}
+.field select:invalid, .field select option[value=""]{color:var(--ash-dim);}
+.field input:focus, .field select:focus{outline:none;border-color:var(--gold-dim);background:rgba(0,0,0,0.45);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:42px;}
+.pw-toggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;background:transparent;color:var(--ash-dim);display:flex;align-items:center;justify-content:center;border-radius:8px;transition:color .2s, background .2s;}
+.pw-toggle:hover{color:var(--ash);background:rgba(232,233,235,0.06);}
+.pw-toggle svg{width:16px;height:16px;}
+.field.error input, .field.error select{border-color:var(--danger);background:rgba(166,92,92,0.06);}
+.field.error .upload-well{border-color:var(--danger);background:rgba(166,92,92,0.06);}
+.field.error label{color:#C98F8F;}
+.status-row{display:flex;justify-content:space-between;margin:22px 0;padding:14px;border-radius:var(--radius-sm);background:rgba(0,0,0,0.25);border:1px solid var(--hair);}
+.status-item{text-align:center;flex:1;}
+.status-item .lbl{font-size:9.5px;color:var(--ash-dim);letter-spacing:0.1em;margin-bottom:5px;}
+.status-item .val{font-size:12px;font-weight:500;}
+.status-item .val.ok{color:var(--blue);}
+.login-error{
+  display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:11px 13px;
+  border-radius:var(--radius-sm);background:rgba(166,92,92,0.1);border:1px solid rgba(166,92,92,0.3);
+  color:#C98F8F;font-size:12.5px;line-height:1.4;
+}
+@keyframes shake{
+  10%,90%{transform:translateX(-1px);}
+  20%,80%{transform:translateX(2px);}
+  30%,50%,70%{transform:translateX(-4px);}
+  40%,60%{transform:translateX(4px);}
+}
+.login-card.shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97) both;}
+.enter-full{
+  width:100%;padding:15px;border-radius:var(--radius-sm);border:none;
+  background:var(--bone);color:var(--void);font-weight:600;font-size:14px;letter-spacing:0.03em;
+  transition:transform .2s, box-shadow .2s;
+}
+.enter-full:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(232,233,235,0.12);}
+.enter-full:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none;}
+.field input:disabled, .field select:disabled{opacity:0.5;cursor:not-allowed;}
+.login-note{text-align:center;margin-top:18px;font-size:11px;color:var(--ash-dim);}
+.login-switch{text-align:center;margin-top:14px;font-size:12.5px;color:var(--ash-dim);}
+.login-switch a{color:var(--gold);cursor:pointer;font-weight:500;}
+.login-switch a:hover{text-decoration:underline;}
+
+/* upload well */
+.upload-well{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  min-height:120px;border-radius:var(--radius-sm);border:1.5px dashed var(--hair-strong);
+  background:rgba(0,0,0,0.25);cursor:pointer;transition:border-color .2s, background .2s;padding:16px;text-align:center;
+}
+.upload-well:hover{border-color:var(--gold-dim);background:rgba(201,162,39,0.04);}
+.upload-well svg{width:26px;height:26px;color:var(--ash-dim);}
+.upload-well span{font-size:12px;color:var(--ash-dim);}
+.upload-well img{max-width:100%;max-height:160px;border-radius:8px;object-fit:cover;}
+.upload-well.has-image{border-style:solid;border-color:var(--hair-strong);padding:8px;}
+
+/* pending / verification screen */
+.pending-photo-wrap{width:96px;height:96px;margin:0 auto 16px;border-radius:16px;overflow:hidden;background:var(--graphite);border:1px solid var(--hair-strong);}
+.pending-photo-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.pending-name{font-size:19px;font-weight:700;margin-bottom:2px;}
+#signupPending .kv-row{text-align:left;}
+.stamp.verified{color:var(--blue);border-color:var(--blue);}
+
+/* ============ APP SHELL ============ */
+#app{min-height:100vh;display:flex;background:var(--void);}
+.sidebar{
+  width:250px;flex-shrink:0;
+  background:rgba(15,17,20,0.7);
+  backdrop-filter:blur(24px);
+  border-right:1px solid var(--hair);
+  padding:22px 16px;
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.side-brand{display:flex;align-items:center;gap:10px;padding:6px 10px 24px;}
+.side-brand .glyph{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#2A2D33,#141618);border:1px solid var(--hair-strong);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.side-brand .name{font-size:15px;font-weight:600;letter-spacing:0.01em;}
+.nav-group{margin-bottom:20px;}
+.nav-group-label{font-size:10px;color:var(--ash-dim);letter-spacing:0.12em;padding:0 10px 8px;}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:var(--radius-sm);
+  font-size:13.5px;color:var(--ash);margin-bottom:2px;transition:background .18s, color .18s;
+}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:0.8;}
+.nav-item:hover{background:rgba(232,233,235,0.04);color:var(--bone);}
+.nav-item.active{background:rgba(201,162,39,0.14);color:var(--bone);border:1px solid rgba(201,162,39,0.3);}
+.nav-item.active svg{opacity:1;}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{
+  height:64px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  border-bottom:1px solid var(--hair);
+  background:rgba(8,9,11,0.7);backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:10;
+}
+.top-left{display:flex;align-items:center;gap:16px;}
+.top-mark{font-size:14px;font-weight:700;letter-spacing:0.02em;}
+.top-clock{font-family:var(--font-mono);font-size:12px;color:var(--ash);}
+.top-right{display:flex;align-items:center;gap:18px;}
+.icon-btn{width:34px;height:34px;border-radius:50%;background:rgba(232,233,235,0.04);border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;position:relative;}
+.icon-btn svg{width:15px;height:15px;color:var(--ash);}
+.icon-btn .dot{position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--gold);}
+.avatar-chip{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border-radius:999px;background:rgba(232,233,235,0.04);border:1px solid var(--hair);position:relative;}
+.avatar-chip .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(145deg,#3A3D44,#1A1C20);}
+.avatar-chip .lvl{font-size:11px;color:var(--ash);}
+.avatar-menu{
+  display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:140px;
+  background:rgba(20,23,27,0.95);backdrop-filter:blur(20px);border:1px solid var(--hair-strong);
+  border-radius:12px;padding:6px;box-shadow:0 20px 50px rgba(0,0,0,0.4);z-index:20;
+}
+.avatar-menu.show{display:block;}
+.avatar-menu-item{padding:9px 12px;font-size:12.5px;color:var(--bone);border-radius:8px;transition:background .15s;}
+.avatar-menu-item:hover{background:rgba(232,233,235,0.06);}
+
+.content{padding:28px;max-width:1400px;width:100%;}
+.view{display:none;animation:fadein .35s ease;}
+.view.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+/* One orchestrated reveal, played once on first entry into the desktop —
+   not a per-card hover trick, a single arrival moment. */
+@keyframes cardIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.stagger-in{animation:cardIn .5s cubic-bezier(.2,.8,.2,1) both;}
+
+.page-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
+.page-head h1{font-size:26px;font-weight:600;letter-spacing:-0.01em;}
+.page-head .page-sub{font-size:13px;color:var(--ash-dim);margin-top:4px;}
+.stamp{
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.14em;font-weight:700;
+  padding:5px 11px;border-radius:5px;border:1.5px solid currentColor;
+  transform:rotate(-2deg);display:inline-block;
+}
+.stamp.classified{color:var(--danger);}
+.stamp.active{color:var(--blue);}
+.stamp.neutral{color:var(--ash);}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;}
+.card{
+  grid-column:span 4;
+  background:rgba(20,23,27,0.55);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--hair);
+  border-radius:var(--radius-lg);
+  padding:22px;
+  transition:border-color .3s;
+}
+/* Only cards that actually respond to a click lift on hover — a static stat
+   card has nothing to reveal, so it stays still; motion here is reserved
+   for things that open. */
+.clickable{cursor:pointer;}
+.card.clickable{transition:transform .3s cubic-bezier(.2,.8,.2,1), border-color .3s;}
+.card.clickable:hover{transform:translateY(-3px);border-color:var(--hair-strong);}
+.icon-btn.clickable{transition:background .2s, border-color .2s;}
+.icon-btn.clickable:hover{background:rgba(232,233,235,0.08);border-color:var(--hair-strong);}
+.list-row.clickable{transition:background .2s;margin:0 -10px;padding-left:10px;padding-right:10px;border-radius:10px;}
+.list-row.clickable:hover{background:rgba(232,233,235,0.035);}
+.card.span-12{grid-column:span 12;}
+.card.span-8{grid-column:span 8;}
+.card.span-6{grid-column:span 6;}
+.card.span-4{grid-column:span 4;}
+.card.span-3{grid-column:span 3;}
+
+.welcome-card{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+.welcome-card h2{font-size:22px;font-weight:600;margin-bottom:6px;}
+.welcome-card .meta{display:flex;gap:22px;margin-top:14px;flex-wrap:wrap;}
+.meta-item .l{font-size:10.5px;color:var(--ash-dim);letter-spacing:0.08em;margin-bottom:4px;}
+.meta-item .v{font-size:14px;font-weight:500;}
+.id-glass{width:150px;height:96px;border-radius:14px;background:linear-gradient(145deg,rgba(201,162,39,0.18),rgba(90,130,180,0.07),rgba(10,10,11,0.6));border:1px solid var(--hair-strong);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;}
+.id-glass .lv{font-family:var(--font-mono);font-size:9px;color:var(--ash-dim);letter-spacing:0.1em;}
+.id-glass .lv-val{font-size:18px;font-weight:700;}
+
+.stat-label{font-size:11px;color:var(--ash-dim);letter-spacing:0.06em;margin-bottom:10px;}
+.stat-value{font-size:32px;font-weight:700;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;}
+.stat-delta{font-size:11.5px;color:var(--blue);margin-top:8px;}
+.stat-delta.down{color:var(--danger);}
+
+.list-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--hair);}
+.list-row:last-child{border-bottom:none;}
+.list-left{display:flex;align-items:center;gap:12px;}
+.list-icon{width:34px;height:34px;border-radius:9px;background:var(--graphite);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.list-icon svg{width:15px;height:15px;color:var(--gold);}
+.list-title{font-size:13.5px;font-weight:500;}
+.list-sub{font-size:11.5px;color:var(--ash-dim);margin-top:2px;}
+.pill{font-size:10.5px;padding:4px 10px;border-radius:999px;background:rgba(232,233,235,0.06);color:var(--ash);border:1px solid var(--hair);}
+.pill.live{color:var(--blue);border-color:rgba(90,130,180,0.35);background:rgba(90,130,180,0.1);}
+
+/* activities */
+.filter-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.chip{padding:8px 15px;border-radius:999px;font-size:12px;color:var(--ash);background:rgba(232,233,235,0.04);border:1px solid var(--hair);transition:background .2s, color .2s, border-color .2s;}
+.chip:hover{color:var(--bone);border-color:var(--hair-strong);}
+.chip.active{background:rgba(201,162,39,0.16);color:var(--bone);border-color:rgba(201,162,39,0.35);}
+.act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.act-card{cursor:pointer;}
+.act-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.act-cat{font-size:10px;color:var(--gold);letter-spacing:0.08em;margin-bottom:6px;}
+.act-name{font-size:16px;font-weight:600;}
+.act-desc{font-size:12.5px;color:var(--ash);line-height:1.5;margin:10px 0 14px;}
+.act-foot{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--ash-dim);}
+.act-points{font-family:var(--font-mono);color:var(--bone);font-weight:600;}
+
+/* modal */
+.modal-veil{position:fixed;inset:0;background:rgba(4,5,6,0.65);backdrop-filter:blur(6px);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+.modal-veil.show{display:flex;animation:veilin .25s ease;}
+@keyframes veilin{from{opacity:0;}to{opacity:1;}}
+.sheet{
+  width:100%;max-width:560px;max-height:82vh;overflow-y:auto;
+  background:rgba(18,20,24,0.92);backdrop-filter:blur(30px);
+  border:1px solid var(--hair-strong);border-bottom:none;
+  border-radius:24px 24px 0 0;padding:30px 28px 40px;
+  animation:sheetup .4s cubic-bezier(.2,.8,.2,1);
+  margin-bottom:0;
+}
+@keyframes sheetup{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.sheet-handle{width:36px;height:4px;border-radius:4px;background:var(--hair-strong);margin:0 auto 22px;}
+.sheet-close{position:absolute;top:20px;right:24px;width:30px;height:30px;border-radius:50%;background:rgba(232,233,235,0.06);border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;color:var(--ash);}
+.tabs-row{display:flex;gap:4px;border-bottom:1px solid var(--hair);margin-bottom:18px;overflow-x:auto;}
+.tab-btn{padding:9px 14px;font-size:12.5px;color:var(--ash-dim);border-bottom:2px solid transparent;white-space:nowrap;}
+.tab-btn.active{color:var(--bone);border-color:var(--gold);}
+.kv-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--hair);font-size:13px;}
+.kv-row .k{color:var(--ash-dim);}
+.kv-row .v{font-family:var(--font-mono);font-weight:500;}
+
+/* black op */
+.op-hero{background:radial-gradient(ellipse 600px 300px at 20% 0%, rgba(166,92,92,0.08), transparent 70%), rgba(20,23,27,0.55);}
+.countdown{display:flex;gap:14px;margin:20px 0;}
+.cd-block{flex:1;text-align:center;padding:16px 8px;border-radius:12px;background:rgba(0,0,0,0.3);border:1px solid var(--hair);}
+.cd-num{font-family:var(--font-mono);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;}
+.cd-lbl{font-size:9.5px;color:var(--ash-dim);letter-spacing:0.1em;margin-top:4px;}
+.rule-list{list-style:none;margin-top:16px;}
+.rule-list li{padding:9px 0 9px 22px;position:relative;font-size:13px;color:var(--ash);border-bottom:1px solid var(--hair);}
+.rule-list li:before{content:'—';position:absolute;left:0;color:var(--ash-dim);}
+.rule-list li:last-child{border-bottom:none;}
+
+/* campaign / titles board */
+.title-board{display:flex;flex-direction:column;gap:12px;}
+.title-row{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:14px;align-items:center;padding:16px;border-radius:14px;background:rgba(20,23,27,0.5);border:1px solid var(--hair);}
+.title-name{font-size:14px;font-weight:600;}
+.title-sub{font-size:11px;color:var(--ash-dim);margin-top:2px;}
+.holder-chip{display:flex;align-items:center;gap:8px;}
+.holder-chip .av{width:22px;height:22px;border-radius:50%;background:var(--graphite);}
+.transfer-badge{font-family:var(--font-mono);font-size:10px;color:var(--gold);padding:4px 9px;border:1px solid var(--gold-dim);border-radius:6px;}
+
+/* case review circular */
+.circle-wrap{display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap;}
+.donut{position:relative;width:150px;height:150px;}
+.donut svg{transform:rotate(-90deg);}
+.donut-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.donut-label .n{font-size:22px;font-weight:700;}
+.donut-label .l{font-size:9.5px;color:var(--ash-dim);letter-spacing:0.06em;}
+
+/* rules accordion */
+.acc-item{border-bottom:1px solid var(--hair);}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:16px 4px;cursor:pointer;}
+.acc-head span:first-child{font-size:14px;font-weight:500;}
+.acc-head svg{width:14px;height:14px;color:var(--ash-dim);transition:transform .25s;}
+.acc-item.open .acc-head svg{transform:rotate(180deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.acc-item.open .acc-body{max-height:600px;}
+.acc-inner{padding:0 4px 18px;font-size:13px;color:var(--ash);line-height:1.7;}
+.rules-search{width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--hair);background:rgba(0,0,0,0.3);color:var(--bone);font-size:13.5px;margin-bottom:20px;}
+
+/* points table */
+.ptable{width:100%;border-collapse:collapse;font-size:13px;}
+.ptable th{text-align:left;font-size:10.5px;color:var(--ash-dim);letter-spacing:0.08em;padding:0 10px 12px;font-weight:500;}
+.ptable td{padding:12px 10px;border-top:1px solid var(--hair);}
+.ptable tr td:first-child, .ptable th:first-child{padding-left:0;}
+.num-mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+.pos{color:var(--blue);}
+.neg{color:var(--danger);}
+
+/* rankings */
+.rank-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.rtab{padding:8px 16px;border-radius:999px;font-size:12.5px;color:var(--ash);background:rgba(232,233,235,0.04);border:1px solid var(--hair);}
+.rtab.active{background:rgba(201,162,39,0.16);color:var(--bone);border-color:rgba(201,162,39,0.35);}
+.rank-row{display:grid;grid-template-columns:36px 1fr 90px 110px;gap:12px;align-items:center;padding:13px 10px;border-bottom:1px solid var(--hair);font-size:13px;}
+.rank-head{border-bottom:1px solid var(--hair-strong);}
+.rank-head-cell{color:var(--ash-dim);font-size:11px;letter-spacing:0.06em;cursor:pointer;user-select:none;transition:color .2s;}
+.rank-head-cell:hover{color:var(--bone);}
+.rank-pos{font-family:var(--font-mono);color:var(--ash-dim);font-weight:600;}
+.rank-pos.top3{color:var(--bone);}
+
+/* schedule */
+.week-toggle{display:flex;gap:6px;margin-bottom:20px;}
+.wk-btn{padding:9px 16px;border-radius:10px;font-size:12.5px;background:rgba(232,233,235,0.04);border:1px solid var(--hair);color:var(--ash);}
+.wk-btn.active{background:rgba(201,162,39,0.16);color:var(--bone);border-color:rgba(201,162,39,0.35);}
+.day-col{background:rgba(20,23,27,0.5);border:1px solid var(--hair);border-radius:14px;padding:16px;}
+.day-col h4{font-size:12.5px;color:var(--ash-dim);letter-spacing:0.05em;margin-bottom:12px;}
+.sched-item{padding:10px 0;border-top:1px solid var(--hair);}
+.sched-item:first-of-type{border-top:none;}
+.sched-time{font-family:var(--font-mono);font-size:10.5px;color:var(--gold);}
+.sched-name{font-size:12.5px;margin-top:3px;}
+
+/* profile */
+.idcard{max-width:380px;margin:0 auto;padding:30px;border-radius:22px;background:linear-gradient(160deg,rgba(30,33,38,0.8),rgba(10,11,13,0.9));border:1px solid var(--hair-strong);position:relative;overflow:hidden;}
+.idcard:before{content:'';position:absolute;top:-40%;right:-30%;width:70%;height:140%;background:radial-gradient(circle, rgba(201,162,39,0.09), transparent 60%);}
+.idcard-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;position:relative;}
+.idcard-head .org{font-family:var(--font-mono);font-size:10px;color:var(--ash-dim);letter-spacing:0.14em;}
+.idcard-photo{width:64px;height:64px;border-radius:14px;background:linear-gradient(145deg,#3A3D44,#181A1D);margin-bottom:16px;}
+.idcard-name{font-size:20px;font-weight:700;}
+.idcard-div{font-size:12.5px;color:var(--ash);margin-top:2px;}
+.idcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;padding-top:20px;border-top:1px dashed var(--hair-strong);}
+.idcard-grid .l{font-size:9.5px;color:var(--ash-dim);letter-spacing:0.08em;margin-bottom:3px;}
+.idcard-grid .v{font-size:13.5px;font-weight:600;}
+.segmented{display:flex;background:rgba(0,0,0,0.3);border:1px solid var(--hair);border-radius:12px;padding:4px;}
+.seg-btn{flex:1;padding:9px 0;border-radius:9px;font-size:12.5px;color:var(--ash);background:transparent;border:none;transition:background .2s, color .2s;}
+.seg-btn.active{background:rgba(232,233,235,0.08);color:var(--bone);}
+
+/* passes */
+.pass-card{display:flex;align-items:center;gap:16px;}
+.pass-count{font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--gold);min-width:44px;}
+.pass-title{font-size:14px;font-weight:600;}
+.pass-desc{font-size:12px;color:var(--ash-dim);margin-top:3px;}
+
+/* bottom nav (mobile) */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:74px;background:rgba(12,14,17,0.85);backdrop-filter:blur(24px);border-top:1px solid var(--hair);z-index:50;align-items:center;justify-content:space-around;padding-bottom:10px;}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ash-dim);font-size:9.5px;flex:1;}
+.bn-item svg{width:20px;height:20px;}
+.bn-item.active{color:var(--bone);}
+
+@media (max-width:960px){
+  .sidebar{display:none;}
+  .content{padding:18px;padding-bottom:90px;}
+  .bottom-nav{display:flex;}
+  .card{grid-column:span 12 !important;}
+  .top-clock{display:none;}
+  .grid{gap:12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LANDING ============ -->
+<section id="landing" class="screen active">
+  <div class="grid-veil"></div>
+  <div class="noise-drift"></div>
+  <div class="mark-glyph"><span class="dot"></span> SECURE CHANNEL · ENCRYPTED</div>
+  <div class="wordmark">ÆZ<small>Ash · Zee Arena</small></div>
+  <div class="tagline">"Beyond the source code."</div>
+  <button class="enter-btn" onclick="showScreen('login')">
+    Enter the Arena
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </button>
+  <div class="landing-foot">
+    <span>EST. UNDISCLOSED</span><span>DIVISION-CLASS SYSTEM</span><span>NO PUBLIC RECORD</span>
+  </div>
+</section>
+
+<!-- ============ LOGIN ============ -->
+<section id="login" class="screen">
+  <div class="login-card" id="loginCard">
+    <div class="login-head">
+      <div class="glyph">ÆZ SECURE ACCESS</div>
+      <div class="sub">IDENTIFY YOURSELF TO PROCEED</div>
+    </div>
+    <div class="field" id="fieldGang">
+      <label>Gang</label>
+      <select id="gangSelect" onchange="clearFieldError('fieldGang')">
+        <option value="" disabled selected>Select your gang</option>
+        <option value="Cadence Gang">Cadence Gang</option>
+        <option value="Discourse Gang">Discourse Gang</option>
+        <option value="Strife Gang">Strife Gang</option>
+        <option value="Charm Gang">Charm Gang</option>
+        <option value="Verse Gang">Verse Gang</option>
+        <option value="Retort Gang">Retort Gang</option>
+      </select>
+    </div>
+    <div class="field" id="fieldCodename">
+      <label>Codename</label>
+      <input type="text" placeholder="e.g. Ashford-9" id="codenameInput" oninput="clearFieldError('fieldCodename')" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div class="field" id="fieldPassword">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" placeholder="••••••••••" id="passwordInput" oninput="clearFieldError('fieldPassword')" onkeydown="if(event.key==='Enter')login()">
+        <button type="button" class="pw-toggle" onclick="togglePasswordVisibility()" aria-label="Show password">
+          <svg id="pwEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="status-row">
+      <div class="status-item"><div class="lbl">ACCESS</div><div class="val">RESTRICTED</div></div>
+      <div class="status-item"><div class="lbl">SECURITY</div><div class="val ok">NOMINAL</div></div>
+      <div class="status-item"><div class="lbl">LINK</div><div class="val ok">STABLE</div></div>
+    </div>
+    <div class="login-error" id="loginError" style="display:none"></div>
+    <button class="enter-full" id="loginSubmitBtn" onclick="login()">Enter the Arena</button>
+    <div class="login-note">Unauthorized access is logged and reported to Division Command.</div>
+    <div class="login-switch">New agent? <a onclick="showScreen('signup')">Register with your gang</a></div>
+  </div>
+</section>
+
+<!-- ============ SIGN UP ============ -->
+<section id="signup" class="screen">
+  <div class="login-card" id="signupCard" style="max-width:440px;">
+    <div class="login-head">
+      <div class="glyph">ÆZ AGENT REGISTRATION</div>
+      <div class="sub">SUBMIT YOUR CREDENTIALS FOR REVIEW</div>
+    </div>
+
+    <div id="signupForm">
+      <div class="field" id="suFieldGang">
+        <label>Gang</label>
+        <select id="suGangSelect" onchange="clearFieldError('suFieldGang')">
+          <option value="" disabled selected>Select your gang</option>
+          <option value="Cadence Gang">Cadence Gang</option>
+          <option value="Discourse Gang">Discourse Gang</option>
+          <option value="Strife Gang">Strife Gang</option>
+          <option value="Charm Gang">Charm Gang</option>
+          <option value="Verse Gang">Verse Gang</option>
+          <option value="Retort Gang">Retort Gang</option>
+        </select>
+      </div>
+      <div class="field" id="suFieldCodename">
+        <label>Codename</label>
+        <input type="text" placeholder="Choose a codename" id="suCodenameInput" oninput="clearFieldError('suFieldCodename')">
+      </div>
+      <div class="field" id="suFieldFb">
+        <label>Facebook UID</label>
+        <input type="text" placeholder="e.g. 100081234567890" id="suFbInput" oninput="clearFieldError('suFieldFb')">
+      </div>
+      <div class="field" id="suFieldJoined">
+        <label>Date joined the gang</label>
+        <input type="date" id="suJoinedInput" onchange="clearFieldError('suFieldJoined')">
+      </div>
+      <div class="field" id="suFieldPassword">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" placeholder="Choose a password" id="suPasswordInput" oninput="clearFieldError('suFieldPassword')">
+        </div>
+      </div>
+      <div class="field" id="suFieldId">
+        <label>Upload ID picture</label>
+        <label class="upload-well" id="uploadWell" for="suIdFile">
+          <input type="file" id="suIdFile" accept="image/*" onchange="handleIdUpload(this)" style="display:none">
+          <img id="uploadPreview" style="display:none">
+          <div id="uploadPrompt">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-9 9"/></svg>
+            <span>Tap to upload a photo of your ID</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="login-error" id="signupError" style="display:none"></div>
+      <button class="enter-full" onclick="submitSignup()">Submit for Verification</button>
+      <div class="login-note">Your gang reviews new registrations against the ID and Facebook profile submitted here.</div>
+      <div class="login-switch">Already registered? <a onclick="showScreen('login')">Back to Secure Access</a></div>
+    </div>
+
+    <div id="signupPending" style="display:none;text-align:center;">
+      <div class="stamp neutral" id="pendingStamp" style="transform:rotate(-2deg);margin-bottom:18px;display:inline-block">PENDING VERIFICATION</div>
+      <div class="pending-photo-wrap"><img id="pendingPhoto"></div>
+      <div class="pending-name" id="pendingCodename">—</div>
+      <div class="page-sub" id="pendingGang">—</div>
+      <div class="kv-row"><span class="k">Facebook UID</span><span class="v" id="pendingFb">—</span></div>
+      <div class="kv-row"><span class="k">Joined gang</span><span class="v" id="pendingJoined">—</span></div>
+      <div class="kv-row"><span class="k">Submitted</span><span class="v">Just now</span></div>
+      <div class="page-sub" style="margin:18px 0;text-align:left" id="pendingNote">
+        Your registration has been sent to <span id="pendingGangInline">your gang</span> for review. Once a division officer confirms your identity against this ID and Facebook profile, your access will be marked verified.
+      </div>
+      <button class="enter-full" id="verifyDemoBtn" onclick="simulateGangVerification()" style="background:var(--gold);color:var(--void)">Simulate Gang Verification (Demo)</button>
+      <div class="login-note">In a live deployment, this step is completed by a division officer — not the applicant.</div>
+      <div class="login-switch"><a onclick="showScreen('login')">Back to Secure Access</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="app" class="screen">
+  <aside class="sidebar">
+    <div class="side-brand"><div class="glyph">Æ</div><div class="name">ÆZ Arena</div></div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">HOME</div>
+      <a class="nav-item active" data-view="dashboard" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
+      <a class="nav-item" data-view="activities" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Activities</a>
+      <a class="nav-item" data-view="schedule" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Schedule</a>
+      <a class="nav-item" data-view="rankings" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Rankings</a>
+      <a class="nav-item" data-view="points" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>Points</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">INTELLIGENCE</div>
+      <a class="nav-item" data-view="intel" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6"/></svg>Intel Center</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">OPERATIONS</div>
+      <a class="nav-item" data-view="blackop" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Black Operation</a>
+      <a class="nav-item" data-view="codeclass" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13 6l-2 12"/></svg>Code Class</a>
+      <a class="nav-item" data-view="campaign" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4v16M4 4h11l-1.5 4L15 12H4"/></svg>Campaign Breach</a>
+      <a class="nav-item" data-view="casereview" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v4M4.2 8l3.4 2M4.2 16l3.4-2M12 22v-4M19.8 16l-3.4-2M19.8 8l-3.4 2"/><circle cx="12" cy="12" r="3"/></svg>Case Review</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">ACCESS</div>
+      <a class="nav-item" data-view="profile" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
+      <a class="nav-item" data-view="passes" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg>Passes</a>
+      <a class="nav-item" data-view="rules" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 2h6l1 4H8l1-4Z"/><path d="M6 6h12l1 15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1L6 6Z"/></svg>Rules</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="top-left"><div class="top-mark">ÆZ</div><div class="top-clock" id="liveClock">—</div></div>
+      <div class="top-right">
+        <div class="icon-btn clickable" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+        <div class="icon-btn clickable" onclick="openNotif()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot"></span></div>
+        <div class="avatar-chip clickable" id="avatarChip" onclick="toggleAvatarMenu()">
+          <div class="av"></div><div class="lvl" id="topCodename">Ashford-9</div>
+          <div class="avatar-menu" id="avatarMenu">
+            <div class="avatar-menu-item" onclick="event.stopPropagation();logout()">Log Out</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="view active" id="view-dashboard">
+        <div class="page-head"><div><h1>Command Overview</h1><div class="page-sub">Division status, live at <span id="dashTime">—</span></div></div><span class="stamp active">ACTIVE</span></div>
+        <div class="grid">
+          <div class="card span-8 welcome-card">
+            <div>
+              <h2>Welcome back, Agent.</h2>
+              <div class="page-sub" id="wcSubline">Trojan Division · Clearance confirmed</div>
+              <div class="meta">
+                <div class="meta-item"><div class="l">CODENAME</div><div class="v" id="wcCodename">Ashford-9</div></div>
+                <div class="meta-item"><div class="l">DIVISION</div><div class="v" id="wcDivision">Cadence Gang</div></div>
+                <div class="meta-item"><div class="l">RANK</div><div class="v" id="wcRank">#4 Individual</div></div>
+                <div class="meta-item"><div class="l">STATUS</div><div class="v" style="color:var(--blue)">On Duty</div></div>
+              </div>
+            </div>
+            <div class="id-glass"><div class="lv">ACCESS LEVEL</div><div class="lv-val" id="wcAccessLevel">III</div></div>
+          </div>
+          <div class="card span-4">
+            <div class="stat-label">CURRENT POINTS</div>
+            <div class="stat-value" data-count="184500" id="statPoints">0</div>
+            <div class="stat-delta">+12,000 this week</div>
+          </div>
+
+          <div class="card span-3"><div class="stat-label">DIVISION RANK</div><div class="stat-value" data-count="2" id="statDivRank">0</div><div class="stat-delta">of 6 divisions</div></div>
+          <div class="card span-3"><div class="stat-label">INDIVIDUAL RANK</div><div class="stat-value" data-count="4" id="statIndRank">0</div><div class="stat-delta">↑ 2 since Monday</div></div>
+          <div class="card span-3"><div class="stat-label">ATTENDANCE</div><div class="stat-value" data-count="96" id="statAttendance">0<span style="font-size:16px">%</span></div><div class="stat-delta">28 of 29 sessions</div></div>
+          <div class="card span-3"><div class="stat-label">AVAILABLE PASSES</div><div class="stat-value" data-count="3" id="statPasses">0</div><div class="stat-delta down">1 used this cycle</div></div>
+
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:14px">ACTIVE OPERATIONS</div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 2 7l10 5 10-5-10-5Z"/></svg></div><div><div class="list-title">Black Operation — Cipher 07</div><div class="list-sub">Ends in 14h 22m</div></div></div><span class="pill live">Live</span></div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v16M4 4h11l-1.5 4L15 12H4"/></svg></div><div><div class="list-title">Campaign Breach — Fliptop War</div><div class="list-sub">Registration open</div></div></div><span class="pill">Open</span></div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg></div><div><div class="list-title">Case Log — Weekly Submission</div><div class="list-sub">Due Friday, 11:59 PM</div></div></div><span class="pill">Pending</span></div>
+          </div>
+
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:14px">UPCOMING WARS</div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M2 12h20"/></svg></div><div><div class="list-title">Major War — Cadence vs. Discourse</div><div class="list-sub">Wednesday, 8:00 PM</div></div></div><span class="pill">Major</span></div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M2 12h20"/></svg></div><div><div class="list-title">Minor War — Charm vs. Verse</div><div class="list-sub">Friday, 9:00 PM</div></div></div><span class="pill">Minor</span></div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M2 12h20"/></svg></div><div><div class="list-title">Case Review — Post-War Judging</div><div class="list-sub">Following each war night</div></div></div><span class="pill">Scheduled</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITIES -->
+      <div class="view" id="view-activities">
+        <div class="page-head"><div><h1>Activities</h1><div class="page-sub">Register, track, and review the division's active engagements</div></div></div>
+        <div class="filter-row" id="actFilters"></div>
+        <div class="act-grid" id="actGrid"></div>
+      </div>
+
+      <!-- SCHEDULE -->
+      <div class="view" id="view-schedule">
+        <div class="page-head"><div><h1>Schedule</h1><div class="page-sub">Black Operation and Code Class are not part of the standing schedule</div></div></div>
+        <div class="week-toggle">
+          <button class="wk-btn active" onclick="setWeek(this,'w13')">1st &amp; 3rd Week</button>
+          <button class="wk-btn" onclick="setWeek(this,'w2')">2nd Week</button>
+          <button class="wk-btn" onclick="setWeek(this,'w4')">4th Week</button>
+        </div>
+        <div class="grid" id="schedGrid"></div>
+      </div>
+
+      <!-- RANKINGS -->
+      <div class="view" id="view-rankings">
+        <div class="page-head"><div><h1>Rankings</h1><div class="page-sub">Division and individual standings, updated live</div></div></div>
+        <div class="rank-tabs">
+          <button class="rtab active" onclick="setRankTab(this,'agents')">Agents' Leaderboard</button>
+          <button class="rtab" onclick="setRankTab(this,'individual')">Individual</button>
+          <button class="rtab" onclick="setRankTab(this,'division')">Division</button>
+          <button class="rtab" onclick="setRankTab(this,'titles')">War Titles</button>
+          <button class="rtab" onclick="setRankTab(this,'records')">Record Holders</button>
+        </div>
+        <div class="card span-12">
+          <div class="rank-row rank-head" id="rankHead"></div>
+          <div id="rankRows"></div>
+        </div>
+      </div>
+
+      <!-- POINTS -->
+      <div class="view" id="view-points">
+        <div class="page-head"><div><h1>Points Intelligence</h1><div class="page-sub">Full ledger of the ÆZ scoring system</div></div></div>
+        <div class="grid">
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:12px">CASE LOG</div>
+            <table class="ptable"><tr><td>Per head</td><td class="num-mono pos" style="text-align:right">+1,000</td></tr><tr><td>Per deduction</td><td class="num-mono neg" style="text-align:right">−500</td></tr></table>
+          </div>
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:12px">OPERATION</div>
+            <table class="ptable">
+              <tr><td>1st correct answer</td><td class="num-mono pos" style="text-align:right">+5,000</td></tr>
+              <tr><td>2nd correct answer</td><td class="num-mono pos" style="text-align:right">+4,000</td></tr>
+              <tr><td>3rd correct answer</td><td class="num-mono pos" style="text-align:right">+3,000</td></tr>
+              <tr><td>Remaining correct</td><td class="num-mono pos" style="text-align:right">+1,000</td></tr>
+              <tr><td>Incorrect / edited</td><td class="num-mono" style="text-align:right;color:var(--ash-dim)">0</td></tr>
+              <tr><td>Violation</td><td class="num-mono neg" style="text-align:right">−1,000</td></tr>
+            </table>
+          </div>
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:12px">MAJOR WARS</div>
+            <table class="ptable">
+              <tr><td>Win</td><td class="num-mono pos" style="text-align:right">+100,000</td></tr>
+              <tr><td>Both win</td><td class="num-mono pos" style="text-align:right">+85,000</td></tr>
+              <tr><td>Lose</td><td class="num-mono pos" style="text-align:right">+70,000</td></tr>
+              <tr><td>Both lose</td><td class="num-mono pos" style="text-align:right">+55,000</td></tr>
+              <tr><td>WBD with introduction</td><td class="num-mono pos" style="text-align:right">+30,000</td></tr>
+              <tr><td>Feedback</td><td class="num-mono pos" style="text-align:right">+50,000</td></tr>
+              <tr><td>Cheer (per division)</td><td class="num-mono pos" style="text-align:right">+5,000</td></tr>
+              <tr><td>Penalty</td><td class="num-mono neg" style="text-align:right">−10,000</td></tr>
+            </table>
+          </div>
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:12px">MINOR WARS</div>
+            <table class="ptable">
+              <tr><td>Win</td><td class="num-mono pos" style="text-align:right">+80,000</td></tr>
+              <tr><td>Both win</td><td class="num-mono pos" style="text-align:right">+65,000</td></tr>
+              <tr><td>Lose</td><td class="num-mono pos" style="text-align:right">+50,000</td></tr>
+              <tr><td>Both lose</td><td class="num-mono pos" style="text-align:right">+35,000</td></tr>
+              <tr><td>WBD with introduction</td><td class="num-mono pos" style="text-align:right">+20,000</td></tr>
+              <tr><td>Feedback</td><td class="num-mono pos" style="text-align:right">+30,000</td></tr>
+              <tr><td>Cheer (per division)</td><td class="num-mono pos" style="text-align:right">+5,000</td></tr>
+              <tr><td>Penalty</td><td class="num-mono neg" style="text-align:right">−10,000</td></tr>
+            </table>
+          </div>
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:12px">CAMPAIGN BREACH</div>
+            <table class="ptable">
+              <tr><td>Title holder</td><td class="num-mono pos" style="text-align:right">+100,000</td></tr>
+              <tr><td>Registration</td><td class="num-mono pos" style="text-align:right">+10,000</td></tr>
+              <tr><td>Win</td><td class="num-mono pos" style="text-align:right">+50,000</td></tr>
+              <tr><td>Lose</td><td class="num-mono pos" style="text-align:right">+30,000</td></tr>
+              <tr><td>WBD w/ intro — challenger</td><td class="num-mono pos" style="text-align:right">+15,000 + title</td></tr>
+              <tr><td>WBD w/ intro — holder</td><td class="num-mono pos" style="text-align:right">+15,000</td></tr>
+            </table>
+          </div>
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:12px">INTEL HUB &amp; DIVISION ARRIVAL</div>
+            <table class="ptable">
+              <tr><td>Intel Hub — per message</td><td class="num-mono pos" style="text-align:right">+5,000</td></tr>
+              <tr><td>Welcomed gang</td><td class="num-mono pos" style="text-align:right">+50,000</td></tr>
+              <tr><td>Old gang, 5+ greetings</td><td class="num-mono pos" style="text-align:right">+5,000</td></tr>
+              <tr><td>Old gang, 10+ greetings</td><td class="num-mono pos" style="text-align:right">+10,000</td></tr>
+            </table>
+            <div class="page-sub" style="margin-top:10px">Facilitator-dependent activities are marked accordingly and are not self-reported.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTEL CENTER -->
+      <div class="view" id="view-intel">
+        <div class="page-head"><div><h1>Intelligence Center</h1><div class="page-sub">Case records, directives, and the division archive</div></div></div>
+        <div class="tabs-row" style="margin-bottom:20px">
+          <button class="tab-btn active" onclick="setIntelTab(this,'caselog')">Case Log</button>
+          <button class="tab-btn" onclick="setIntelTab(this,'casefile')">Casefile</button>
+          <button class="tab-btn" onclick="setIntelTab(this,'intelhub')">Intel Hub</button>
+          <button class="tab-btn" onclick="setIntelTab(this,'directive')">Directive</button>
+          <button class="tab-btn" onclick="setIntelTab(this,'archive')">Archive</button>
+        </div>
+        <div id="intel-caselog" class="intel-pane">
+          <div class="card span-12" id="caseLogRows"></div>
+        </div>
+        <div id="intel-casefile" class="intel-pane" style="display:none">
+          <div class="card span-12"><div class="page-sub">Every agent's individual dossier — activity history, points, and standing in one confidential file.</div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/></svg></div><div><div class="list-title">Ashford-9</div><div class="list-sub">Cadence Gang · Access III</div></div></div><span class="pill">View</span></div>
+          </div>
+        </div>
+        <div id="intel-intelhub" class="intel-pane" style="display:none">
+          <div class="card span-12">
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v12H8l-4 4V4Z"/></svg></div><div><div class="list-title">Intel drop: new cipher pattern circulating</div><div class="list-sub">Posted 3h ago · +5,000 pts / message</div></div></div><span class="pill">5,000</span></div>
+          </div>
+        </div>
+        <div id="intel-directive" class="intel-pane" style="display:none">
+          <div class="card span-12">
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l1 4H8l1-4Z"/></svg></div><div><div class="list-title">Directive 12-A: Mandatory Case Review Attendance</div><div class="list-sub">Issued by Division Command</div></div></div><span class="pill">New</span></div>
+          </div>
+        </div>
+        <div id="intel-archive" class="intel-pane" style="display:none">
+          <div class="card span-12">
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M5 7v13a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7M9 3h6l1 4H8l1-4Z"/></svg></div><div><div class="list-title">Season 1 — Full Ledger</div><div class="list-sub">Closed cycle · sealed</div></div></div><span class="pill">Sealed</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLACK OPERATION -->
+      <div class="view" id="view-blackop">
+        <div class="page-head"><div><h1>Black Operation</h1><div class="page-sub">Cipher 07</div></div><span class="stamp classified">CLASSIFIED · ACTIVE</span></div>
+        <div class="grid">
+          <div class="card span-8 op-hero">
+            <div class="stat-label">TIME REMAINING</div>
+            <div class="countdown">
+              <div class="cd-block"><div class="cd-num" id="cdH">14</div><div class="cd-lbl">HOURS</div></div>
+              <div class="cd-block"><div class="cd-num" id="cdM">22</div><div class="cd-lbl">MINUTES</div></div>
+              <div class="cd-block"><div class="cd-num" id="cdS">05</div><div class="cd-lbl">SECONDS</div></div>
+            </div>
+            <ul class="rule-list">
+              <li>24-hour duration from time of release</li>
+              <li>Open to all agents across every division</li>
+              <li>First correct answer receives the full point award</li>
+              <li>No consolation points for incorrect submissions</li>
+              <li>Multiple submissions permitted until answered correctly</li>
+            </ul>
+          </div>
+          <div class="card span-4">
+            <div class="stat-label" style="margin-bottom:10px">SUBMISSION</div>
+            <div class="field"><label>Your answer</label><input type="text" placeholder="Enter decrypted value"></div>
+            <button class="enter-full" style="margin-top:4px">Submit Answer</button>
+            <div class="page-sub" style="margin-top:14px">3 submissions logged this cycle. No correct answer recorded yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CODE CLASS -->
+      <div class="view" id="view-codeclass">
+        <div class="page-head"><div><h1>Code Class</h1><div class="page-sub">Training, ciphers, and technical literacy for the division</div></div></div>
+        <div class="grid">
+          <div class="card span-4"><div class="stat-label">SEATS PER DIVISION</div><div class="stat-value" data-count="50">0</div><div class="stat-delta">Maximum enrollment</div></div>
+          <div class="card span-4"><div class="stat-label">NEXT SESSION</div><div class="stat-value" style="font-size:20px">Ciphers II</div><div class="stat-delta">Tuesday, 7:00 PM</div></div>
+          <div class="card span-4"><div class="stat-label">ATTENDANCE QUESTIONS</div><div class="stat-value" data-count="4">0</div><div class="stat-delta">Required per session</div></div>
+          <div class="card span-12">
+            <div class="stat-label" style="margin-bottom:12px">CURRICULUM</div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m8 9-4 3 4 3M16 9l4 3-4 3"/></svg></div><div><div class="list-title">Coding &amp; Programming Fundamentals</div><div class="list-sub">Lesson + tutorial format</div></div></div><span class="pill">Module 1</span></div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg></div><div><div class="list-title">Excel &amp; Sheets Literacy</div><div class="list-sub">Practical drills</div></div></div><span class="pill">Module 2</span></div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M2 12h20"/></svg></div><div><div class="list-title">Codes, Ciphers &amp; Solving Methods</div><div class="list-sub">History + applied practice</div></div></div><span class="pill">Module 3</span></div>
+            <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/></svg></div><div><div class="list-title">Recitation &amp; 24-Hour Assignment</div><div class="list-sub">Assigned at facilitator's discretion</div></div></div><span class="pill">Module 4</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMPAIGN BREACH -->
+      <div class="view" id="view-campaign">
+        <div class="page-head"><div><h1>Campaign Breach</h1><div class="page-sub">War of Titles</div></div></div>
+        <div class="title-board" id="titleBoard"></div>
+      </div>
+
+      <!-- CASE REVIEW -->
+      <div class="view" id="view-casereview">
+        <div class="page-head"><div><h1>Case Review</h1><div class="page-sub">Post-war judging breakdown</div></div></div>
+        <div class="grid">
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:16px">JUDGING WEIGHT</div>
+            <div class="circle-wrap">
+              <div class="donut">
+                <svg width="150" height="150" viewBox="0 0 150 150">
+                  <circle cx="75" cy="75" r="62" fill="none" stroke="var(--graphite)" stroke-width="14"/>
+                  <circle cx="75" cy="75" r="62" fill="none" stroke="var(--gold)" stroke-width="14" stroke-dasharray="194.7 194.7" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-label"><div class="n">50%</div><div class="l">WAR JUDGE</div></div>
+              </div>
+              <div class="donut">
+                <svg width="150" height="150" viewBox="0 0 150 150">
+                  <circle cx="75" cy="75" r="62" fill="none" stroke="var(--graphite)" stroke-width="14"/>
+                  <circle cx="75" cy="75" r="62" fill="none" stroke="var(--silver)" stroke-width="14" stroke-dasharray="194.7 194.7" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-label"><div class="n">50%</div><div class="l">DIVISION REPS</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card span-6">
+            <div class="stat-label" style="margin-bottom:12px">LAST BATTLEFIELD</div>
+            <div class="kv-row"><span class="k">Battlefield</span><span class="v">Fliptop War — Ring B</span></div>
+            <div class="kv-row"><span class="k">Winning division</span><span class="v">Cadence Gang</span></div>
+            <div class="kv-row"><span class="k">Losing division</span><span class="v">Discourse Gang</span></div>
+            <div class="kv-row"><span class="k">Feedback filed</span><span class="v">Yes, both sides</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="view" id="view-profile">
+        <div class="page-head"><div><h1>Agent Profile</h1><div class="page-sub">Confidential identification record</div></div></div>
+        <div class="segmented" style="max-width:380px;margin:0 auto 20px;">
+          <button class="seg-btn active" onclick="setProfileTab(this,'id')">ID Card</button>
+          <button class="seg-btn" onclick="setProfileTab(this,'log')">Activity Log</button>
+        </div>
+        <div id="profile-id">
+          <div class="idcard">
+            <div class="idcard-head"><div class="org">ÆZ ARENA · AGENT ID</div><span class="stamp neutral" style="transform:rotate(2deg)">ON FILE</span></div>
+            <div class="idcard-photo"></div>
+            <div class="idcard-name" id="idCardName">Ashford-9</div>
+            <div class="idcard-div" id="idCardDiv">Cadence Gang · Trojan of Cadence</div>
+            <div class="idcard-grid">
+              <div><div class="l">ACCESS LEVEL</div><div class="v" id="idAccessLevel">III</div></div>
+              <div><div class="l">POINTS</div><div class="v" id="idPoints">184,500</div></div>
+              <div><div class="l">RANK</div><div class="v" id="idRank">#4 Individual</div></div>
+              <div><div class="l">ATTENDANCE</div><div class="v" id="idAttendance">96%</div></div>
+              <div><div class="l">TITLES HELD</div><div class="v" id="idTitles">1 — Cadence</div></div>
+              <div><div class="l">PASSES</div><div class="v" id="idPasses">3 Available</div></div>
+            </div>
+          </div>
+        </div>
+        <div id="profile-log" style="display:none;max-width:560px;margin:0 auto;">
+          <div class="card span-12" id="profileLogList"></div>
+        </div>
+      </div>
+
+      <!-- PASSES -->
+      <div class="view" id="view-passes">
+        <div class="page-head"><div><h1>Passes</h1><div class="page-sub">Campaign Breach benefits inventory</div></div></div>
+        <div class="grid">
+          <div class="card span-6 pass-card"><div class="pass-count">5×</div><div><div class="pass-title">Case Log Pass</div><div class="pass-desc">Covers one missed Case Log submission without deduction.</div></div></div>
+          <div class="card span-6 pass-card"><div class="pass-count">1×</div><div><div class="pass-title">Operation Pass</div><div class="pass-desc">Grants credit for one missed Operation round.</div></div></div>
+          <div class="card span-6 pass-card"><div class="pass-count">1×</div><div><div class="pass-title">Casefile Pass</div><div class="pass-desc">Protects one Casefile entry from review penalty.</div></div></div>
+          <div class="card span-6 pass-card"><div class="pass-count">100K</div><div><div class="pass-title">Points Grant</div><div class="pass-desc">One-time award of 100,000 points to the holding Trojan.</div></div></div>
+        </div>
+      </div>
+
+      <!-- RULES -->
+      <div class="view" id="view-rules">
+        <div class="page-head"><div><h1>Rules Center</h1><div class="page-sub">The ÆZ Arena handbook, organized and searchable</div></div></div>
+        <input class="rules-search" placeholder="Search rules — e.g. 'privacy', 'spamming', 'penalties'" oninput="filterRules(this.value)">
+        <div class="card span-12" id="rulesList"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CASE FILE MODAL -->
+<div class="modal-veil" id="caseModal" onclick="closeModalOutside(event)">
+  <div class="sheet">
+    <div class="sheet-close" onclick="closeModal()">✕</div>
+    <div class="sheet-handle"></div>
+    <div class="page-sub" style="margin-bottom:2px">CASE FILE</div>
+    <h2 style="font-size:20px;margin-bottom:16px" id="modalCaseNo">—</h2>
+    <div class="tabs-row" id="modalTabs">
+      <button class="tab-btn active" onclick="setModalTab(this,'overview')">Overview</button>
+      <button class="tab-btn" onclick="setModalTab(this,'activity')">Activity</button>
+      <button class="tab-btn" onclick="setModalTab(this,'history')">History</button>
+      <button class="tab-btn" onclick="setModalTab(this,'records')">Records</button>
+    </div>
+    <div id="modalPane-overview" class="modal-pane"></div>
+    <div id="modalPane-activity" class="modal-pane" style="display:none"></div>
+    <div id="modalPane-history" class="modal-pane" style="display:none"></div>
+    <div id="modalPane-records" class="modal-pane" style="display:none"></div>
+  </div>
+</div>
+
+<!-- QUICK SEARCH -->
+<div class="modal-veil" id="searchModal" onclick="closeSearchOutside(event)">
+  <div class="sheet" style="max-width:520px;">
+    <div class="sheet-close" onclick="closeSearch()">✕</div>
+    <div class="sheet-handle"></div>
+    <input class="rules-search" id="quickSearchInput" placeholder="Search activities, rules, agents…" oninput="runQuickSearch(this.value)" style="margin-bottom:16px">
+    <div id="quickSearchResults"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="modal-veil" id="notifModal" onclick="closeNotifOutside(event)">
+  <div class="sheet" style="max-width:460px;">
+    <div class="sheet-close" onclick="closeNotif()">✕</div>
+    <div class="sheet-handle"></div>
+    <div class="page-sub" style="margin-bottom:14px">NOTIFICATIONS</div>
+    <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 2 7l10 5 10-5-10-5Z"/></svg></div><div><div class="list-title">Black Operation ends in 14h</div><div class="list-sub">Cipher 07 · no correct answer logged yet</div></div></div></div>
+    <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v16M4 4h11l-1.5 4L15 12H4"/></svg></div><div><div class="list-title">Fliptop War registration closes tonight</div><div class="list-sub">Campaign Breach · Trojan of Cadence</div></div></div></div>
+    <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l1 4H8l1-4Z"/></svg></div><div><div class="list-title">New directive issued by Division Command</div><div class="list-sub">12-A · mandatory Case Review attendance</div></div></div></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <a class="bn-item active" data-view="dashboard" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Home</span></a>
+  <a class="bn-item" data-view="activities" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span>Activity</span></a>
+  <a class="bn-item" data-view="intel" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/></svg><span>Intel</span></a>
+  <a class="bn-item" data-view="rankings" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M12 20V4M20 20v-7"/></svg><span>Ranks</span></a>
+  <a class="bn-item" data-view="profile" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><span>Profile</span></a>
+</div>
+
+<script>
+/* ============ AGENT ROSTER (mock access-control data) ============ */
+/* Passwords are stored here as SHA-256 hashes rather than plaintext, and
+   checked with the browser's own crypto engine (SubtleCrypto). That stops
+   a password from being readable at a glance in the page source — but
+   this is still a static file with no server behind it, so it's a model
+   of an access-control flow, not real production security. A real build
+   would verify credentials against a server, over HTTPS, with the actual
+   hashing (properly salted) done server-side. */
+var roster = [
+  {codename:'Ashford-9', gang:'Cadence Gang', passwordHash:'2fc18b097e202941cc039f7a6df8fb17855624b1d36eaed987bfdce084b22731', accessLevel:'III', points:184500, divisionRank:2, individualRank:1, attendance:96, titles:'1 — Trojan of Cadence', passes:3},
+  {codename:'Marlowe-2', gang:'Discourse Gang', passwordHash:'0c5a00ce1d2f7344db6729bff874976fe22d3d372824c85c2255faf86bffd266', accessLevel:'III', points:179200, divisionRank:1, individualRank:2, attendance:91, titles:'0', passes:2},
+  {codename:'Vesper-6', gang:'Verse Gang', passwordHash:'255c5ffb820e9d21f8f78e5994dcb49eaa8d6a59c4363daa270f7af9541e5a61', accessLevel:'II', points:171050, divisionRank:3, individualRank:3, attendance:94, titles:'1 — Trojan of Verse', passes:4},
+  {codename:'Odessa-4', gang:'Charm Gang', passwordHash:'505d566f11c90a67250d92d54b910caa54101c305f6466a398c26084d3bb2b8b', accessLevel:'II', points:168400, divisionRank:4, individualRank:4, attendance:89, titles:'0', passes:1},
+  {codename:'Kestrel-1', gang:'Retort Gang', passwordHash:'13d7bbe43da33624a31829793d9a5bf79ca0f7a8dd7a8a06dcb4fa66115bb6d7', accessLevel:'III', points:159900, divisionRank:5, individualRank:5, attendance:97, titles:'1 — Trojan of Charm', passes:2},
+  {codename:'Dresden-3', gang:'Strife Gang', passwordHash:'fca7a7ec3fb02ea3f1004c35d81a21fbf5d3bd7722e94565e6800fa017df5317', accessLevel:'I', points:151200, divisionRank:6, individualRank:6, attendance:85, titles:'0', passes:0}
+];
+var currentAgent = null;
+
+async function sha256Hex(str){
+  var enc = new TextEncoder().encode(str);
+  var buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+/* ============ FAILED-ATTEMPT LOCKOUT ============ */
+var failedAttempts = 0;
+var LOCKOUT_AFTER = 3;
+var LOCKOUT_SECONDS = 20;
+var lockoutTimer = null;
+
+function setLoginFormDisabled(disabled){
+  ['gangSelect','codenameInput','passwordInput','loginSubmitBtn'].forEach(function(id){
+    document.getElementById(id).disabled = disabled;
+  });
+}
+function startLockout(){
+  var remaining = LOCKOUT_SECONDS;
+  setLoginFormDisabled(true);
+  var btn = document.getElementById('loginSubmitBtn');
+  function tick(){
+    showLoginError('Too many failed attempts. Access locked for '+remaining+'s.');
+    btn.textContent = 'Locked — '+remaining+'s';
+    if(remaining<=0){
+      clearInterval(lockoutTimer);
+      lockoutTimer = null;
+      setLoginFormDisabled(false);
+      btn.textContent = 'Enter the Arena';
+      failedAttempts = 0;
+      hideLoginError();
+      return;
+    }
+    remaining--;
+  }
+  tick();
+  lockoutTimer = setInterval(tick, 1000);
+}
+
+/* ============ SCREEN / NAV ============ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showLoginError(msg){
+  var el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'flex';
+  var card = document.getElementById('loginCard');
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+}
+function hideLoginError(){
+  document.getElementById('loginError').style.display = 'none';
+}
+function clearFieldError(fieldId){
+  document.getElementById(fieldId).classList.remove('error');
+}
+function markFieldError(fieldId){
+  document.getElementById(fieldId).classList.add('error');
+}
+function togglePasswordVisibility(){
+  var input = document.getElementById('passwordInput');
+  var icon = document.getElementById('pwEyeIcon');
+  var showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  icon.innerHTML = showing
+    ? '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/>'
+    : '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.6 19.6 0 0 1 4.22-5.5M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a19.6 19.6 0 0 1-2.68 3.9M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/>';
+}
+async function login(){
+  if(lockoutTimer) return;
+  ['fieldGang','fieldCodename','fieldPassword'].forEach(clearFieldError);
+
+  var gang = document.getElementById('gangSelect').value;
+  var cn = document.getElementById('codenameInput').value.trim();
+  var pw = document.getElementById('passwordInput').value;
+
+  var missing = [];
+  if(!gang){ markFieldError('fieldGang'); missing.push('gang'); }
+  if(!cn){ markFieldError('fieldCodename'); missing.push('codename'); }
+  if(!pw){ markFieldError('fieldPassword'); missing.push('password'); }
+  if(missing.length){
+    var label = missing.length===1 ? missing[0] : missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1];
+    showLoginError('Enter your '+label+' to continue.');
+    return;
+  }
+
+  var btn = document.getElementById('loginSubmitBtn');
+  btn.textContent = 'Verifying…';
+  var pwHash = await sha256Hex(pw);
+  btn.textContent = 'Enter the Arena';
+
+  var match = roster.find(function(a){
+    return a.gang===gang && a.codename.toLowerCase()===cn.toLowerCase() && a.passwordHash===pwHash;
+  });
+
+  if(!match){
+    failedAttempts++;
+    markFieldError('fieldGang'); markFieldError('fieldCodename'); markFieldError('fieldPassword');
+    if(failedAttempts>=LOCKOUT_AFTER){
+      startLockout();
+    } else {
+      var left = LOCKOUT_AFTER - failedAttempts;
+      showLoginError('Access denied. That gang, codename, and password combination is not on file. '+left+' attempt'+(left===1?'':'s')+' remaining before lockout.');
+    }
+    return;
+  }
+
+  failedAttempts = 0;
+  hideLoginError();
+  currentAgent = match;
+  applyAgentToUI(match);
+  showScreen('app');
+  animateCounters();
+  document.querySelectorAll('#view-dashboard .card').forEach(function(card,i){
+    card.classList.add('stagger-in');
+    card.style.animationDelay = (i*45)+'ms';
+  });
+}
+function applyAgentToUI(a){
+  document.getElementById('topCodename').textContent = a.codename;
+  document.getElementById('wcCodename').textContent = a.codename;
+  document.getElementById('wcDivision').textContent = a.gang;
+  document.getElementById('wcRank').textContent = '#'+a.individualRank+' Individual';
+  document.getElementById('wcAccessLevel').textContent = a.accessLevel;
+  document.getElementById('wcSubline').textContent = a.gang+' · Clearance confirmed';
+
+  document.getElementById('statPoints').setAttribute('data-count', a.points);
+  document.getElementById('statDivRank').setAttribute('data-count', a.divisionRank);
+  document.getElementById('statIndRank').setAttribute('data-count', a.individualRank);
+  document.getElementById('statAttendance').setAttribute('data-count', a.attendance);
+  document.getElementById('statPasses').setAttribute('data-count', a.passes);
+
+  document.getElementById('idCardName').textContent = a.codename;
+  document.getElementById('idCardDiv').textContent = a.gang+(a.titles!=='0' ? ' · '+a.titles.split('— ')[1] : '');
+  document.getElementById('idAccessLevel').textContent = a.accessLevel;
+  document.getElementById('idPoints').textContent = a.points.toLocaleString();
+  document.getElementById('idRank').textContent = '#'+a.individualRank+' Individual';
+  document.getElementById('idAttendance').textContent = a.attendance+'%';
+  document.getElementById('idTitles').textContent = a.titles;
+  document.getElementById('idPasses').textContent = a.passes+' Available';
+}
+
+/* ============ SIGN UP / REGISTRATION ============ */
+var pendingApplicant = null;
+
+function handleIdUpload(input){
+  var file = input.files[0];
+  if(!file) return;
+  clearFieldError('suFieldId');
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = document.getElementById('uploadPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('uploadPrompt').style.display = 'none';
+    document.getElementById('uploadWell').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+
+function showSignupError(msg){
+  var el = document.getElementById('signupError');
+  el.textContent = msg;
+  el.style.display = 'flex';
+  var card = document.getElementById('signupCard');
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+}
+
+async function submitSignup(){
+  var fieldIds = ['suFieldGang','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
+  fieldIds.forEach(clearFieldError);
+
+  var gang = document.getElementById('suGangSelect').value;
+  var codename = document.getElementById('suCodenameInput').value.trim();
+  var fbUid = document.getElementById('suFbInput').value.trim();
+  var joined = document.getElementById('suJoinedInput').value;
+  var pw = document.getElementById('suPasswordInput').value;
+  var photoSrc = document.getElementById('uploadPreview').src;
+  var hasPhoto = document.getElementById('uploadPreview').style.display === 'block';
+
+  var missing = [];
+  if(!gang){ markFieldError('suFieldGang'); missing.push('gang'); }
+  if(!codename){ markFieldError('suFieldCodename'); missing.push('codename'); }
+  if(!fbUid){ markFieldError('suFieldFb'); missing.push('Facebook UID'); }
+  if(!joined){ markFieldError('suFieldJoined'); missing.push('join date'); }
+  if(!pw){ markFieldError('suFieldPassword'); missing.push('password'); }
+  if(!hasPhoto){ markFieldError('suFieldId'); missing.push('ID picture'); }
+  if(missing.length){
+    var label = missing.length===1 ? missing[0] : missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1];
+    showSignupError('Enter your '+label+' to submit for verification.');
+    return;
+  }
+
+  var takenByGang = roster.find(function(a){
+    return a.gang===gang && a.codename.toLowerCase()===codename.toLowerCase();
+  });
+  if(takenByGang){
+    markFieldError('suFieldCodename');
+    showSignupError('That codename is already on file for '+gang+'. Choose another.');
+    return;
+  }
+
+  var pwHash = await sha256Hex(pw);
+  pendingApplicant = {
+    codename: codename, gang: gang, fbUid: fbUid, joined: joined,
+    passwordHash: pwHash, photoSrc: photoSrc
+  };
+
+  document.getElementById('pendingCodename').textContent = codename;
+  document.getElementById('pendingGang').textContent = gang;
+  document.getElementById('pendingGangInline').textContent = gang+' Command';
+  document.getElementById('pendingFb').textContent = fbUid;
+  document.getElementById('pendingJoined').textContent = new Date(joined+'T00:00:00').toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+  document.getElementById('pendingPhoto').src = photoSrc;
+
+  var stamp = document.getElementById('pendingStamp');
+  stamp.textContent = 'PENDING VERIFICATION';
+  stamp.className = 'stamp neutral';
+  var btn = document.getElementById('verifyDemoBtn');
+  btn.style.display = 'inline-block';
+  btn.textContent = 'Simulate Gang Verification (Demo)';
+  btn.disabled = false;
+
+  document.getElementById('signupForm').style.display = 'none';
+  document.getElementById('signupPending').style.display = 'block';
+}
+
+function simulateGangVerification(){
+  if(!pendingApplicant) return;
+  var stamp = document.getElementById('pendingStamp');
+  stamp.textContent = 'VERIFIED · APPROVED';
+  stamp.className = 'stamp verified';
+
+  var btn = document.getElementById('verifyDemoBtn');
+  btn.textContent = 'Verified ✓';
+  btn.disabled = true;
+
+  document.getElementById('pendingNote').innerHTML =
+    'Your gang has confirmed this registration against the submitted ID and Facebook profile. You can now sign in with your codename and password.';
+
+  // Add the newly verified agent to the roster (in-memory, this session only)
+  // so they can actually log in — a brand-new agent starting from zero.
+  roster.push({
+    codename: pendingApplicant.codename,
+    gang: pendingApplicant.gang,
+    passwordHash: pendingApplicant.passwordHash,
+    accessLevel: 'I',
+    points: 0,
+    divisionRank: 6,
+    individualRank: roster.length + 1,
+    attendance: 100,
+    titles: '0',
+    passes: 0
+  });
+  rankData.agents.push([
+    String(rankData.agents.length + 1),
+    pendingApplicant.codename,
+    pendingApplicant.gang.replace(' Gang',''),
+    '0'
+  ]);
+}
+
+function nav(el){
+  var view = el.getAttribute('data-view');
+  document.querySelectorAll('.nav-item, .bn-item').forEach(function(n){
+    n.classList.toggle('active', n.getAttribute('data-view')===view);
+  });
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+}
+
+/* ============ ACCOUNT MENU / LOGOUT ============ */
+function toggleAvatarMenu(){
+  document.getElementById('avatarMenu').classList.toggle('show');
+}
+document.addEventListener('click', function(e){
+  var chip = document.getElementById('avatarChip');
+  if(chip && !chip.contains(e.target)){
+    document.getElementById('avatarMenu').classList.remove('show');
+  }
+});
+function logout(){
+  currentAgent = null;
+  document.getElementById('avatarMenu').classList.remove('show');
+  document.getElementById('passwordInput').value = '';
+  hideLoginError();
+  ['fieldGang','fieldCodename','fieldPassword'].forEach(clearFieldError);
+  // A returning agent already knows what ÆZ is — logging out drops them
+  // straight back at Secure Access, not the landing splash.
+  showScreen('login');
+}
+
+/* ============ ANIMATED COUNTERS ============ */
+function animateCounters(){
+  document.querySelectorAll('[data-count]').forEach(function(el){
+    var target = parseInt(el.getAttribute('data-count'),10);
+    if(el._done) return; el._done = true;
+    var dur = 900, start = performance.now();
+    function tick(now){
+      var p = Math.min(1,(now-start)/dur);
+      var eased = 1-Math.pow(1-p,3);
+      var val = Math.round(target*eased);
+      el.firstChild ? el.childNodes[0].nodeValue = val.toLocaleString() : el.textContent = val.toLocaleString();
+      if(p<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ============ CLOCK ============ */
+function tickClock(){
+  var d = new Date();
+  var s = d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('liveClock').textContent = s;
+  var dashTime = document.getElementById('dashTime');
+  if(dashTime) dashTime.textContent = s;
+}
+setInterval(tickClock,1000); tickClock();
+
+/* ============ BLACK OP COUNTDOWN ============ */
+var opRemaining = 14*3600 + 22*60 + 5;
+setInterval(function(){
+  if(opRemaining<=0) return;
+  opRemaining--;
+  var h=Math.floor(opRemaining/3600), m=Math.floor((opRemaining%3600)/60), s=opRemaining%60;
+  document.getElementById('cdH').textContent = String(h).padStart(2,'0');
+  document.getElementById('cdM').textContent = String(m).padStart(2,'0');
+  document.getElementById('cdS').textContent = String(s).padStart(2,'0');
+},1000);
+
+/* ============ ACTIVITIES ============ */
+var activities = [
+  {id:'CASE-0501', name:'Case Log Submission', cat:'INTELLIGENCE', status:'Open', time:'Weekly · Fri 11:59 PM', participants:'All agents', points:'1,000 / head', desc:'Submit your weekly head count for division credit. Deductions apply for late or incomplete filings.',
+    agent:'Ashford-9', division:'Cadence Gang', filed:'Sep 06, 2026', evidence:'6 heads attached', award:'+6,000',
+    history:[['Sep 06, 2026','Filed by Ashford-9'],['Sep 05, 2026','Reminder sent to division']],
+    records:[['Cycle total','24,000 pts'],['Deductions this cycle','0']]},
+  {id:'CASE-0502', name:'Operation Round 12', cat:'OPERATIONS', status:'Live', time:'Ends in 6h', participants:'42 registered', points:'Up to 5,000', desc:'Answer the operation prompt correctly to claim tiered points. Speed determines your tier.',
+    agent:'Marlowe-2', division:'Discourse Gang', filed:'Sep 06, 2026', evidence:'1st correct answer logged', award:'+5,000',
+    history:[['Sep 06, 2026, 8:14 PM','Marlowe-2 answered correctly — 1st'],['Sep 06, 2026, 8:20 PM','Vesper-6 answered correctly — 2nd']],
+    records:[['Correct answers so far','2'],['Incorrect submissions','5']]},
+  {id:'CASE-0503', name:'Intel Hub Drop', cat:'INTELLIGENCE', status:'Open', time:'Ongoing', participants:'Division-wide', points:'5,000 / message', desc:'Contribute verified intelligence to the shared hub for division-wide point credit.',
+    agent:'Odessa-4', division:'Charm Gang', filed:'Sep 05, 2026', evidence:'1 verified message', award:'+5,000',
+    history:[['Sep 05, 2026','Odessa-4 posted verified intel']],
+    records:[['Messages this cycle','3'],['Points from Intel Hub','15,000']]},
+  {id:'CASE-0504', name:'Fliptop War — Prelims', cat:'CAMPAIGN BREACH', status:'Registration', time:'Wed & Fri nights', participants:'6 divisions', points:'Up to 100,000', desc:'Qualifying rounds for the Trojan of Cadence title. Registration closes 24h before the war.',
+    agent:'Ashford-9', division:'Cadence Gang', filed:'Sep 04, 2026', evidence:'Registration confirmed', award:'+10,000',
+    history:[['Sep 04, 2026','Ashford-9 registered as challenger']],
+    records:[['Title','Trojan of Cadence'],['Current holder','Ashford-9']]},
+  {id:'CASE-0505', name:'Division Arrival — Welcome', cat:'DIVISION', status:'Scheduled', time:'On new gang entry', participants:'Welcoming division', points:'50,000', desc:'Formal welcome protocol for incoming gangs, recorded for division credit.',
+    agent:'Kestrel-1', division:'Retort Gang', filed:'Pending', evidence:'Awaiting new gang arrival', award:'—',
+    history:[['—','Not yet triggered']],
+    records:[['Last welcomed gang','Verse Gang, Aug 12']]},
+  {id:'CASE-0506', name:'Code Class — Ciphers II', cat:'TRAINING', status:'Enrolling', time:'Tue, 7:00 PM', participants:'50 max / division', points:'Attendance-based', desc:'Second module in applied cipher-solving, with a recitation component.',
+    agent:'Renner-8', division:'Retort Gang', filed:'Sep 03, 2026', evidence:'Attendance sheet open', award:'Pending',
+    history:[['Sep 03, 2026','Enrollment opened']],
+    records:[['Seats filled','31 / 50']]}
+];
+var caseIndex = {};
+activities.forEach(function(a){ caseIndex[a.id] = a; });
+
+var activeFilter = 'ALL';
+function renderActivityFilters(){
+  var cats = ['ALL'].concat(Array.from(new Set(activities.map(function(a){ return a.cat; }))));
+  var wrap = document.getElementById('actFilters');
+  wrap.innerHTML = cats.map(function(c){
+    var label = c==='ALL' ? 'All' : c.charAt(0)+c.slice(1).toLowerCase();
+    var activeClass = c===activeFilter ? ' active' : '';
+    return '<button class="chip'+activeClass+'" onclick="setActivityFilter(&#39;'+c+'&#39;)">'+label+'</button>';
+  }).join('');
+}
+function setActivityFilter(cat){
+  activeFilter = cat;
+  renderActivityFilters();
+  renderActivities();
+}
+function renderActivities(){
+  var grid = document.getElementById('actGrid');
+  var list = activeFilter==='ALL' ? activities : activities.filter(function(a){ return a.cat===activeFilter; });
+  if(list.length===0){
+    grid.innerHTML = '<div class="page-sub" style="padding:20px 4px">No activities in this category right now.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(function(a){
+    var pillClass = a.status==='Live' ? 'pill live' : 'pill';
+    return '<div class="card clickable act-card" onclick="openCase(&#39;'+a.id+'&#39;)">'
+      +'<div class="act-top"><div><div class="act-cat">'+a.cat+'</div><div class="act-name">'+a.name+'</div></div><span class="'+pillClass+'">'+a.status+'</span></div>'
+      +'<div class="act-desc">'+a.desc+'</div>'
+      +'<div class="act-foot"><span>'+a.time+' · '+a.participants+'</span><span class="act-points">'+a.points+'</span></div>'
+      +'</div>';
+  }).join('');
+}
+renderActivityFilters();
+renderActivities();
+
+function renderCaseLogRows(){
+  var wrap = document.getElementById('caseLogRows');
+  if(!wrap) return;
+  var logs = activities.filter(function(a){ return a.cat==='INTELLIGENCE'; });
+  wrap.innerHTML = logs.map(function(a){
+    var pillClass = a.status==='Open' ? 'pill live' : 'pill';
+    return '<div class="list-row clickable" onclick="openCase(&#39;'+a.id+'&#39;)"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/></svg></div><div><div class="list-title">'+a.id+' · '+a.name+'</div><div class="list-sub">Filed '+a.filed+' · '+a.evidence+'</div></div></div><span class="'+pillClass+'">'+a.status+'</span></div>';
+  }).join('');
+}
+renderCaseLogRows();
+
+/* ============ CASE FILE MODAL ============ */
+var currentCase = null;
+function openCase(id){
+  currentCase = caseIndex[id] || activities[0];
+  document.getElementById('modalCaseNo').textContent = currentCase.id;
+  renderModalPane('overview');
+  document.querySelectorAll('#modalTabs .tab-btn').forEach(function(b,i){ b.classList.toggle('active', i===0); });
+  document.querySelectorAll('.modal-pane').forEach(function(p,i){ p.style.display = i===0 ? 'block' : 'none'; });
+  document.getElementById('caseModal').classList.add('show');
+}
+function renderModalPane(key){
+  var c = currentCase; if(!c) return;
+  if(key==='overview'){
+    document.getElementById('modalPane-overview').innerHTML =
+      '<div class="kv-row"><span class="k">Case number</span><span class="v">'+c.id+'</span></div>'
+      +'<div class="kv-row"><span class="k">Agent</span><span class="v">'+c.agent+'</span></div>'
+      +'<div class="kv-row"><span class="k">Division</span><span class="v">'+c.division+'</span></div>'
+      +'<div class="kv-row"><span class="k">Status</span><span class="v">'+c.status+'</span></div>'
+      +'<div class="kv-row"><span class="k">Date filed</span><span class="v">'+c.filed+'</span></div>'
+      +'<div class="kv-row"><span class="k">Evidence</span><span class="v">'+c.evidence+'</span></div>'
+      +'<div class="kv-row"><span class="k">Points</span><span class="v pos">'+c.award+'</span></div>';
+  } else if(key==='activity'){
+    document.getElementById('modalPane-activity').innerHTML =
+      '<div class="kv-row"><span class="k">Activity</span><span class="v">'+c.name+'</span></div>'
+      +'<div class="kv-row"><span class="k">Category</span><span class="v">'+c.cat+'</span></div>'
+      +'<div class="kv-row"><span class="k">Timing</span><span class="v">'+c.time+'</span></div>'
+      +'<div class="kv-row"><span class="k">Participants</span><span class="v">'+c.participants+'</span></div>';
+  } else if(key==='history'){
+    document.getElementById('modalPane-history').innerHTML = c.history.map(function(h){
+      return '<div class="kv-row"><span class="k">'+h[0]+'</span><span class="v" style="text-align:right;max-width:60%">'+h[1]+'</span></div>';
+    }).join('');
+  } else if(key==='records'){
+    document.getElementById('modalPane-records').innerHTML = c.records.map(function(r){
+      return '<div class="kv-row"><span class="k">'+r[0]+'</span><span class="v">'+r[1]+'</span></div>';
+    }).join('');
+  }
+}
+function setModalTab(el,key){
+  document.querySelectorAll('#modalTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.modal-pane').forEach(p=>p.style.display='none');
+  renderModalPane(key);
+  document.getElementById('modalPane-'+key).style.display='block';
+}
+function closeModal(){ document.getElementById('caseModal').classList.remove('show'); }
+function closeModalOutside(e){ if(e.target.id==='caseModal') closeModal(); }
+
+/* ============ QUICK SEARCH ============ */
+function openSearch(){
+  document.getElementById('searchModal').classList.add('show');
+  document.getElementById('quickSearchInput').value='';
+  runQuickSearch('');
+  setTimeout(function(){ document.getElementById('quickSearchInput').focus(); }, 200);
+}
+function closeSearch(){ document.getElementById('searchModal').classList.remove('show'); }
+function closeSearchOutside(e){ if(e.target.id==='searchModal') closeSearch(); }
+function runQuickSearch(q){
+  q = q.toLowerCase();
+  var results = [];
+  activities.forEach(function(a){
+    if(!q || a.name.toLowerCase().includes(q) || a.cat.toLowerCase().includes(q)){
+      results.push({label:a.name, sub:a.cat+' · Activity', action:"nav(document.querySelector('[data-view=activities]'));closeSearch();openCase('"+a.id+"')"});
+    }
+  });
+  ruleSections.forEach(function(r){
+    if(!q || r.title.toLowerCase().includes(q) || r.body.toLowerCase().includes(q)){
+      results.push({label:r.title, sub:'Rules Center', action:"nav(document.querySelector('[data-view=rules]'));closeSearch();"});
+    }
+  });
+  var out = document.getElementById('quickSearchResults');
+  if(results.length===0){ out.innerHTML = '<div class="page-sub" style="padding:12px 4px">No matches.</div>'; return; }
+  out.innerHTML = results.slice(0,8).map(function(r){
+    return '<div class="list-row clickable" onclick="'+r.action+'"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div><div><div class="list-title">'+r.label+'</div><div class="list-sub">'+r.sub+'</div></div></div></div>';
+  }).join('');
+}
+
+/* ============ PROFILE SEGMENTED CONTROL ============ */
+function setProfileTab(el,key){
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('profile-id').style.display = key==='id' ? 'block' : 'none';
+  document.getElementById('profile-log').style.display = key==='log' ? 'block' : 'none';
+  if(key==='log') renderProfileLog();
+}
+function renderProfileLog(){
+  var list = document.getElementById('profileLogList');
+  var mine = activities.filter(function(a){ return a.agent==='Ashford-9'; });
+  list.innerHTML = mine.map(function(a){
+    return '<div class="list-row clickable" onclick="openCase(&#39;'+a.id+'&#39;)"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/></svg></div><div><div class="list-title">'+a.id+' · '+a.name+'</div><div class="list-sub">Filed '+a.filed+'</div></div></div><span class="pill">'+a.award+'</span></div>';
+  }).join('') || '<div class="page-sub" style="padding:14px 4px">No filed cases yet under this codename.</div>';
+}
+
+/* ============ NOTIFICATIONS ============ */
+function openNotif(){ document.getElementById('notifModal').classList.add('show'); }
+function closeNotif(){ document.getElementById('notifModal').classList.remove('show'); }
+function closeNotifOutside(e){ if(e.target.id==='notifModal') closeNotif(); }
+
+/* ============ SCHEDULE ============ */
+var schedules = {
+  w13:[
+    {day:'Monday', items:[['7:00 PM','Case Log Review']]},
+    {day:'Tuesday', items:[['7:00 PM','Intel Hub Sync']]},
+    {day:'Wednesday', items:[['8:00 PM','Major War Night']]},
+    {day:'Thursday', items:[['7:30 PM','Division Huddle']]},
+    {day:'Friday', items:[['9:00 PM','Minor War Night']]}
+  ],
+  w2:[
+    {day:'Monday', items:[['7:00 PM','Casefile Audit']]},
+    {day:'Wednesday', items:[['8:00 PM','Campaign Breach Prelims']]},
+    {day:'Friday', items:[['9:00 PM','Case Review Session']]}
+  ],
+  w4:[
+    {day:'Tuesday', items:[['7:00 PM','Archive Reconciliation']]},
+    {day:'Wednesday', items:[['8:00 PM','Major War Night']]},
+    {day:'Friday', items:[['9:00 PM','Points Ledger Close-out']]}
+  ]
+};
+function renderSchedule(key){
+  var grid = document.getElementById('schedGrid');
+  var todayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
+  grid.innerHTML = schedules[key].map(function(d){
+    var items = d.items.map(function(it){
+      return '<div class="sched-item"><div class="sched-time">'+it[0]+'</div><div class="sched-name">'+it[1]+'</div></div>';
+    }).join('');
+    var isToday = d.day===todayName;
+    var todayTag = isToday ? '<span class="pill live" style="margin-left:8px">Today</span>' : '';
+    var cardStyle = isToday ? 'border-color:rgba(201,162,39,0.4)' : '';
+    return '<div class="card span-4" style="'+cardStyle+'"><div class="day-col" style="border:none;background:none;padding:0"><h4>'+d.day+todayTag+'</h4>'+items+'</div></div>';
+  }).join('');
+}
+function setWeek(el,key){
+  document.querySelectorAll('.wk-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderSchedule(key);
+}
+renderSchedule('w13');
+
+/* ============ RANKINGS ============ */
+var rankData = {
+  agents:[['1','Ashford-9','Cadence','184,500'],['2','Marlowe-2','Discourse','179,200'],['3','Vesper-6','Verse','171,050'],['4','Odessa-4','Charm','168,400'],['5','Kestrel-1','Retort','159,900'],['6','Dresden-3','Strife','151,200']],
+  individual:[['1','Ashford-9','Cadence','184,500'],['2','Marlowe-2','Discourse','179,200'],['3','Vesper-6','Verse','171,050']],
+  division:[['1','Cadence Gang','—','1,204,500'],['2','Discourse Gang','—','1,188,900'],['3','Verse Gang','—','1,050,200']],
+  titles:[['1','Trojan of Cadence','Cadence','—'],['2','Trojan of Discourse','Discourse','—'],['3','Trojan of Strife','Strife','—']],
+  records:[['1','Ashford-9','Cadence','29-session streak'],['2','Marlowe-2','Discourse','12 wars won']]
+};
+var rankHeaders = {
+  agents:['CODENAME','DIVISION','POINTS'],
+  individual:['CODENAME','DIVISION','POINTS'],
+  division:['DIVISION','—','POINTS'],
+  titles:['TITLE','DIVISION','STATUS'],
+  records:['CODENAME','DIVISION','RECORD']
+};
+var rankSort = {}; // per-tab sort state: {col: 1|2|3, dir:'asc'|'desc'}
+var currentRankTab = 'agents';
+
+function isNumericColumn(key, col){
+  return rankData[key].every(function(r){ return r[col]==='—' || /^[\d,]+$/.test(r[col]); });
+}
+function sortedRows(key){
+  var rows = rankData[key].slice();
+  var s = rankSort[key];
+  if(!s) return rows;
+  var numeric = isNumericColumn(key, s.col);
+  rows.sort(function(a,b){
+    var av = a[s.col], bv = b[s.col];
+    var cmp;
+    if(numeric){
+      var an = av==='—' ? -1 : parseInt(av.replace(/,/g,''),10);
+      var bn = bv==='—' ? -1 : parseInt(bv.replace(/,/g,''),10);
+      cmp = an - bn;
+    } else {
+      cmp = av.localeCompare(bv);
+    }
+    return s.dir==='asc' ? cmp : -cmp;
+  });
+  return rows;
+}
+function renderRankHead(key){
+  var head = document.getElementById('rankHead');
+  var labels = rankHeaders[key];
+  var s = rankSort[key];
+  var cells = labels.map(function(label,i){
+    var col = i+1;
+    var arrow = '';
+    if(s && s.col===col) arrow = s.dir==='asc' ? ' ↑' : ' ↓';
+    var align = col===3 ? 'text-align:right' : '';
+    return '<div class="rank-head-cell" style="'+align+'" onclick="toggleRankSort(&#39;'+key+'&#39;,'+col+')">'+label+arrow+'</div>';
+  }).join('');
+  head.innerHTML = '<div class="rank-pos" style="color:var(--ash-dim)">#</div>'+cells;
+}
+function toggleRankSort(key,col){
+  var s = rankSort[key];
+  if(s && s.col===col){
+    s.dir = s.dir==='asc' ? 'desc' : 'asc';
+  } else {
+    rankSort[key] = {col:col, dir:'asc'};
+  }
+  renderRankHead(key);
+  renderRanks(key);
+}
+function renderRanks(key){
+  currentRankTab = key;
+  var rows = document.getElementById('rankRows');
+  rows.innerHTML = sortedRows(key).map(function(r){
+    var posClass = (r[0]==='1'||r[0]==='2'||r[0]==='3') ? 'rank-pos top3' : 'rank-pos';
+    return '<div class="rank-row"><div class="'+posClass+'">'+r[0]+'</div><div>'+r[1]+'</div><div style="color:var(--ash-dim)">'+r[2]+'</div><div class="num-mono" style="text-align:right">'+r[3]+'</div></div>';
+  }).join('');
+}
+function setRankTab(el,key){
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderRankHead(key);
+  renderRanks(key);
+}
+renderRankHead('agents');
+renderRanks('agents');
+
+/* ============ INTEL TABS ============ */
+function setIntelTab(el,key){
+  document.querySelectorAll('#view-intel .tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.intel-pane').forEach(p=>p.style.display='none');
+  document.getElementById('intel-'+key).style.display='block';
+}
+
+/* ============ CAMPAIGN BREACH TITLES ============ */
+var titles = [
+  {name:'Trojan of Discourse', sub:'Debate War', holder:'Marlowe-2', challenger:'Ashford-9', status:'Registration open'},
+  {name:'Trojan of Cadence', sub:'Fliptop War', holder:'Ashford-9', challenger:'Vesper-6', status:'Wed / Fri scheduled'},
+  {name:'Trojan of Strife', sub:'Narrative Combat', holder:'Odessa-4', challenger:'—', status:'Awaiting challenger'},
+  {name:'Trojan of Charm', sub:'Flirt War', holder:'Kestrel-1', challenger:'Renner-8', status:'Registration open'},
+  {name:'Trojan of Verse', sub:'Makata Trashtalk', holder:'Vesper-6', challenger:'—', status:'Title defended'},
+  {name:'Trojan of Retort', sub:'Classic Trashtalk', holder:'Renner-8', challenger:'Marlowe-2', status:'Wed / Fri scheduled'}
+];
+function renderTitles(){
+  var board = document.getElementById('titleBoard');
+  board.innerHTML = titles.map(function(t){
+    return '<div class="title-row">'
+      +'<div><div class="title-name">'+t.name+'</div><div class="title-sub">'+t.sub+'</div></div>'
+      +'<div class="holder-chip"><div class="av"></div><div><div style="font-size:12.5px">'+t.holder+'</div><div class="title-sub">Title Holder</div></div></div>'
+      +'<div class="holder-chip"><div class="av"></div><div><div style="font-size:12.5px">'+t.challenger+'</div><div class="title-sub">Challenger</div></div></div>'
+      +'<div class="transfer-badge">'+t.status+'</div>'
+      +'</div>';
+  }).join('');
+}
+renderTitles();
+
+/* ============ RULES ============ */
+var ruleSections = [
+  {title:'General Rules', body:'All agents must operate under an assigned codename at all times within ÆZ channels. Division loyalty is expected; cross-division interference outside sanctioned wars is not permitted.'},
+  {title:'MGC Rules', body:'Major Gang Conduct standards apply during all war nights. Judging follows the 50/50 War Judge and Division Representative split defined in Case Review.'},
+  {title:'Identification', body:'Codenames must be declared before participating in any Operation, Case Log, or Campaign Breach activity. Impersonation of another agent\'s codename is a violation.'},
+  {title:'Respect', body:'Trashtalk and combat formats are confined to their designated war categories. Personal attacks outside those formats are not tolerated.'},
+  {title:'Privacy', body:'Casefiles, points ledgers, and personal identification records are confidential to the agent and Division Command. Screenshots or redistribution outside the division are prohibited.'},
+  {title:'Concerns', body:'Disputes over Operation answers, war judging, or point deductions should be raised through Directive channels within 24 hours.'},
+  {title:'AI Use', body:'Assistive tools may be used for Code Class practice and drafting, but Operation and Black Operation answers must reflect the agent\'s own submission.'},
+  {title:'Relationships', body:'Flirt War (Trojan of Charm) content is confined to the sanctioned format and does not extend to conduct outside of it.'},
+  {title:'Spamming', body:'Repeated identical submissions to Operations or the Intel Hub beyond reasonable attempts may be treated as spam and are not eligible for points.'},
+  {title:'Content Restrictions', body:'All submitted content — Case Logs, Intel Hub messages, war material — must stay within the division\'s conduct standards.'},
+  {title:'Penalties', body:'Violations are recorded against the agent\'s Casefile and may result in point deductions as outlined in the Points Intelligence ledger.'}
+];
+function renderRules(filter){
+  filter = (filter||'').toLowerCase();
+  var list = document.getElementById('rulesList');
+  var filtered = ruleSections.filter(function(r){
+    return !filter || r.title.toLowerCase().includes(filter) || r.body.toLowerCase().includes(filter);
+  });
+  list.innerHTML = filtered.map(function(r,i){
+    return '<div class="acc-item'+(i===0?' open':'')+'"><div class="acc-head" onclick="this.parentElement.classList.toggle(&#39;open&#39;)"><span>'+r.title+'</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div><div class="acc-body"><div class="acc-inner">'+r.body+'</div></div></div>';
+  }).join('') || '<div class="page-sub" style="padding:20px 4px">No rules match that search.</div>';
+}
+function filterRules(v){ renderRules(v); }
+renderRules('');
+</script>
+</body>
+</html>
