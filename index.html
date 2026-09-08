@@ -44,8 +44,8 @@ a{color:inherit;text-decoration:none;}
 button{font-family:inherit;cursor:pointer;}
 
 /* ============ SCREEN MANAGEMENT ============ */
-.screen{display:none;min-height:100vh;}
-.screen.active{display:block;}
+.screen{display:none !important;min-height:100vh;}
+.screen.active{display:block !important;}
 /* Protected app: never render the authenticated dashboard unless a valid
    Supabase session has been restored and the profile is approved. */
 #app{display:none !important;}
@@ -55,7 +55,10 @@ body.authenticated #app{display:flex !important;}
 #landing{
   position:relative;
   min-height:100vh;
+  width:100%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  padding:40px 20px 72px;
   transition:opacity .25s ease, transform .25s ease;
   background:
     radial-gradient(ellipse 900px 500px at 50% 0%, rgba(201,162,39,0.06), transparent 60%),
@@ -94,6 +97,31 @@ body.authenticated #app{display:flex !important;}
 }
 .mark-glyph .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 2.4s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:1;}}
+.entry-choice-grid{
+  margin:56px auto 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  position:relative;z-index:2;
+  width:min(460px,calc(100vw - 40px));
+}
+.entry-btn{
+  margin-top:0;
+  width:100%;
+  min-height:62px;
+  padding:15px 48px 15px 22px;
+  justify-content:center;gap:3px;
+  text-align:center;
+}
+.entry-btn span{font-size:14px;letter-spacing:.04em;font-weight:600;}
+.entry-btn svg{position:absolute;right:18px;width:14px;height:14px;}
+.entry-btn-admin{background:rgba(201,162,39,.07);border-color:rgba(201,162,39,.28);}
+.entry-btn-admin:hover{background:rgba(201,162,39,.12);border-color:rgba(201,162,39,.45);}
+@media(max-width:650px){
+  #landing{padding-left:16px;padding-right:16px;}
+  .entry-choice-grid{width:min(400px,100%);}
+}
 #landing.leaving{
   opacity:0;
   transform:scale(1.015);
@@ -136,11 +164,12 @@ body.authenticated #app{display:flex !important;}
 }
 
 /* ============ LOGIN ============ */
-#login, #signup{
+#login, #signup, #adminLogin{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   background:var(--void);
   padding:24px;
 }
+#adminLogin.screen, #adminLogin.screen.active{display:flex !important;align-items:center !important;justify-content:center !important;min-height:100vh !important;width:100% !important;padding:24px !important;}
 .login-card{
   width:100%;max-width:400px;
   background:rgba(20,23,27,0.6);
@@ -207,6 +236,21 @@ body.authenticated #app{display:flex !important;}
 .login-switch{text-align:center;margin-top:14px;font-size:12.5px;color:var(--ash-dim);}
 .login-switch a{color:var(--gold);cursor:pointer;font-weight:500;}
 .login-switch a:hover{text-decoration:underline;}
+ .entry-back-btn{
+  display:block;
+  width:100%;
+  margin-top:16px;
+  padding:11px 14px;
+  border:1px solid var(--hair-strong);
+  border-radius:10px;
+  background:rgba(232,233,235,0.04);
+  color:var(--ash);
+  text-align:center;
+  font-size:12px;
+  text-decoration:none !important;
+  transition:background .2s,border-color .2s,color .2s;
+}
+.entry-back-btn:hover{background:rgba(232,233,235,0.08);border-color:var(--hair-strong);color:var(--bone);}
 
 /* upload well */
 .upload-well{
@@ -327,14 +371,113 @@ body.authenticated #app{display:flex !important;}
 .card.span-6{grid-column:span 6;}
 .card.span-4{grid-column:span 4;}
 .card.span-3{grid-column:span 3;}
-.admin-row{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr auto;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--hair);font-size:12px;}
-.admin-row:first-child{border-top:0;}
-.admin-actions{display:flex;gap:7px;flex-wrap:wrap;}
-.admin-btn{border:1px solid var(--hair-strong);background:rgba(232,233,235,.04);color:var(--bone);border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer;}
+.admin-review-list{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;}
+.admin-application-card{
+  grid-column:span 6;
+  background:rgba(20,23,27,0.55);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--hair);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  transition:transform .25s ease,border-color .25s ease;
+}
+.admin-application-card:hover{transform:translateY(-2px);border-color:var(--hair-strong);}
+.admin-roster-panel .admin-application-card{padding:14px;}
+.admin-roster-panel .admin-application-top{margin-bottom:12px;}
+.admin-roster-panel .admin-details{margin-bottom:12px;}
+.admin-roster-panel .admin-detail{padding:8px 9px;}
+.admin-roster-panel .admin-detail .label{font-size:8px;}
+.admin-roster-panel .admin-detail .value{font-size:10.5px;}
+.admin-application-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px;}
+.admin-identity{display:flex;align-items:center;gap:12px;min-width:0;}
+.admin-avatar{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#3A3D44,#1A1C20);
+  border:1px solid var(--hair-strong);
+  color:var(--bone);font-weight:700;font-size:14px;
+}
+.admin-identity strong{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-identity .page-sub{margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-pending{font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border:1px solid rgba(201,162,39,.35);border-radius:6px;color:var(--gold);white-space:nowrap;}
+.admin-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+.admin-detail{padding:11px 12px;border:1px solid var(--hair);border-radius:10px;background:rgba(232,233,235,.025);}
+.admin-detail .label{font-size:9px;color:var(--ash-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.admin-detail .value{font-size:12px;color:var(--bone);word-break:break-word;}
+.admin-actions{display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--hair);}
+.admin-btn{flex:1;border:1px solid var(--hair-strong);background:rgba(232,233,235,.04);color:var(--bone);border-radius:9px;padding:10px 12px;font-size:11px;cursor:pointer;transition:background .2s,border-color .2s,transform .2s;}
+.admin-btn:hover{background:rgba(232,233,235,.08);transform:translateY(-1px);}
 .admin-btn.approve{border-color:rgba(100,220,170,.35);color:var(--blue);}
 .admin-btn.reject{border-color:rgba(220,100,100,.35);color:var(--danger);}
 .admin-photo{width:42px;height:42px;border-radius:8px;object-fit:cover;border:1px solid var(--hair-strong);background:var(--graphite);}
-@media(max-width:800px){.admin-row{grid-template-columns:1fr 1fr;}.admin-actions{grid-column:1/-1;}}
+/* Admin Review — command layout with registrants kept on the side */
+.admin-review-shell{
+  display:grid;
+  grid-template-columns:360px minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+.admin-roster-panel{
+  position:sticky;
+  top:88px;
+  max-height:calc(100vh - 120px);
+  overflow-y:auto;
+  padding:18px;
+}
+.admin-roster-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:14px;
+}
+.admin-roster-head .title{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.08em;
+}
+.admin-roster-item{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px;
+  margin-bottom:8px;
+  border-radius:11px;
+  border:1px solid var(--hair);
+  background:rgba(232,233,235,.025);
+}
+.admin-roster-item:last-child{margin-bottom:0;}
+.admin-roster-avatar{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#3A3D44,#1A1C20);
+  border:1px solid var(--hair-strong);
+  font-size:11px;font-weight:700;
+}
+.admin-roster-copy{min-width:0;flex:1;text-align:left;}
+.admin-roster-copy strong{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-roster-copy .sub{font-size:10.5px;color:var(--ash-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-roster-copy .gang{font-size:10px;color:var(--gold);margin-top:3px;}
+.admin-command-panel{min-width:0;}
+.admin-empty-card{
+  min-height:240px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.admin-application-card{grid-column:span 12;}
+@media(max-width:1000px){
+  .admin-review-shell{grid-template-columns:1fr;}
+  .admin-roster-panel{position:static;max-height:none;}
+  .admin-command-panel{order:2;}
+}
+@media(max-width:600px){
+  .admin-details{grid-template-columns:1fr;}
+  .admin-application-top{flex-direction:column;}
+  .admin-pending{align-self:flex-start;}
+}
 
 .welcome-card{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
 .welcome-card h2{font-size:22px;font-weight:600;margin-bottom:6px;}
@@ -471,12 +614,14 @@ body.authenticated #app{display:flex !important;}
 .idcard:before{content:'';position:absolute;top:-40%;right:-30%;width:70%;height:140%;background:radial-gradient(circle, rgba(201,162,39,0.09), transparent 60%);}
 .idcard-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;position:relative;}
 .idcard-head .org{font-family:var(--font-mono);font-size:10px;color:var(--ash-dim);letter-spacing:0.14em;}
-.idcard-photo{width:64px;height:64px;border-radius:14px;background:linear-gradient(145deg,#3A3D44,#181A1D);margin-bottom:16px;}
+.idcard-photo{width:96px;height:96px;border-radius:16px;background:linear-gradient(145deg,#3A3D44,#181A1D);margin-bottom:16px;object-fit:cover;display:block;border:1px solid var(--hair-strong);box-shadow:0 12px 30px rgba(0,0,0,.28);}
 .idcard-name{font-size:20px;font-weight:700;}
 .idcard-div{font-size:12.5px;color:var(--ash);margin-top:2px;}
 .idcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px;padding-top:20px;border-top:1px dashed var(--hair-strong);}
 .idcard-grid .l{font-size:9.5px;color:var(--ash-dim);letter-spacing:0.08em;margin-bottom:3px;}
 .idcard-grid .v{font-size:13.5px;font-weight:600;}
+.idcard-fb{grid-column:1 / -1;}
+.idcard-fb .v{font-family:var(--font-mono);font-size:12px;word-break:break-all;color:var(--silver);}
 .segmented{display:flex;background:rgba(0,0,0,0.3);border:1px solid var(--hair);border-radius:12px;padding:4px;}
 .seg-btn{flex:1;padding:9px 0;border-radius:9px;font-size:12.5px;color:var(--ash);background:transparent;border:none;transition:background .2s, color .2s;}
 .seg-btn.active{background:rgba(232,233,235,0.08);color:var(--bone);}
@@ -525,6 +670,12 @@ body.authenticated #app{display:flex !important;}
 </style>
 </head>
 <body>
+<style id="aez-entry-initial-lock">
+  body:not(.authenticated) #landing{display:flex !important;}
+  body:not(.authenticated) #login,
+  body:not(.authenticated) #adminLogin,
+  body:not(.authenticated) #signup{display:none !important;}
+</style>
 
 <!-- ============ LANDING ============ -->
 <section id="landing" class="screen active">
@@ -533,10 +684,17 @@ body.authenticated #app{display:flex !important;}
   <div class="mark-glyph"><span class="dot"></span> SECURE CHANNEL · ENCRYPTED</div>
   <div class="wordmark">ÆZ<small>Ash · Zee Arena</small></div>
   <div class="tagline">"Beyond the source code."</div>
-  <button class="enter-btn" onclick="enterArena()" aria-label="Enter the Arena">
-     Enter the Arena
-     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-   </button>
+  <div class="entry-choice-label"></div>
+  <div class="entry-choice-grid">
+    <button class="enter-btn entry-btn-primary" onclick="enterArenaAsMember()" aria-label="Enter the Arena as Gangster or Member">
+      <span>Gang Member</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <button class="enter-btn entry-btn-admin" onclick="enterArenaAsAdmin()" aria-label="Enter the Arena as Admin Command">
+      <span>Admin Command</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+    </button>
+  </div>
   <div class="landing-foot">
     <span>EST. 2024</span><span>DIVISION-CLASS SYSTEM</span><span>NO PUBLIC RECORD</span>
   </div>
@@ -584,8 +742,42 @@ body.authenticated #app{display:flex !important;}
     </div>
     <div class="login-error" id="loginError" style="display:none"></div>
     <button class="enter-full" id="loginSubmitBtn" onclick="login()">Enter the Arena</button>
+    <button type="button" class="entry-back-btn" onclick="backToEntryChoice(); return false;">Back to entry selection</button>
+    <div class="login-switch"><a href="javascript:void(0)" onclick="backToEntryChoice(); return false;">Go Back to Entry Page</a></div>
     <div class="login-note">Unauthorized access is logged and reported to Division Command. Approved accounts only.</div>
-    <div class="login-switch">New agent? <a href="javascript:void(0)" onclick="openRegistration(); return false;">Register with your gang</a></div>
+  </div>
+</section>
+
+<!-- ============ ADMIN COMMAND LOGIN ============ -->
+<section id="adminLogin" class="screen">
+  <div class="login-card" id="adminLoginCard">
+    <div class="login-head">
+      <div class="glyph">ÆZ ADMIN COMMAND</div>
+      <div class="sub">AUTHORIZED COMMAND PERSONNEL ONLY</div>
+    </div>
+    <div class="field" id="adminFieldEmail">
+      <label>Email</label>
+      <input type="email" placeholder="you@example.com" id="adminEmailInput" autocomplete="email" oninput="clearFieldError('adminFieldEmail')" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <div class="field" id="adminFieldPosition">
+      <label>Position</label>
+      <select id="adminPositionSelect" onchange="clearFieldError('adminFieldPosition')">
+        <option value="" disabled selected>Select your position</option>
+        <option value="owner">Founder</option>
+        <option value="admin">Admin</option>
+        <option value="editor">Editor</option>
+      </select>
+    </div>
+    <div class="field" id="adminFieldPassword">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input type="password" placeholder="••••••••••" id="adminPasswordInput" autocomplete="current-password" oninput="clearFieldError('adminFieldPassword')" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+    </div>
+    <div class="login-error" id="adminLoginError" style="display:none"></div>
+    <button class="enter-full" id="adminLoginSubmitBtn" onclick="adminLogin()">Enter Admin Command</button>
+    <div class="login-note">Founder, Admin, and Editor access is validated against your approved ÆZ profile.</div>
+    <div class="login-switch"><a href="javascript:void(0)" onclick="backToEntryFromAdmin(); return false;">Back to entry selection</a></div>
   </div>
 </section>
 
@@ -645,8 +837,9 @@ body.authenticated #app{display:flex !important;}
 
       <div class="login-error" id="signupError" style="display:none"></div>
       <button class="enter-full" onclick="submitSignup()">Submit for Verification</button>
+      <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
+      <div class="login-switch"><a href="javascript:void(0)" onclick="closeRegistration(); goToMemberSecureAccess(); return false;">Back to Æ Secure Access</a></div>
       <div class="login-note">Your gang reviews new registrations against the ID and Facebook profile submitted here.</div>
-      <div class="login-switch">Already registered? <a onclick="closeRegistration(); showScreen('login')">Back to Secure Access</a></div>
     </div>
 
     <div id="signupPending" style="display:none;text-align:center;">
@@ -663,7 +856,7 @@ body.authenticated #app{display:flex !important;}
       </div>
       <button class="enter-full" id="verifyDemoBtn" onclick="simulateGangVerification()" style="background:var(--gold);color:var(--void)">Simulate Gang Verification (Demo)</button>
       <div class="login-note">In a live deployment, this step is completed by a division officer — not the applicant.</div>
-      <div class="login-switch"><a onclick="closeRegistration(); showScreen('login')">Back to Secure Access</a></div>
+      <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
     </div>
   </div>
 </section>
@@ -997,7 +1190,7 @@ body.authenticated #app{display:flex !important;}
         <div id="profile-id">
           <div class="idcard">
             <div class="idcard-head"><div class="org">ÆZ ARENA · AGENT ID</div><span class="stamp neutral" style="transform:rotate(2deg)">ON FILE</span></div>
-            <div class="idcard-photo"></div>
+            <img class="idcard-photo" id="idCardPhoto" alt="Agent ID photo" src="" style="display:block;" onerror="this.onerror=null; this.style.display='none';">
             <div class="idcard-name" id="idCardName">Zævii-01</div>
             <div class="idcard-div" id="idCardDiv">SEBI Gang · Trojan of Cadence</div>
             <div class="idcard-grid">
@@ -1007,6 +1200,8 @@ body.authenticated #app{display:flex !important;}
               <div><div class="l">ATTENDANCE</div><div class="v" id="idAttendance">96%</div></div>
               <div><div class="l">TITLES HELD</div><div class="v" id="idTitles">1 — Cadence</div></div>
               <div><div class="l">PASSES</div><div class="v" id="idPasses">3 Available</div></div>
+              <div class="idcard-fb"><div class="l">FACEBOOK UID</div><div class="v" id="idFacebookUid">—</div></div>
+              <div class="idcard-fb"><div class="l">APPROVED ON</div><div class="v" id="idApprovedAt">—</div></div>
             </div>
           </div>
         </div>
@@ -1063,9 +1258,32 @@ body.authenticated #app{display:flex !important;}
     <div><h1>Admin Review</h1><div class="page-sub">Review and approve new ÆZ registrations.</div></div>
     <button class="enter-full" style="width:auto;padding:10px 16px;margin:0" onclick="loadAdminApplications()">Refresh</button>
   </div>
-  <div class="card span-12">
-    <div id="adminStatus" class="page-sub" style="margin-bottom:16px">Loading applications…</div>
-    <div id="adminApplications"></div>
+  <div class="admin-review-shell">
+    <div class="card admin-roster-panel">
+      <div class="admin-roster-head">
+        <div class="title">REGISTRANTS</div>
+        <div id="adminStatus" class="pill">Loading…</div>
+      </div>
+      <div id="adminApplications" class="admin-review-list"></div>
+    </div>
+
+    <div class="admin-command-panel">
+      <div class="card admin-empty-card">
+        <div>
+          <div class="stamp active" style="margin-bottom:14px">COMMAND REVIEW</div>
+          <h2 style="font-size:20px;margin-bottom:8px">Member Approval Desk</h2>
+          <div class="page-sub" style="max-width:560px;margin:0 auto;line-height:1.6">
+            Pending ÆZ registrations are listed in the registrant panel. Review the member's
+            submitted information, then use <strong>Approve</strong> or <strong>Reject</strong>
+            on the application card.
+          </div>
+          <div class="page-sub" style="max-width:560px;margin:16px auto 0;line-height:1.6">
+            Only an approved <strong>Owner</strong> or <strong>Admin</strong> can change
+            a registration from <strong>pending</strong> to <strong>approved</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1182,13 +1400,13 @@ function showScreen(id){
 
   /* The Secure Access page is only reachable after the explicit landing CTA. */
   var arenaEntered = sessionStorage.getItem('aez_arena_entered') === '1';
-  if((id === 'login' || id === 'app') && !arenaEntered){
+  if((id === 'login' || id === 'adminLogin' || id === 'app') && !arenaEntered){
     id = 'landing';
   }
 
   /* Never allow an unauthenticated browser state to display the protected app. */
   if(id === 'app' && (!currentProfile || currentProfile.status !== 'approved')){
-    id = arenaEntered ? 'login' : 'landing';
+    id = arenaEntered ? (id === 'adminLogin' ? 'adminLogin' : 'login') : 'landing';
   }
 
   screens.forEach(function(s){
@@ -1200,7 +1418,7 @@ function showScreen(id){
   var screen = document.getElementById(id);
   if(screen){
     screen.classList.add('active');
-    screen.style.display = 'block';
+    screen.style.display = (id === 'login' || id === 'signup' || id === 'adminLogin') ? 'flex' : 'block';
     screen.setAttribute('aria-hidden','false');
   }
 }
@@ -1238,31 +1456,268 @@ function openRegistration(){
 
 /* First-time entry:
    fade out the splash screen, remove it completely, then show
-   the Login/Register screen. */
-function enterArena(){
-  /* Explicit user action is required before Secure Access can be shown. */
+   the requested access screen. */
+var arenaEntryMode = 'member';
+
+function enterArenaAsMember(){
+  /* Member/Gangster entry is isolated to the member Secure Access screen.
+     The Admin Command screen is explicitly hidden and cannot appear behind it. */
+  arenaEntryMode='member';
   sessionStorage.setItem('aez_arena_entered','1');
 
-  var landing = document.getElementById('landing');
-
-  if(!landing){
-    showScreen('login');
-    return;
+  var adminScreen=document.getElementById('adminLogin');
+  if(adminScreen){
+    adminScreen.classList.remove('active');
+    adminScreen.style.display='none';
+    adminScreen.setAttribute('aria-hidden','true');
   }
 
-  landing.classList.add('leaving');
+  transitionFromLanding('login', function(){
+    /* Keep the member login in its default state. Never inject Admin Command
+       fields or navigation into this screen after a Member/Gangster click. */
+    var gangField=document.getElementById('fieldGang');
+    var codenameField=document.getElementById('fieldCodename');
+    var gangSelect=document.getElementById('gangSelect');
+    var codenameInput=document.getElementById('codenameInput');
+    var title=document.querySelector('#login .login-head .glyph');
+    var sub=document.querySelector('#login .login-head .sub');
+    var btn=document.getElementById('loginSubmitBtn');
+    var note=document.querySelector('#login .login-note');
+    var switcher=document.querySelector('#login .login-switch');
 
+    if(gangField) gangField.style.display='';
+    if(codenameField) codenameField.style.display='';
+    if(gangSelect) gangSelect.disabled=false;
+    if(codenameInput) codenameInput.disabled=false;
+    if(title) title.textContent='ÆZ SECURE ACCESS';
+    if(sub) sub.textContent='IDENTIFY YOURSELF TO PROCEED';
+    if(btn) btn.textContent='Enter the Arena';
+    if(note) note.textContent='Unauthorized access is logged and reported to Division Command. Approved accounts only.';
+    if(switcher) switcher.innerHTML='New agent? <a href="javascript:void(0)" onclick="openRegistration(); return false;">Register with your gang</a>';
+
+    var email=document.getElementById('emailInput');
+    if(email) email.focus();
+  });
+}
+
+function enterArenaAsAdmin(){
+  arenaEntryMode='admin';
+  sessionStorage.setItem('aez_arena_entered','1');
+  transitionFromLanding('adminLogin', function(){
+    var email=document.getElementById('adminEmailInput');
+    if(email) email.focus();
+  });
+}
+
+function transitionFromLanding(targetId, after){
+  var landing=document.getElementById('landing');
+  if(!landing){ showScreen(targetId); if(after) after(); return; }
+  landing.classList.add('leaving');
   setTimeout(function(){
     landing.remove();
-    showScreen('login');
-
-    // Focus the first field so the user can immediately continue.
-    setTimeout(function(){
-      var gang = document.getElementById('gangSelect');
-      if(gang) gang.focus();
-    }, 50);
-  }, 250);
+    showScreen(targetId);
+    if(after) setTimeout(after,50);
+  },250);
 }
+
+function backToEntryFromAdmin(){
+  /* Leave Admin Command completely and return to the first entry page.
+     Also clear any active Supabase session so the dashboard cannot reappear. */
+  sessionStorage.removeItem('aez_arena_entered');
+  arenaEntryMode='member';
+  currentAgent=null;
+  currentProfile=null;
+  document.body.classList.remove('authenticated');
+  if(supabaseClient){
+    supabaseClient.auth.signOut().finally(function(){
+      showEntryPageOnly();
+    });
+  }else{
+    showEntryPageOnly();
+  }
+}
+
+var ENTRY_PAGE_MARKUP = "<section id=\"landing\" class=\"screen active\">\n  <div class=\"grid-veil\"></div>\n  <div class=\"noise-drift\"></div>\n  <div class=\"mark-glyph\"><span class=\"dot\"></span> SECURE CHANNEL · ENCRYPTED</div>\n  <div class=\"wordmark\">ÆZ<small>Ash · Zee Arena</small></div>\n  <div class=\"tagline\">\"Beyond the source code.\"</div>\n  <div class=\"entry-choice-label\"></div>\n  <div class=\"entry-choice-grid\">\n    <button class=\"enter-btn entry-btn-primary\" onclick=\"enterArenaAsMember()\" aria-label=\"Enter the Arena as Gangster or Member\">\n      <span>Gang Member</span>\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg>\n    </button>\n    <button class=\"enter-btn entry-btn-admin\" onclick=\"enterArenaAsAdmin()\" aria-label=\"Enter the Arena as Admin Command\">\n      <span>Admin Command</span>\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z\"/><path d=\"m9 12 2 2 4-4\"/></svg>\n    </button>\n  </div>\n  <div class=\"landing-foot\">\n    <span>EST. 2024</span><span>DIVISION-CLASS SYSTEM</span><span>NO PUBLIC RECORD</span>\n  </div>\n</section>";
+
+function showEntryPageOnly(){
+  /* Hard-return to the exact first entry page. Rebuild it if a previous
+     transition removed the landing section from the DOM. */
+  window.aezRegistrationOpen=false;
+  sessionStorage.removeItem('aez_arena_entered');
+  arenaEntryMode='member';
+  currentAgent=null;
+  currentProfile=null;
+  document.body.classList.remove('authenticated');
+
+  var landing=document.getElementById('landing');
+  if(!landing){
+    var wrapper=document.createElement('div');
+    wrapper.innerHTML=ENTRY_PAGE_MARKUP;
+    landing=wrapper.firstElementChild;
+    document.body.insertBefore(landing,document.body.firstChild);
+  }
+
+  document.querySelectorAll('.screen').forEach(function(screen){
+    screen.classList.remove('active');
+    screen.style.setProperty('display','none','important');
+    screen.setAttribute('aria-hidden','true');
+  });
+
+  landing.classList.remove('leaving');
+  landing.classList.add('active');
+  landing.style.setProperty('display','flex','important');
+  landing.setAttribute('aria-hidden','false');
+}
+
+
+function goToMemberSecureAccess(){
+  window.aezRegistrationOpen=false;
+  arenaEntryMode='member';
+  sessionStorage.setItem('aez_arena_entered','1');
+  document.querySelectorAll('.screen').forEach(function(screen){
+    screen.classList.remove('active');
+    screen.style.setProperty('display','none','important');
+    screen.setAttribute('aria-hidden','true');
+  });
+  var login=document.getElementById('login');
+  if(login){
+    login.classList.add('active');
+    login.style.setProperty('display','flex','important');
+    login.setAttribute('aria-hidden','false');
+  }
+  var admin=document.getElementById('adminLogin');
+  if(admin){
+    admin.classList.remove('active');
+    admin.style.setProperty('display','none','important');
+    admin.setAttribute('aria-hidden','true');
+  }
+  var signup=document.getElementById('signup');
+  if(signup){
+    signup.classList.remove('active');
+    signup.style.setProperty('display','none','important');
+    signup.setAttribute('aria-hidden','true');
+  }
+  var title=document.querySelector('#login .login-head .glyph');
+  var sub=document.querySelector('#login .login-head .sub');
+  var btn=document.getElementById('loginSubmitBtn');
+  var note=document.querySelector('#login .login-note');
+  var gangField=document.getElementById('fieldGang');
+  var codenameField=document.getElementById('fieldCodename');
+  if(title) title.textContent='ÆZ SECURE ACCESS';
+  if(sub) sub.textContent='IDENTIFY YOURSELF TO PROCEED';
+  if(btn) btn.textContent='Enter the Arena';
+  if(note) note.textContent='Unauthorized access is logged and reported to Division Command. Approved accounts only.';
+  if(gangField) gangField.style.display='';
+  if(codenameField) codenameField.style.display='';
+  var email=document.getElementById('emailInput');
+  if(email) setTimeout(function(){email.focus();},50);
+}
+
+function backToEntryFromRegistration(){
+  /* Registration exit is always a hard return to the first entry page.
+     Do not reopen Secure Access or Admin Command in the process. */
+  window.aezRegistrationOpen = false;
+  sessionStorage.removeItem('aez_arena_entered');
+  arenaEntryMode='member';
+  currentAgent=null;
+  currentProfile=null;
+  document.body.classList.remove('authenticated');
+
+  var finish=function(){
+    showEntryPageOnly();
+  };
+
+  if(supabaseClient){
+    supabaseClient.auth.signOut().then(finish).catch(finish);
+  }else{
+    finish();
+  }
+}
+
+function backToEntryChoice(){
+  /* Return directly to the first entry-selection page. */
+  window.aezRegistrationOpen = false;
+  sessionStorage.removeItem('aez_arena_entered');
+  arenaEntryMode='member';
+  currentAgent=null;
+  currentProfile=null;
+  document.body.classList.remove('authenticated');
+
+  var finish=function(){
+    showEntryPageOnly();
+  };
+
+  if(supabaseClient){
+    supabaseClient.auth.signOut().then(finish).catch(finish);
+  }else{
+    finish();
+  }
+}
+
+function showAdminLoginError(msg){
+  var el=document.getElementById('adminLoginError');
+  if(!el) return;
+  el.textContent=msg;
+  el.style.display='flex';
+  var card=document.getElementById('adminLoginCard');
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+}
+function hideAdminLoginError(){
+  var el=document.getElementById('adminLoginError');
+  if(el) el.style.display='none';
+}
+
+function configureAdminLoginMode(){
+  var gangField=document.getElementById('fieldGang');
+  var codenameField=document.getElementById('fieldCodename');
+  var gangSelect=document.getElementById('gangSelect');
+  var codenameInput=document.getElementById('codenameInput');
+  var title=document.querySelector('#login .login-head .glyph');
+  var sub=document.querySelector('#login .login-head .sub');
+  var btn=document.getElementById('loginSubmitBtn');
+  var note=document.querySelector('#login .login-note');
+  var switcher=document.querySelector('#login .login-switch');
+
+  if(arenaEntryMode==='admin'){
+    if(gangField) gangField.style.display='none';
+    if(codenameField) codenameField.style.display='none';
+    if(gangSelect) gangSelect.disabled=true;
+    if(codenameInput) codenameInput.disabled=true;
+    if(title) title.textContent='ÆZ ADMIN COMMAND';
+    if(sub) sub.textContent='AUTHORIZED COMMAND PERSONNEL ONLY';
+    if(btn) btn.textContent='Enter Admin Command';
+    if(note) note.textContent='Admin access is restricted to approved Admin and Owner accounts.';
+    if(switcher) switcher.innerHTML="<a href='javascript:void(0)' onclick=\"switchEntryMode('member'); return false;\">Enter as Member / Gangster</a>";
+  }else{
+    if(gangField) gangField.style.display='';
+    if(codenameField) codenameField.style.display='';
+    if(gangSelect) gangSelect.disabled=false;
+    if(codenameInput) codenameInput.disabled=false;
+    if(title) title.textContent='ÆZ SECURE ACCESS';
+    if(sub) sub.textContent='IDENTIFY YOURSELF TO PROCEED';
+    if(btn) btn.textContent='Enter the Arena';
+    if(note) note.textContent='Unauthorized access is logged and reported to Division Command. Approved accounts only.';
+    if(switcher) switcher.innerHTML='New agent? <a href="javascript:void(0)" onclick="openRegistration(); return false;">Register with your gang</a>';
+  }
+}
+
+function switchEntryMode(mode){
+  /* Deliberately disabled for the member Secure Access page.
+     Admin Command has its own dedicated login screen from the first page. */
+  if(mode==='admin'){
+    enterArenaAsAdmin();
+    return;
+  }
+  arenaEntryMode='member';
+  hideLoginError();
+  enterArenaAsMember();
+}
+
+
+function enterArena(){
+  enterArenaAsMember();
+}
+
 function showLoginError(msg){
   var el = document.getElementById('loginError');
   el.textContent = msg;
@@ -1339,8 +1794,29 @@ async function login(){
 }
 
 function profileToAgent(p){
-  return {codename:p.codename,gang:p.gang,passwordHash:'',accessLevel:p.access_level||'I',points:p.points||0,divisionRank:p.division_rank||6,individualRank:p.individual_rank||1,attendance:p.attendance||100,titles:p.titles||'0',passes:p.passes||0,role:p.role,email:p.email};
+  return {codename:p.codename,gang:p.gang,passwordHash:'',accessLevel:p.access_level||'I',points:p.points||0,divisionRank:p.division_rank||6,individualRank:p.individual_rank||1,attendance:p.attendance||100,titles:p.titles||'0',passes:p.passes||0,role:p.role,email:p.email,facebook_uid:p.facebook_uid||'',id_photo_path:p.id_photo_path||null,approved_at:p.approved_at||null};
 }
+
+/* Load the private ID image saved during registration and display it only for
+   the currently authenticated agent. The database stores the storage path;
+   Supabase generates a short-lived signed URL for the private object. */
+async function loadCurrentAgentPhoto(profile){
+  var img=document.getElementById('idCardPhoto');
+  if(!img) return;
+  img.style.display='none';
+  img.removeAttribute('src');
+  if(!profile || !profile.id_photo_path || !supabaseClient) return;
+
+  var result=await supabaseClient.storage.from('id-documents').createSignedUrl(profile.id_photo_path,3600);
+  if(result.error || !result.data || !result.data.signedUrl){
+    console.warn('Could not load agent ID photo:', result.error ? result.error.message : 'No signed URL returned');
+    return;
+  }
+
+  img.src=result.data.signedUrl;
+  img.style.display='block';
+}
+
 
 function removeAuthScreensAndShowApp(){
   /* This function is only valid after an approved Supabase profile has been
@@ -1351,8 +1827,12 @@ function removeAuthScreensAndShowApp(){
     return;
   }
 
-  ['landing','login','signup'].forEach(function(id){var el=document.getElementById(id);if(el)el.remove();});
+  ['landing','login','signup','adminLogin'].forEach(function(id){var el=document.getElementById(id);if(el)el.remove();});
   document.body.classList.add('authenticated');
+  /* After any approved login, land directly on the main dashboard. */
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  var dashboard=document.getElementById('view-dashboard');
+  if(dashboard) dashboard.classList.add('active');
   showScreen('app');
   var adminNav=document.getElementById('adminNavItem');
   if(adminNav) adminNav.style.display=(currentProfile.role==='admin'||currentProfile.role==='owner')?'flex':'none';
@@ -1374,12 +1854,18 @@ function applyAgentToUI(a){
 
   document.getElementById('idCardName').textContent = a.codename;
   document.getElementById('idCardDiv').textContent = a.gang+(a.titles!=='0' ? ' · '+a.titles.split('— ')[1] : '');
+  loadCurrentAgentPhoto(currentProfile);
   document.getElementById('idAccessLevel').textContent = a.accessLevel;
   document.getElementById('idPoints').textContent = a.points.toLocaleString();
   document.getElementById('idRank').textContent = '#'+a.individualRank+' Individual';
   document.getElementById('idAttendance').textContent = a.attendance+'%';
   document.getElementById('idTitles').textContent = a.titles;
   document.getElementById('idPasses').textContent = a.passes+' Available';
+  document.getElementById('idFacebookUid').textContent = a.facebook_uid || '—';
+  var approvedEl = document.getElementById('idApprovedAt');
+  if(approvedEl){
+    approvedEl.textContent = a.approved_at ? new Date(a.approved_at).toLocaleString(undefined,{year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+  }
 }
 
 /* ============ SIGN UP / REGISTRATION ============ */
@@ -1465,6 +1951,59 @@ async function submitSignup(){
   await supabaseClient.auth.signOut();
 }
 
+async function adminLogin(){
+  ['adminFieldEmail','adminFieldPosition','adminFieldPassword'].forEach(clearFieldError);
+  hideAdminLoginError();
+  if(!supabaseReady){showAdminLoginError('Supabase is not configured yet.');return;}
+  var email=document.getElementById('adminEmailInput').value.trim().toLowerCase();
+  var position=document.getElementById('adminPositionSelect').value;
+  var pw=document.getElementById('adminPasswordInput').value;
+  var missing=[];
+  if(!email){markFieldError('adminFieldEmail');missing.push('email');}
+  if(!position){markFieldError('adminFieldPosition');missing.push('position');}
+  if(!pw){markFieldError('adminFieldPassword');missing.push('password');}
+  if(missing.length){showAdminLoginError('Enter your '+missing.join(', ')+' to continue.');return;}
+
+  var btn=document.getElementById('adminLoginSubmitBtn');
+  btn.disabled=true; btn.textContent='Verifying…';
+  var result=await supabaseClient.auth.signInWithPassword({email:email,password:pw});
+  if(result.error){
+    btn.disabled=false; btn.textContent='Enter Admin Command';
+    failedAttempts++;
+    if(failedAttempts>=LOCKOUT_AFTER){
+      showAdminLoginError('Too many failed attempts. Please wait before trying again.');
+    }else{
+      showAdminLoginError('Access denied. Check your email and position.');
+    }
+    return;
+  }
+
+  var user=result.data.user;
+  var profileResult=await supabaseClient.from('profiles').select('*').eq('id',user.id).single();
+  if(profileResult.error || !profileResult.data){
+    await supabaseClient.auth.signOut(); btn.disabled=false; btn.textContent='Enter Admin Command';
+    showAdminLoginError('Your command profile could not be found. Contact Division Command.'); return;
+  }
+  var profile=profileResult.data;
+  if(profile.status!=='approved'){
+    await supabaseClient.auth.signOut(); btn.disabled=false; btn.textContent='Enter Admin Command';
+    showAdminLoginError('Your command profile is not approved for access.'); return;
+  }
+  if(profile.role!==position){
+    await supabaseClient.auth.signOut(); btn.disabled=false; btn.textContent='Enter Admin Command';
+    showAdminLoginError('The selected position does not match your approved command role.'); return;
+  }
+  if(!['owner','admin','editor'].includes(profile.role)){
+    await supabaseClient.auth.signOut(); btn.disabled=false; btn.textContent='Enter Admin Command';
+    showAdminLoginError('This account is not authorized for Admin Command.'); return;
+  }
+
+  failedAttempts=0; currentProfile=profile; currentAgent=profileToAgent(profile);
+  applyAgentToUI(currentAgent); removeAuthScreensAndShowApp();
+  nav(document.querySelector('.nav-item[data-view="dashboard"]'));
+  animateCounters();
+}
+
 function simulateGangVerification(){
   showSignupError('Demo verification has been disabled. Approvals are now controlled by the Supabase Admin Review panel.');
 }
@@ -1497,57 +2036,59 @@ document.addEventListener('click', function(e){
     document.getElementById('avatarMenu').classList.remove('show');
   }
 });
+var aezLoggingOut = false;
+
 async function logout(){
+  /* Logout is a hard return to the entry-choice screen. Prevent the
+     Supabase SIGNED_OUT listener from briefly showing either Secure Access
+     screen during the transition. */
+  aezLoggingOut = true;
+  sessionStorage.removeItem('aez_arena_entered');
+  arenaEntryMode='member';
   document.body.classList.remove('authenticated');
-  currentAgent=null; currentProfile=null;
-  document.getElementById('avatarMenu').classList.remove('show');
-  if(supabaseClient) await supabaseClient.auth.signOut();
+  currentAgent=null;
+  currentProfile=null;
+  var menu=document.getElementById('avatarMenu');
+  if(menu) menu.classList.remove('show');
+
+  /* Hide every screen immediately so no login page can flash on logout. */
+  document.querySelectorAll('.screen').forEach(function(screen){
+    screen.classList.remove('active');
+    screen.style.setProperty('display','none','important');
+    screen.setAttribute('aria-hidden','true');
+  });
+
+  if(supabaseClient){
+    try{ await supabaseClient.auth.signOut(); }catch(e){ console.warn('Logout error:', e); }
+  }
+
+  /* Rebuild the original entry state exactly as it appears on first load. */
   location.reload();
 }
 
 /* ============ SUPABASE SESSION / ADMIN REVIEW ============ */
 async function restoreSupabaseSession(){
-  /* Start every page load in a locked state. The protected dashboard and
-     Secure Access screen stay hidden until the user explicitly clicks
-     "Enter the Arena". */
+  /* HARD INITIAL ENTRY LOCK: every fresh website load starts on the entry-choice page only.
+     Existing Supabase sessions never bypass this screen. */
   document.body.classList.remove('authenticated');
   currentAgent=null;
   currentProfile=null;
+  sessionStorage.removeItem('aez_arena_entered');
+  arenaEntryMode='member';
 
-  var arenaEntered = sessionStorage.getItem('aez_arena_entered') === '1';
-  if(!arenaEntered){
-    showScreen('landing');
-    return;
+  document.querySelectorAll('.screen').forEach(function(screen){
+    screen.classList.remove('active');
+    screen.style.setProperty('display','none','important');
+    screen.setAttribute('aria-hidden','true');
+  });
+
+  var landing=document.getElementById('landing');
+  if(landing){
+    landing.classList.remove('leaving');
+    landing.classList.add('active');
+    landing.style.setProperty('display','flex','important');
+    landing.setAttribute('aria-hidden','false');
   }
-
-  if(!supabaseReady){
-    showScreen('login');
-    return;
-  }
-
-  var sessionResult=await supabaseClient.auth.getSession();
-  var session=sessionResult.data && sessionResult.data.session;
-  if(!session){
-    showScreen('landing');
-    return;
-  }
-
-  var pr=await supabaseClient.from('profiles').select('*').eq('id',session.user.id).single();
-  if(pr.error || !pr.data || pr.data.status!=='approved'){
-    await supabaseClient.auth.signOut();
-    document.body.classList.remove('authenticated');
-    currentAgent=null;
-    currentProfile=null;
-    showScreen('login');
-    return;
-  }
-
-  currentProfile=pr.data;
-  currentAgent=profileToAgent(pr.data);
-  applyAgentToUI(currentAgent);
-  removeAuthScreensAndShowApp();
-  nav(document.querySelector('.nav-item[data-view="dashboard"]'));
-  animateCounters();
 }
 
 /* React immediately to Supabase session changes. This prevents the dashboard
@@ -1558,7 +2099,8 @@ if(supabaseReady){
       document.body.classList.remove('authenticated');
       currentAgent=null;
       currentProfile=null;
-      if(document.getElementById('app')) showScreen('login');
+      if(aezLoggingOut){ return; }
+      if(!aezLoggingOut && document.body.classList.contains('authenticated')){ showScreen('login'); }
     }
   });
 }
@@ -1600,15 +2142,26 @@ async function loadAdminApplications(){
     var safeCode=escapeHtml(a.codename||'');
     var safeGang=escapeHtml(a.gang||'');
     var safeFb=escapeHtml(a.facebook_uid||'');
-    return '<div class="admin-row">'
+    var initials=(a.codename||'AEZ').trim().slice(0,2).toUpperCase();
+    return '<div class="admin-application-card">'
+      +'<div class="admin-application-top">'
+      +'<div class="admin-identity">'
+      +'<div class="admin-avatar">'+escapeHtml(initials)+'</div>'
       +'<div><strong>'+safeCode+'</strong><div class="page-sub">'+safeEmail+'</div></div>'
-      +'<div>'+safeGang+'</div>'
-      +'<div>FB: '+safeFb+'</div>'
-      +'<div>'+formatAdminDate(a.created_at)+'</div>'
+      +'</div>'
+      +'<span class="admin-pending">Pending</span>'
+      +'</div>'
+      +'<div class="admin-details">'
+      +'<div class="admin-detail"><div class="label">Gang</div><div class="value">'+safeGang+'</div></div>'
+      +'<div class="admin-detail"><div class="label">Facebook UID</div><div class="value">'+safeFb+'</div></div>'
+      +'<div class="admin-detail"><div class="label">Registered</div><div class="value">'+formatAdminDate(a.created_at)+'</div></div>'
+      +'<div class="admin-detail"><div class="label">Role</div><div class="value">'+escapeHtml(a.role||'member')+'</div></div>'
+      +'</div>'
       +'<div class="admin-actions">'
       +'<button class="admin-btn approve" data-application-id="'+safeId+'" onclick="approveApplication(this.dataset.applicationId)">Approve</button>'
       +'<button class="admin-btn reject" data-application-id="'+safeId+'" onclick="rejectApplication(this.dataset.applicationId)">Reject</button>'
-      +'</div></div>';
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 function escapeHtml(v){return String(v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
@@ -1922,10 +2475,31 @@ var schedules = {
 };
 function renderSchedule(key){
   var grid = document.getElementById('schedGrid');
-  var todayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
+  var now = new Date();
+  var todayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+
+  var monday = new Date(now);
+  var dayOffset = (now.getDay() + 6) % 7;
+  monday.setDate(now.getDate() - dayOffset);
+  monday.setHours(0,0,0,0);
+
+  function fullDateForDay(dayName){
+    var names = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    var offset = names.indexOf(dayName);
+    if(offset < 0) return '';
+    var date = new Date(monday);
+    date.setDate(monday.getDate() + offset);
+    return date.toLocaleDateString(undefined, {
+      year:'numeric',
+      month:'long',
+      day:'numeric'
+    });
+  }
+
   grid.innerHTML = schedules[key].map(function(d){
+    var fullDate = fullDateForDay(d.day);
     var items = d.items.map(function(it){
-      return '<div class="sched-item"><div class="sched-time">'+it[0]+'</div><div class="sched-name">'+it[1]+'</div></div>';
+      return '<div class="sched-item"><div class="sched-time">'+fullDate+' · '+it[0]+'</div><div class="sched-name">'+it[1]+'</div></div>';
     }).join('');
     var isToday = d.day===todayName;
     var todayTag = isToday ? '<span class="pill live" style="margin-left:8px">Today</span>' : '';
