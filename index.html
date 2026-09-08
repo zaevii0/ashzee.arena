@@ -46,6 +46,10 @@ button{font-family:inherit;cursor:pointer;}
 /* ============ SCREEN MANAGEMENT ============ */
 .screen{display:none;min-height:100vh;}
 .screen.active{display:block;}
+/* Protected app: never render the authenticated dashboard unless a valid
+   Supabase session has been restored and the profile is approved. */
+#app{display:none !important;}
+body.authenticated #app{display:flex !important;}
 
 /* ============ LANDING ============ */
 #landing{
@@ -132,7 +136,7 @@ button{font-family:inherit;cursor:pointer;}
 }
 
 /* ============ LOGIN ============ */
-#login{
+#login, #signup{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   background:var(--void);
   padding:24px;
@@ -497,6 +501,27 @@ button{font-family:inherit;cursor:pointer;}
   .top-clock{display:none;}
   .grid{gap:12px;}
 }
+
+/* SECURE ACCESS — centered layout */
+#login.screen,
+#login.screen.active {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+  padding: 24px !important;
+}
+
+#login .login-card {
+  margin: 0 auto !important;
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none;
+}
+
 </style>
 </head>
 <body>
@@ -531,14 +556,13 @@ button{font-family:inherit;cursor:pointer;}
     <div class="field" id="fieldGang">
       <label>Gang</label>
       <select id="gangSelect" onchange="clearFieldError('fieldGang')">
-        <option value="" disabled selected>Select your gang</option>
-        <option value="Cadence Gang">DD Gang</option>
-        <option value="Discourse Gang">NUDE Gang</option>
-        <option value="Strife Gang">SEK Gang</option>
-        <option value="Charm Gang">ES Gang</option>
-        <option value="Verse Gang">SARAH Gang</option>
-        <option value="Retort Gang">BBM Gang</option>
-      </select>
+        <option value="NUDE Gang">NUDE Gang</option>
+        <option value="DD Gang">DD Gang</option>
+        <option value="SEBI Gang">SEBI Gang</option>
+        <option value="STESI Gang">STESI Gang</option>
+        <option value="BBM Gang">BBM Gang</option>
+        <option value="SARAH Gang">SARAH Gang</option>
+</select>
     </div>
     <div class="field" id="fieldCodename">
       <label>Codename</label>
@@ -561,12 +585,12 @@ button{font-family:inherit;cursor:pointer;}
     <div class="login-error" id="loginError" style="display:none"></div>
     <button class="enter-full" id="loginSubmitBtn" onclick="login()">Enter the Arena</button>
     <div class="login-note">Unauthorized access is logged and reported to Division Command. Approved accounts only.</div>
-    <div class="login-switch">New agent? <a onclick="showScreen('signup')">Register with your gang</a></div>
+    <div class="login-switch">New agent? <a href="javascript:void(0)" onclick="openRegistration(); return false;">Register with your gang</a></div>
   </div>
 </section>
 
 <!-- ============ SIGN UP ============ -->
-<section id="signup" class="screen">
+<section id="signup" class="screen" aria-label="ÆZ Agent Registration">
   <div class="login-card" id="signupCard" style="max-width:440px;">
     <div class="login-head">
       <div class="glyph">ÆZ AGENT REGISTRATION</div>
@@ -581,14 +605,13 @@ button{font-family:inherit;cursor:pointer;}
       <div class="field" id="suFieldGang">
         <label>Gang</label>
         <select id="suGangSelect" onchange="clearFieldError('suFieldGang')">
-          <option value="" disabled selected>Select your gang</option>
-          <option value="SEBI Gang">Cadence Gang</option>
-          <option value="STESI Gang">Discourse Gang</option>
-          <option value="REN Gang">Strife Gang</option>
-          <option value="BBM Gang">Charm Gang</option>
-          <option value="SARAH Gang">Verse Gang</option>
-          <option value="HAHA Gang">Retort Gang</option>
-        </select>
+          <option value="NUDE Gang">NUDE Gang</option>
+          <option value="DD Gang">DD Gang</option>
+          <option value="SEBI Gang">SEBI Gang</option>
+          <option value="STESI Gang">STESI Gang</option>
+          <option value="BBM Gang">BBM Gang</option>
+          <option value="SARAH Gang">SARAH Gang</option>
+</select>
       </div>
       <div class="field" id="suFieldCodename">
         <label>Codename</label>
@@ -623,7 +646,7 @@ button{font-family:inherit;cursor:pointer;}
       <div class="login-error" id="signupError" style="display:none"></div>
       <button class="enter-full" onclick="submitSignup()">Submit for Verification</button>
       <div class="login-note">Your gang reviews new registrations against the ID and Facebook profile submitted here.</div>
-      <div class="login-switch">Already registered? <a onclick="showScreen('login')">Back to Secure Access</a></div>
+      <div class="login-switch">Already registered? <a onclick="closeRegistration(); showScreen('login')">Back to Secure Access</a></div>
     </div>
 
     <div id="signupPending" style="display:none;text-align:center;">
@@ -640,7 +663,7 @@ button{font-family:inherit;cursor:pointer;}
       </div>
       <button class="enter-full" id="verifyDemoBtn" onclick="simulateGangVerification()" style="background:var(--gold);color:var(--void)">Simulate Gang Verification (Demo)</button>
       <div class="login-note">In a live deployment, this step is completed by a division officer — not the applicant.</div>
-      <div class="login-switch"><a onclick="showScreen('login')">Back to Secure Access</a></div>
+      <div class="login-switch"><a onclick="closeRegistration(); showScreen('login')">Back to Secure Access</a></div>
     </div>
   </div>
 </section>
@@ -1082,8 +1105,8 @@ button{font-family:inherit;cursor:pointer;}
 /* ============ SUPABASE CONFIG ============ */
 /* Replace these two placeholders with your Supabase Project URL and
    Publishable Key. NEVER put a service_role/secret key in this HTML. */
-var SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-var SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+var SUPABASE_URL = "https://watkmdnuielghrfrbrbu.supabase.co";
+var SUPABASE_PUBLISHABLE_KEY = "sb_publishable_oVjZrLazgSUgZx_o4kFyiw_7B00QjM9";
 var supabaseReady = SUPABASE_URL.indexOf("YOUR_") !== 0 && SUPABASE_PUBLISHABLE_KEY.indexOf("YOUR_") !== 0;
 var supabaseClient = supabaseReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 
@@ -1129,18 +1152,97 @@ function startLockout(){
 
 /* ============ SCREEN / NAV ============ */
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(function(s){
+  /* While registration is open, no other screen is allowed to replace it.
+     This protects the registration view from session/auth callbacks firing
+     in the background and accidentally bringing Secure Access back. */
+  if(window.aezRegistrationOpen && id !== 'signup'){
+    id = 'signup';
+  }
+
+  var screens = document.querySelectorAll('.screen');
+
+  /* Registration is a hard visual boundary: when opened, hide every other
+     screen explicitly (not only via the .active class). This prevents the
+     login / Secure Access UI from remaining visible behind registration. */
+  if(id === 'signup'){
+    screens.forEach(function(s){
+      s.classList.remove('active');
+      s.style.display = 'none';
+      s.setAttribute('aria-hidden','true');
+    });
+
+    var signupScreen = document.getElementById('signup');
+    if(signupScreen){
+      signupScreen.classList.add('active');
+      signupScreen.style.display = 'flex';
+      signupScreen.setAttribute('aria-hidden','false');
+    }
+    return;
+  }
+
+  /* The Secure Access page is only reachable after the explicit landing CTA. */
+  var arenaEntered = sessionStorage.getItem('aez_arena_entered') === '1';
+  if((id === 'login' || id === 'app') && !arenaEntered){
+    id = 'landing';
+  }
+
+  /* Never allow an unauthenticated browser state to display the protected app. */
+  if(id === 'app' && (!currentProfile || currentProfile.status !== 'approved')){
+    id = arenaEntered ? 'login' : 'landing';
+  }
+
+  screens.forEach(function(s){
     s.classList.remove('active');
+    s.style.display = 'none';
+    s.setAttribute('aria-hidden','true');
   });
 
   var screen = document.getElementById(id);
-  if(screen) screen.classList.add('active');
+  if(screen){
+    screen.classList.add('active');
+    screen.style.display = 'block';
+    screen.setAttribute('aria-hidden','false');
+  }
+}
+
+function closeRegistration(){
+  window.aezRegistrationOpen = false;
+}
+
+/* Dedicated registration entry point. The explicit inline handler calls this
+   so the registration transition cannot accidentally leave Secure Access
+   visible. */
+function openRegistration(){
+  window.aezRegistrationOpen = true;
+
+  /* Hard-hide every other screen before showing registration. */
+  document.querySelectorAll('.screen').forEach(function(screen){
+    screen.classList.remove('active');
+    screen.style.setProperty('display','none','important');
+    screen.setAttribute('aria-hidden','true');
+  });
+
+  var signup = document.getElementById('signup');
+  if(signup){
+    signup.classList.add('active');
+    signup.style.setProperty('display','flex','important');
+    signup.setAttribute('aria-hidden','false');
+  }
+
+  /* Ensure the registration form itself is the visible registration state. */
+  var form = document.getElementById('signupForm');
+  var pending = document.getElementById('signupPending');
+  if(form) form.style.display = 'block';
+  if(pending) pending.style.display = 'none';
 }
 
 /* First-time entry:
    fade out the splash screen, remove it completely, then show
    the Login/Register screen. */
 function enterArena(){
+  /* Explicit user action is required before Secure Access can be shown. */
+  sessionStorage.setItem('aez_arena_entered','1');
+
   var landing = document.getElementById('landing');
 
   if(!landing){
@@ -1241,10 +1343,19 @@ function profileToAgent(p){
 }
 
 function removeAuthScreensAndShowApp(){
+  /* This function is only valid after an approved Supabase profile has been
+     loaded. The extra guard prevents accidental dashboard exposure. */
+  if(!currentProfile || !currentProfile.id || currentProfile.status!=='approved'){
+    document.body.classList.remove('authenticated');
+    showScreen('login');
+    return;
+  }
+
   ['landing','login','signup'].forEach(function(id){var el=document.getElementById(id);if(el)el.remove();});
+  document.body.classList.add('authenticated');
   showScreen('app');
   var adminNav=document.getElementById('adminNavItem');
-  if(adminNav) adminNav.style.display=(currentProfile && (currentProfile.role==='admin'||currentProfile.role==='owner'))?'flex':'none';
+  if(adminNav) adminNav.style.display=(currentProfile.role==='admin'||currentProfile.role==='owner')?'flex':'none';
 }
 
 function applyAgentToUI(a){
@@ -1359,7 +1470,13 @@ function simulateGangVerification(){
 }
 
 function nav(el){
+  if(!currentProfile || currentProfile.status!=='approved'){ showScreen('login'); return; }
   var view = el.getAttribute('data-view');
+
+  if(view==='admin' && !['admin','owner'].includes(currentProfile.role)){
+    return;
+  }
+
   document.querySelectorAll('.nav-item, .bn-item').forEach(function(n){
     n.classList.toggle('active', n.getAttribute('data-view')===view);
   });
@@ -1381,6 +1498,7 @@ document.addEventListener('click', function(e){
   }
 });
 async function logout(){
+  document.body.classList.remove('authenticated');
   currentAgent=null; currentProfile=null;
   document.getElementById('avatarMenu').classList.remove('show');
   if(supabaseClient) await supabaseClient.auth.signOut();
@@ -1389,16 +1507,41 @@ async function logout(){
 
 /* ============ SUPABASE SESSION / ADMIN REVIEW ============ */
 async function restoreSupabaseSession(){
-  if(!supabaseReady) return;
-  var sessionResult=await supabaseClient.auth.getSession();
-  var session=sessionResult.data && sessionResult.data.session;
-  if(!session) return;
-  var pr=await supabaseClient.from('profiles').select('*').eq('id',session.user.id).single();
-  if(pr.error || !pr.data){await supabaseClient.auth.signOut();return;}
-  if(pr.data.status!=='approved'){
-    await supabaseClient.auth.signOut();
+  /* Start every page load in a locked state. The protected dashboard and
+     Secure Access screen stay hidden until the user explicitly clicks
+     "Enter the Arena". */
+  document.body.classList.remove('authenticated');
+  currentAgent=null;
+  currentProfile=null;
+
+  var arenaEntered = sessionStorage.getItem('aez_arena_entered') === '1';
+  if(!arenaEntered){
+    showScreen('landing');
     return;
   }
+
+  if(!supabaseReady){
+    showScreen('login');
+    return;
+  }
+
+  var sessionResult=await supabaseClient.auth.getSession();
+  var session=sessionResult.data && sessionResult.data.session;
+  if(!session){
+    showScreen('landing');
+    return;
+  }
+
+  var pr=await supabaseClient.from('profiles').select('*').eq('id',session.user.id).single();
+  if(pr.error || !pr.data || pr.data.status!=='approved'){
+    await supabaseClient.auth.signOut();
+    document.body.classList.remove('authenticated');
+    currentAgent=null;
+    currentProfile=null;
+    showScreen('login');
+    return;
+  }
+
   currentProfile=pr.data;
   currentAgent=profileToAgent(pr.data);
   applyAgentToUI(currentAgent);
@@ -1407,35 +1550,144 @@ async function restoreSupabaseSession(){
   animateCounters();
 }
 
+/* React immediately to Supabase session changes. This prevents the dashboard
+   from remaining visible after an expired/removed session. */
+if(supabaseReady){
+  supabaseClient.auth.onAuthStateChange(function(event, session){
+    if(event==='SIGNED_OUT' || !session){
+      document.body.classList.remove('authenticated');
+      currentAgent=null;
+      currentProfile=null;
+      if(document.getElementById('app')) showScreen('login');
+    }
+  });
+}
+
 async function loadAdminApplications(){
   var statusEl=document.getElementById('adminStatus');
   var box=document.getElementById('adminApplications');
-  if(!currentProfile || !['admin','owner'].includes(currentProfile.role)){statusEl.textContent='Restricted: admin access only.';box.innerHTML='';return;}
-  statusEl.textContent='Loading pending applications…'; box.innerHTML='';
-  var res=await supabaseClient.from('profiles').select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at').eq('status','pending').order('created_at',{ascending:true});
-  if(res.error){statusEl.textContent='Could not load applications: '+res.error.message;return;}
-  if(!res.data.length){statusEl.textContent='No pending applications.';return;}
+
+  if(!currentProfile || currentProfile.status!=='approved' || !['admin','owner'].includes(currentProfile.role)){
+    statusEl.textContent='Restricted: ÆZ Owner/Admin access only.';
+    box.innerHTML='';
+    return;
+  }
+
+  statusEl.textContent='Loading pending applications…';
+  box.innerHTML='';
+
+  var res=await supabaseClient
+    .from('profiles')
+    .select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at')
+    .eq('status','pending')
+    .order('created_at',{ascending:true});
+
+  if(res.error){
+    statusEl.textContent='Could not load applications: '+res.error.message;
+    return;
+  }
+
+  if(!res.data.length){
+    statusEl.textContent='No pending applications.';
+    return;
+  }
+
   statusEl.textContent=res.data.length+' pending application'+(res.data.length===1?'':'s');
+
   box.innerHTML=res.data.map(function(a){
-    var safeEmail=escapeHtml(a.email||''); var safeCode=escapeHtml(a.codename||''); var safeGang=escapeHtml(a.gang||''); var safeFb=escapeHtml(a.facebook_uid||'');
-    return '<div class="admin-row"><div><strong>'+safeCode+'</strong><div class="page-sub">'+safeEmail+'</div></div><div>'+safeGang+'</div><div>FB: '+safeFb+'</div><div>'+formatAdminDate(a.created_at)+'</div><div class="admin-actions"><button class="admin-btn approve" onclick="approveApplication(\''+a.id+'\')">Approve</button><button class="admin-btn reject" onclick="rejectApplication(\''+a.id+'\')">Reject</button></div></div>';
+    var safeId=escapeHtml(a.id||'');
+    var safeEmail=escapeHtml(a.email||'');
+    var safeCode=escapeHtml(a.codename||'');
+    var safeGang=escapeHtml(a.gang||'');
+    var safeFb=escapeHtml(a.facebook_uid||'');
+    return '<div class="admin-row">'
+      +'<div><strong>'+safeCode+'</strong><div class="page-sub">'+safeEmail+'</div></div>'
+      +'<div>'+safeGang+'</div>'
+      +'<div>FB: '+safeFb+'</div>'
+      +'<div>'+formatAdminDate(a.created_at)+'</div>'
+      +'<div class="admin-actions">'
+      +'<button class="admin-btn approve" data-application-id="'+safeId+'" onclick="approveApplication(this.dataset.applicationId)">Approve</button>'
+      +'<button class="admin-btn reject" data-application-id="'+safeId+'" onclick="rejectApplication(this.dataset.applicationId)">Reject</button>'
+      +'</div></div>';
   }).join('');
 }
 function escapeHtml(v){return String(v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
 function formatAdminDate(v){try{return new Date(v).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});}catch(e){return v||'';}}
 async function approveApplication(id){
+  if(!currentProfile || !['admin','owner'].includes(currentProfile.role)){
+    alert('Restricted: only an ÆZ Owner or Admin can approve members.');
+    return;
+  }
   if(!confirm('Approve this registration?')) return;
-  var r=await supabaseClient.from('profiles').update({status:'approved',approved_by:(await supabaseClient.auth.getUser()).data.user.id,approved_at:new Date().toISOString(),rejection_reason:null}).eq('id',id);
-  if(r.error){alert('Approval failed: '+r.error.message);return;}
-  loadAdminApplications();
+
+  var userResult = await supabaseClient.auth.getUser();
+  var user = userResult.data && userResult.data.user;
+  if(userResult.error || !user){
+    alert('Approval failed: your admin session is no longer valid. Please log in again.');
+    return;
+  }
+
+  var now = new Date().toISOString();
+  var r = await supabaseClient
+    .from('profiles')
+    .update({
+      status:'approved',
+      approved_by:user.id,
+      approved_at:now,
+      rejection_reason:null
+    })
+    .eq('id',id)
+    .eq('status','pending')
+    .select('id,status');
+
+  if(r.error){
+    alert('Approval failed: '+r.error.message+'\n\nIf this says the operation is blocked by Row Level Security, apply the Supabase policy supplied with this update.');
+    return;
+  }
+
+  if(!r.data || r.data.length===0){
+    alert('This application is no longer pending, or Supabase did not allow the update.');
+    await loadAdminApplications();
+    return;
+  }
+
+  await loadAdminApplications();
 }
+
 async function rejectApplication(id){
+  if(!currentProfile || !['admin','owner'].includes(currentProfile.role)){
+    alert('Restricted: only an ÆZ Owner or Admin can reject members.');
+    return;
+  }
+
   var reason=prompt('Optional rejection reason:','');
   if(reason===null) return;
-  var user=(await supabaseClient.auth.getUser()).data.user;
-  var r=await supabaseClient.from('profiles').update({status:'rejected',approved_by:user.id,approved_at:new Date().toISOString(),rejection_reason:reason||null}).eq('id',id);
-  if(r.error){alert('Rejection failed: '+r.error.message);return;}
-  loadAdminApplications();
+
+  var userResult=await supabaseClient.auth.getUser();
+  var user=userResult.data && userResult.data.user;
+  if(userResult.error || !user){
+    alert('Rejection failed: your admin session is no longer valid. Please log in again.');
+    return;
+  }
+
+  var r=await supabaseClient
+    .from('profiles')
+    .update({
+      status:'rejected',
+      approved_by:user.id,
+      approved_at:new Date().toISOString(),
+      rejection_reason:reason||null
+    })
+    .eq('id',id)
+    .eq('status','pending')
+    .select('id,status');
+
+  if(r.error){
+    alert('Rejection failed: '+r.error.message+'\n\nIf this says the operation is blocked by Row Level Security, apply the Supabase policy supplied with this update.');
+    return;
+  }
+
+  await loadAdminApplications();
 }
 
 /* ============ ANIMATED COUNTERS ============ */
