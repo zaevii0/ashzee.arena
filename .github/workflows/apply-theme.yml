@@ -1,0 +1,182 @@
+name: Apply ÆZ Arena theme toggle
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'index.html'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-theme:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add light/dark mode
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          css_marker = '/* ÆZ THEME TOGGLE START */'
+          js_marker = '/* ÆZ THEME SCRIPT START */'
+
+          css = r'''/* ÆZ THEME TOGGLE START */
+          :root{
+            --theme-bg:#0A0A0B;
+            --theme-text:#F1F0EC;
+          }
+          body{transition:background-color .35s ease,color .35s ease;}
+          body.light-mode{
+            --void:#F4F5F7;
+            --charcoal:#FFFFFF;
+            --panel:#FFFFFF;
+            --graphite:#D7D9DE;
+            --hair:rgba(20,22,26,.10);
+            --hair-strong:rgba(20,22,26,.18);
+            --bone:#17191D;
+            --ash:#5F636A;
+            --ash-dim:#858A92;
+            --silver:#555B64;
+            --gold:#8A6B00;
+            --gold-dim:#A18422;
+            --blue:#356A9F;
+            --blue-dim:#4C7096;
+            --danger:#984848;
+            color-scheme:light;
+          }
+          body.light-mode #landing{
+            background:radial-gradient(ellipse 900px 500px at 50% 0%,rgba(201,162,39,.08),transparent 60%),var(--void);
+          }
+          body.light-mode .login-card{
+            background:rgba(255,255,255,.78);
+            box-shadow:0 30px 80px rgba(20,25,35,.14);
+          }
+          body.light-mode .field input,
+          body.light-mode .field select{
+            background:rgba(255,255,255,.82);
+            color:var(--bone);
+          }
+          body.light-mode .field input:focus,
+          body.light-mode .field select:focus{background:#fff;}
+          body.light-mode .field select option{background:#fff;color:var(--bone);}
+          body.light-mode .status-row{background:rgba(20,22,26,.045);}
+          body.light-mode .enter-btn{background:rgba(20,22,26,.045);color:var(--bone);}
+          body.light-mode .enter-btn:hover{background:rgba(20,22,26,.08);box-shadow:0 12px 40px rgba(20,22,26,.12);}
+          body.light-mode .entry-back-btn{background:rgba(20,22,26,.035);}
+          body.light-mode .entry-back-btn:hover{background:rgba(20,22,26,.07);}
+          body.light-mode .enter-full{background:#17191D;color:#fff;}
+          body.light-mode .enter-full:hover{box-shadow:0 10px 30px rgba(20,22,26,.16);}
+          body.light-mode .grid-veil{
+            background-image:linear-gradient(rgba(30,35,42,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(30,35,42,.035) 1px,transparent 1px);
+          }
+          body.light-mode .noise-drift{opacity:.65;}
+          body.light-mode .wordmark{
+            background:linear-gradient(180deg,#202328 10%,#777D86 100%);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+          }
+          body.light-mode .mark-glyph .dot{box-shadow:0 0 8px rgba(201,162,39,.45);}
+
+          /* iOS-style Sun / Moon switch */
+          #themeToggle{
+            position:fixed;
+            top:18px;
+            right:18px;
+            z-index:10000;
+            width:68px;
+            height:36px;
+            padding:3px;
+            border:1px solid rgba(127,132,140,.28);
+            border-radius:999px;
+            background:rgba(255,255,255,.08);
+            backdrop-filter:blur(18px) saturate(150%);
+            -webkit-backdrop-filter:blur(18px) saturate(150%);
+            box-shadow:0 6px 24px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.08);
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            cursor:pointer;
+            transition:background .3s ease,border-color .3s ease;
+          }
+          #themeToggle .theme-icon{
+            width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+            border-radius:50%;font-size:15px;line-height:1;opacity:.55;z-index:1;
+            transition:opacity .25s ease;
+          }
+          #themeToggle .theme-knob{
+            position:absolute;left:3px;top:3px;width:30px;height:30px;border-radius:50%;
+            background:#F4F5F7;box-shadow:0 2px 7px rgba(0,0,0,.3);
+            transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s ease;
+          }
+          #themeToggle[aria-pressed="true"] .theme-knob{transform:translateX(32px);background:#1C1E22;}
+          #themeToggle[aria-pressed="false"] .moon-icon,
+          #themeToggle[aria-pressed="true"] .sun-icon{opacity:.35;}
+          #themeToggle[aria-pressed="false"] .sun-icon,
+          #themeToggle[aria-pressed="true"] .moon-icon{opacity:1;}
+          body.light-mode #themeToggle{
+            background:rgba(20,22,26,.08);
+            border-color:rgba(20,22,26,.14);
+          }
+          body.light-mode #themeToggle .theme-knob{background:#fff;box-shadow:0 2px 7px rgba(20,22,26,.18);}
+          @media(max-width:650px){#themeToggle{top:12px;right:12px;width:64px;height:34px;}#themeToggle .theme-icon,#themeToggle .theme-knob{width:28px;height:28px;}#themeToggle[aria-pressed="true"] .theme-knob{transform:translateX(30px);}}
+          /* ÆZ THEME TOGGLE END */'''
+
+          js = r'''/* ÆZ THEME SCRIPT START */
+          (function(){
+            function setTheme(light){
+              document.body.classList.toggle('light-mode', light);
+              var t=document.getElementById('themeToggle');
+              if(t){
+                t.setAttribute('aria-pressed',String(light));
+                t.setAttribute('aria-label',light?'Switch to dark mode':'Switch to light mode');
+                t.title=light?'Light mode':'Dark mode';
+              }
+              try{localStorage.setItem('aez-theme',light?'light':'dark');}catch(e){}
+            }
+            function initTheme(){
+              var saved=null;
+              try{saved=localStorage.getItem('aez-theme');}catch(e){}
+              setTheme(saved==='light');
+            }
+            function addToggle(){
+              if(document.getElementById('themeToggle')) return;
+              var b=document.createElement('button');
+              b.id='themeToggle';
+              b.type='button';
+              b.setAttribute('aria-pressed','false');
+              b.setAttribute('aria-label','Switch to light mode');
+              b.innerHTML='<span class="theme-icon sun-icon">☼</span><span class="theme-icon moon-icon">☾</span><span class="theme-knob"></span>';
+              b.addEventListener('click',function(){setTheme(!document.body.classList.contains('light-mode'));});
+              document.body.appendChild(b);
+            }
+            if(document.readyState==='loading'){
+              document.addEventListener('DOMContentLoaded',function(){addToggle();initTheme();});
+            }else{addToggle();initTheme();}
+          })();
+          /* ÆZ THEME SCRIPT END */'''
+
+          if css_marker not in s:
+              s=s.replace('</style>', css+'\n</style>', 1)
+          if js_marker not in s:
+              s=s.replace('</body>', '<script>\n'+js+'\n</script>\n</body>', 1)
+          p.write_text(s,encoding='utf-8')
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Add dark and light mode toggle'
+          git push
+      - name: Remove temporary workflow
+        run: |
+          rm -f .github/workflows/apply-theme.yml
+          git add .github/workflows/apply-theme.yml
+          git commit -m 'Remove temporary theme workflow' || true
+          git push || true
