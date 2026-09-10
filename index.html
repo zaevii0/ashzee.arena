@@ -1213,7 +1213,7 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
     <div id="signupForm">
       <div class="field" id="suFieldEmail">
         <label>Email</label>
-        <input type="email" placeholder="you@example.com" id="suEmailInput" autocomplete="email" oninput="clearFieldError('suFieldEmail')">
+        <input type="email" placeholder="you@example.com" id="suEmailInput" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="254" required oninput="this.setCustomValidity('');clearFieldError('suFieldEmail')">
       </div>
       <div class="field" id="suFieldGang">
         <label>Gang</label>
@@ -2338,6 +2338,11 @@ async function login(){
   }
 
   var user=result.data.user;
+  if(!user.email_confirmed_at){
+    await supabaseClient.auth.signOut();
+    showLoginError('Verify your email address using the link we sent before signing in.');
+    return;
+  }
   var profileResult=await supabaseClient.from('profiles').select('*').eq('id',user.id).single();
   if(profileResult.error || !profileResult.data){ await supabaseClient.auth.signOut(); showLoginError('Your application record could not be found. Contact Division Command.'); return; }
   var profile=profileResult.data;
@@ -2689,12 +2694,28 @@ function showSignupError(msg){
   card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
 }
 
+/* Browser validation catches malformed addresses before a request is sent.
+   Mailbox ownership/deliverability is then proven by Supabase's confirmation
+   email; that cannot be established safely with a client-side DNS or SMTP check. */
+function isDeliverableEmailFormat(input){
+  if(!input.checkValidity()) return false;
+  var email=input.value;
+  var at=email.lastIndexOf('@');
+  var domain=at===-1 ? '' : email.slice(at+1);
+  if(email.length>254 || domain.length>253 || domain.indexOf('.')===-1) return false;
+  return domain.split('.').every(function(label){
+    return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(label);
+  });
+}
+
 async function submitSignup(){
   var fieldIds=['suFieldEmail','suFieldGang','suFieldPosition','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
   fieldIds.forEach(clearFieldError);
   if(!supabaseReady){showSignupError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.');return;}
 
-  var email=document.getElementById('suEmailInput').value.trim().toLowerCase();
+  var emailInput=document.getElementById('suEmailInput');
+  var email=emailInput.value.trim().toLowerCase();
+  emailInput.value=email;
   var gang=document.getElementById('suGangSelect').value;
   var position=document.getElementById('suPositionSelect').value;
   var codename=document.getElementById('suCodenameInput').value.trim();
@@ -2712,16 +2733,24 @@ async function submitSignup(){
   if(!pw){markFieldError('suFieldPassword');missing.push('password');}
   if(!file){markFieldError('suFieldId');missing.push('ID picture');}
   if(missing.length){showSignupError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to submit for verification.');return;}
+  if(!isDeliverableEmailFormat(emailInput)){
+    markFieldError('suFieldEmail');
+    showSignupError('Enter a valid email address that can receive the verification email.');
+    return;
+  }
   if(file.size>5*1024*1024){markFieldError('suFieldId');showSignupError('ID picture must be 5 MB or smaller.');return;}
 
   var btn=document.querySelector('#signupForm .enter-full'); btn.disabled=true; btn.textContent='Submitting…';
-  var auth=await supabaseClient.auth.signUp({email:email,password:pw,options:{data:{codename:codename,gang:gang,position:position,facebook_uid:fbUid,joined_date:joined}}});
+  var auth=await supabaseClient.auth.signUp({email:email,password:pw,options:{
+    emailRedirectTo:window.location.origin+window.location.pathname,
+    data:{codename:codename,gang:gang,position:position,facebook_uid:fbUid,joined_date:joined}
+  }});
   if(auth.error){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError(auth.error.message);return;}
   var user=auth.data.user;
   if(!user){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Registration could not be completed.');return;}
 
-  /* For this static-browser build, email confirmations should be OFF during setup
-     so the signup receives a session and can upload the private ID document. */
+  /* Supabase must have Confirm email enabled. Auth will only issue a usable
+     session after the applicant proves that this mailbox can receive email. */
   var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
   var path=user.id+'/'+crypto.randomUUID()+'.'+ext;
   var upload=await supabaseClient.storage.from('id-documents').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
@@ -2778,6 +2807,12 @@ async function adminLogin(){
   }
 
   var user=result.data.user;
+  if(!user.email_confirmed_at){
+    await supabaseClient.auth.signOut();
+    btn.disabled=false; btn.textContent='Enter Admin Command';
+    showAdminLoginError('Verify your email address using the link we sent before signing in.');
+    return;
+  }
   var profileResult=await supabaseClient.from('profiles').select('*').eq('id',user.id).single();
   if(profileResult.error || !profileResult.data){
     await supabaseClient.auth.signOut(); btn.disabled=false; btn.textContent='Enter Admin Command';
