@@ -1,32 +1,47 @@
 # ashzee.arena
 
-## Email-verification requirement
-
-Registration uses Supabase Auth. To reject addresses that do not belong to a
-working mailbox, enable **Confirm email** in **Supabase Dashboard →
-Authentication → Providers → Email** and configure this site's production URL
-as an allowed redirect URL. Supabase then sends the confirmation message and
-does not issue a usable session until its link is opened. The application also
-checks the browser's email validity rules before submitting a registration and
-does not allow an unconfirmed account to sign in.
-
-Do not disable **Confirm email**: a client-only application cannot safely test
-mailbox ownership or SMTP deliverability itself.
-
 ## ÆZ Arena PWA
 
 This project is configured as an installable Progressive Web App (PWA) for Android and iPhone/iPad.
 
 - Android/Chrome: open the HTTPS site and use **Install app** when offered.
-- iPhone/iPad/Safari: open the HTTPS site, tap **Share → Add to Home Screen**.
+- iPhone/iPad/Safari: open HTTPS site, tap **Share → Add to Home Screen**.
 - The app uses `manifest.json`, a versioned `sw.js` service worker, and PNG icons for broad install compatibility.
-
-After deploying an update, the service worker cache version should be incremented when cached shell files change.
-
+- After deploying an update, increment the service-worker cache version when cached shell files change.
 
 ## Gang Registration
-A public **Register Gang** flow is included. One officer submits the gang details and verifies a real email address before the registration enters Admin Review. See `GANG_REGISTRATION_SETUP.md` and `gang_registrations.sql` for Supabase setup.
 
-## Gang Member Email Verification
+A public **Register Gang** flow is included. One authorized gang officer submits the gang details and verifies a real email address before the registration enters Admin Review. See `GANG_REGISTRATION_SETUP.md` and `gang_registrations.sql` for Supabase setup.
 
-The Gang Member registration now pauses after account creation until the applicant verifies the email address. After verification, the app marks the profile `email_verified=true` and only then exposes the registration in Admin Review. Run `member_email_verification.sql` once in the Supabase SQL Editor before deploying this version.
+Approved gang initials are now the only values shown in the Gang Member registration dropdown. The member screen does not contain a hard-coded gang list.
+
+## Gang Member Registration
+
+Gang members no longer enter an email address during registration. They submit:
+
+- Name
+- Gang (only an approved gang initial, loaded from `gang_registrations`)
+- Position
+- Codename
+- Facebook Profile Link
+- Facebook UID
+- Date joined the gang
+- Password
+- ID picture
+- Password-responsibility acknowledgment
+
+The Facebook UID is the member's unique identity. The database update in `member_registration_identity.sql` adds a unique index so the same UID cannot be registered twice.
+
+Because Supabase password authentication still requires an email-style Auth identifier, the browser creates an internal identifier from the Facebook UID. Members never need to know or enter that identifier; the Secure Access screen uses **Facebook UID + gang + codename + password**.
+
+### Required Supabase update
+
+Run `member_registration_identity.sql` once in the Supabase SQL Editor. It adds `full_name`, the unique Facebook UID protection, the approved-gang lookup function, the duplicate-UID check, and the member-login lookup function.
+
+For this member flow, **Supabase Authentication → Email → Confirm Email must be disabled**, because members no longer provide an email address and the internal Auth identifier is not a mailbox. Gang registration still uses its own real-email verification flow.
+
+### Password recovery rule
+
+Member password recovery is intentionally treated as a gang-level responsibility. The registration warning tells members to save their password and explains that recovery email is limited and routed through the gang's registered email. The gang officers decide whether a recovery request should proceed.
+
+The actual gang-officer recovery workflow should be implemented separately before production use; do not treat the internal member Auth email as a recovery mailbox.

@@ -1324,19 +1324,14 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
       <div class="sub">IDENTIFY YOURSELF TO PROCEED</div>
     </div>
     <div class="field" id="fieldEmail">
-      <label>Email</label>
-      <input type="email" placeholder="you@example.com" id="emailInput" autocomplete="email" oninput="clearFieldError('fieldEmail')" onkeydown="if(event.key==='Enter')login()">
+      <label>Facebook UID</label>
+      <input type="text" placeholder="Enter your Facebook UID" id="emailInput" inputmode="numeric" autocomplete="off" oninput="this.value=this.value.replace(/\D/g,'');clearFieldError('fieldEmail')" onkeydown="if(event.key==='Enter')login()">
     </div>
     <div class="field" id="fieldGang">
       <label>Gang</label>
       <select id="gangSelect" onchange="clearFieldError('fieldGang')">
-        <option value="NUDE Gang">NUDE Gang</option>
-        <option value="DD Gang">DD Gang</option>
-        <option value="SEBI Gang">SEBI Gang</option>
-        <option value="STESI Gang">STESI Gang</option>
-        <option value="BBM Gang">BBM Gang</option>
-        <option value="SARAH Gang">SARAH Gang</option>
-</select>
+        <option value="" selected disabled>Loading approved gangs…</option>
+      </select>
     </div>
     <div class="field" id="fieldCodename">
       <label>Codename</label>
@@ -1406,20 +1401,15 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
     </div>
 
     <div id="signupForm">
-      <div class="field" id="suFieldEmail">
-        <label>Email</label>
-        <input type="email" placeholder="you@example.com" id="suEmailInput" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="254" required oninput="this.setCustomValidity('');clearFieldError('suFieldEmail')">
+      <div class="field" id="suFieldName">
+        <label>Name</label>
+        <input type="text" placeholder="Enter your full name" id="suNameInput" autocomplete="name" maxlength="120" required oninput="clearFieldError('suFieldName')">
       </div>
       <div class="field" id="suFieldGang">
         <label>Gang</label>
         <select id="suGangSelect" onchange="clearFieldError('suFieldGang')">
-          <option value="NUDE Gang">NUDE Gang</option>
-          <option value="DD Gang">DD Gang</option>
-          <option value="SEBI Gang">SEBI Gang</option>
-          <option value="STESI Gang">STESI Gang</option>
-          <option value="BBM Gang">BBM Gang</option>
-          <option value="SARAH Gang">SARAH Gang</option>
-</select>
+          <option value="" selected disabled>Loading approved gangs…</option>
+        </select>
       </div>
       <div class="field" id="suFieldPosition">
         <label>Position</label>
@@ -1463,10 +1453,6 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
         <div class="login-note" style="margin-top:9px;border:1px solid rgba(255,190,70,.35);padding:10px 12px;border-radius:8px;line-height:1.45;">
           ⚠️ <strong>Password Responsibility:</strong> Please save your password somewhere safe and do not forget it. If you need a password reset, the request will be sent to your gang’s registered email. <strong>Email recovery is limited</strong>, so use it only when necessary. Your gang officers decide whether to proceed with the recovery. ÆZ Arena is not responsible for forgotten passwords.
         </div>
-        <label style="display:flex;gap:9px;align-items:flex-start;margin-top:10px;font-size:12px;line-height:1.45;cursor:pointer;">
-          <input type="checkbox" id="suPasswordResponsibility" onchange="clearFieldError('suFieldPassword')" style="margin-top:2px;flex:0 0 auto;">
-          <span>I understand that I am responsible for remembering and securely keeping my password.</span>
-        </label>
       </div>
       <div class="field" id="suFieldId">
         <label>Upload ID picture</label>
@@ -1479,28 +1465,31 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
           </div>
         </label>
       </div>
+      <label style="display:flex;gap:9px;align-items:flex-start;margin:12px 0 4px;font-size:12px;line-height:1.45;cursor:pointer;">
+        <input type="checkbox" id="suPasswordResponsibility" onchange="clearFieldError('suFieldPassword')" style="margin-top:2px;flex:0 0 auto;">
+        <span>I understand that I am responsible for remembering and securely keeping my password, and that password recovery is limited and handled through my gang's registered email.</span>
+      </label>
 
       <div class="login-error" id="signupError" style="display:none"></div>
-      <button class="enter-full" onclick="submitSignup()">Submit for Verification</button>
+      <button class="enter-full" onclick="submitSignup()">Submit Registration</button>
       <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
       <button type="button" class="entry-back-btn" onclick="closeRegistration(); goToMemberSecureAccess(); return false;">Back to ÆZ Secure Access</button>
       <div class="login-note">Your gang reviews new registrations against the ID and Facebook profile submitted here.</div>
     </div>
 
     <div id="signupPending" style="display:none;text-align:center;">
-      <div class="stamp neutral" id="pendingStamp" style="transform:rotate(-2deg);margin-bottom:18px;display:inline-block">EMAIL VERIFICATION REQUIRED</div>
+      <div class="stamp neutral" id="pendingStamp" style="transform:rotate(-2deg);margin-bottom:18px;display:inline-block">PENDING ADMIN APPROVAL</div>
       <div class="pending-photo-wrap"><img id="pendingPhoto"></div>
       <div class="pending-name" id="pendingCodename">—</div>
       <div class="page-sub" id="pendingGang">—</div>
-      <div class="kv-row"><span class="k">Email</span><span class="v" id="pendingEmail">—</span></div>
+      <div class="kv-row"><span class="k">Name</span><span class="v" id="pendingName">—</span></div>
       <div class="kv-row"><span class="k">Facebook UID</span><span class="v" id="pendingFb">—</span></div>
       <div class="kv-row"><span class="k">Joined gang</span><span class="v" id="pendingJoined">—</span></div>
-      <div class="kv-row"><span class="k">Application</span><span class="v" id="pendingApplicationStatus">Waiting for email verification</span></div>
+      <div class="kv-row"><span class="k">Application</span><span class="v" id="pendingApplicationStatus">Submitted to Admin Review</span></div>
       <div class="page-sub" style="margin:18px 0;text-align:left" id="pendingNote">
-        We created your account, but your application has <strong>not</strong> been submitted to Admin Review yet. Open the verification email sent to <span id="pendingEmailInline">your email address</span>, then return here and tap <strong>I've Verified My Email</strong>.
+        Your registration has been submitted to Admin Review. You cannot enter the Arena until an authorized administrator approves the application.
       </div>
-      <button class="enter-full" id="verifyMemberEmailBtn" onclick="verifyGangMemberEmail()">I've Verified My Email</button>
-      <div class="login-note">Your ID is kept with the pending application. Admin Review will only receive the application after Supabase confirms your email address.</div>
+      <div class="login-note">Your ID picture is stored with the pending application for authorized Command review. Your Facebook UID must be unique.</div>
       <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
     </div>
   </div>
@@ -2294,6 +2283,40 @@ function closeRegistration(){
 /* Dedicated registration entry point. The explicit inline handler calls this
    so the registration transition cannot accidentally leave Secure Access
    visible. */
+async function loadApprovedGangOptions(){
+  var selects=[document.getElementById('suGangSelect'),document.getElementById('gangSelect')].filter(Boolean);
+  if(!selects.length) return;
+  selects.forEach(function(sel){sel.innerHTML='<option value="" selected disabled>Loading approved gangs…</option>';sel.disabled=true;});
+  if(!supabaseReady){
+    selects.forEach(function(sel){sel.innerHTML='<option value="" selected disabled>Supabase unavailable</option>';});
+    return;
+  }
+  var res=await supabaseClient.rpc('aez_approved_gang_initials');
+  if(res.error){
+    console.warn('Approved gang list unavailable:',res.error.message);
+    selects.forEach(function(sel){sel.innerHTML='<option value="" selected disabled>No approved gangs available</option>';});
+    return;
+  }
+  var rows=res.data||[];
+  selects.forEach(function(sel){
+    sel.innerHTML='';
+    if(!rows.length){
+      sel.innerHTML='<option value="" selected disabled>No approved gangs available</option>';
+      sel.disabled=true;
+      return;
+    }
+    var first=document.createElement('option'); first.value=''; first.textContent='Select an approved gang'; first.disabled=true; first.selected=true; sel.appendChild(first);
+    rows.forEach(function(row){
+      var initial=String(row.gang_initial||'').trim().toUpperCase();
+      if(!initial) return;
+      var opt=document.createElement('option'); opt.value=initial; opt.textContent=initial; sel.appendChild(opt);
+    });
+    sel.disabled=false;
+  });
+  ADMIN_GANGS=rows.map(function(row){return String(row.gang_initial||'').trim().toUpperCase();}).filter(Boolean);
+  if(typeof renderAdminFilters==='function') renderAdminFilters();
+}
+
 function openRegistration(){
   window.aezRegistrationOpen = true;
 
@@ -2316,8 +2339,7 @@ function openRegistration(){
   var pending = document.getElementById('signupPending');
   if(form) form.style.display = 'block';
   if(pending) pending.style.display = 'none';
-  var verifyBtn=document.getElementById('verifyMemberEmailBtn');
-  if(verifyBtn){verifyBtn.disabled=false;verifyBtn.textContent="I've Verified My Email";}
+  loadApprovedGangOptions();
 }
 
 /* First-time entry:
@@ -2601,6 +2623,7 @@ function goToMemberSecureAccess(){
   if(codenameInput) codenameInput.disabled=false;
 
   hideLoginError();
+  loadApprovedGangOptions();
   var email=document.getElementById('emailInput');
   if(email) setTimeout(function(){ email.focus(); },50);
 }
@@ -2740,39 +2763,47 @@ async function login(){
   ['fieldEmail','fieldGang','fieldCodename','fieldPassword'].forEach(clearFieldError);
   if(!supabaseReady){ showLoginError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.'); return; }
 
-  var email = document.getElementById('emailInput').value.trim().toLowerCase();
+  var fbUid = document.getElementById('emailInput').value.trim();
   var gang = document.getElementById('gangSelect').value;
   var cn = document.getElementById('codenameInput').value.trim();
   var pw = document.getElementById('passwordInput').value;
   var missing=[];
-  if(!email){markFieldError('fieldEmail');missing.push('email');}
+  if(!fbUid){markFieldError('fieldEmail');missing.push('Facebook UID');}
   if(!gang){markFieldError('fieldGang');missing.push('gang');}
   if(!cn){markFieldError('fieldCodename');missing.push('codename');}
   if(!pw){markFieldError('fieldPassword');missing.push('password');}
   if(missing.length){showLoginError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to continue.');return;}
 
+  var emailLookup=await supabaseClient.rpc('aez_member_auth_email',{p_facebook_uid:fbUid});
+  if(emailLookup.error || !emailLookup.data){
+    failedAttempts++;
+    if(failedAttempts>=LOCKOUT_AFTER) startLockout();
+    else showLoginError('Access denied. Check your Facebook UID and password.');
+    return;
+  }
+  var authEmail=emailLookup.data;
   var btn=document.getElementById('loginSubmitBtn');
   btn.textContent='Verifying…'; btn.disabled=true;
-  var result=await supabaseClient.auth.signInWithPassword({email:email,password:pw});
+  var result=await supabaseClient.auth.signInWithPassword({email:authEmail,password:pw});
   btn.textContent='Enter the Arena'; btn.disabled=false;
   if(result.error){
     failedAttempts++;
     if(failedAttempts>=LOCKOUT_AFTER) startLockout();
-    else showLoginError('Access denied. Check your email and password.');
+    else showLoginError('Access denied. Check your Facebook UID and password.');
     return;
   }
 
   var user=result.data.user;
   if(!user.email_confirmed_at){
     await supabaseClient.auth.signOut();
-    showLoginError('Verify your email address using the link we sent before signing in.');
+    showLoginError('This member account is not active yet. Contact Division Command.');
     return;
   }
   var profileResult=await supabaseClient.from('profiles').select('*').eq('id',user.id).single();
   if(profileResult.error || !profileResult.data){ await supabaseClient.auth.signOut(); showLoginError('Your application record could not be found. Contact Division Command.'); return; }
   var profile=profileResult.data;
-  if(profile.gang!==gang || profile.codename.toLowerCase()!==cn.toLowerCase()){
-    await supabaseClient.auth.signOut(); showLoginError('The selected gang and codename do not match this account.'); return;
+  if(profile.gang!==gang || profile.codename.toLowerCase()!==cn.toLowerCase() || String(profile.facebook_uid||'')!==String(fbUid)){
+    await supabaseClient.auth.signOut(); showLoginError('The selected gang, codename, and Facebook UID do not match this account.'); return;
   }
   if(profile.status!=='approved'){
     await supabaseClient.auth.signOut();
@@ -2784,7 +2815,7 @@ async function login(){
 
   failedAttempts=0; hideLoginError(); currentProfile=profile;
   currentAgent=profileToAgent(profile); applyAgentToUI(currentAgent);
-  await logAgentActivity('Secure Access', 'ACCESS', 'Signed into ÆZ Arena successfully.', {method:'password'});
+  await logAgentActivity('Secure Access', 'ACCESS', 'Signed into ÆZ Arena successfully.', {method:'facebook_uid'});
   removeAuthScreensAndShowApp();
   nav(document.querySelector('.nav-item[data-view="dashboard"]'));
   animateCounters();
@@ -2792,7 +2823,7 @@ async function login(){
 }
 
 function profileToAgent(p){
-  return {codename:p.codename,gang:p.gang,position:p.position||'Member',joined_date:p.joined_date||'',passwordHash:'',accessLevel:p.access_level||'I',points:p.points||0,divisionRank:p.division_rank||6,individualRank:p.individual_rank||1,attendance:p.attendance||100,titles:p.titles||'0',passes:p.passes||0,role:p.role,email:p.email,facebook_uid:p.facebook_uid||'',id_photo_path:p.id_photo_path||null,approved_at:p.approved_at||null};
+  return {full_name:p.full_name||'',codename:p.codename,gang:p.gang,position:p.position||'Member',joined_date:p.joined_date||'',passwordHash:'',accessLevel:p.access_level||'I',points:p.points||0,divisionRank:p.division_rank||6,individualRank:p.individual_rank||1,attendance:p.attendance||100,titles:p.titles||'0',passes:p.passes||0,role:p.role,email:p.email,facebook_uid:p.facebook_uid||'',id_photo_path:p.id_photo_path||null,approved_at:p.approved_at||null};
 }
 
 /* Load the private ID image saved during registration and display it only for
@@ -3179,13 +3210,11 @@ function isDeliverableEmailFormat(input){
 }
 
 async function submitSignup(){
-  var fieldIds=['suFieldEmail','suFieldGang','suFieldPosition','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
+  var fieldIds=['suFieldName','suFieldGang','suFieldPosition','suFieldCodename','suFieldFb','suFieldJoined','suFieldPassword','suFieldId'];
   fieldIds.forEach(clearFieldError);
   if(!supabaseReady){showSignupError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.');return;}
 
-  var emailInput=document.getElementById('suEmailInput');
-  var email=emailInput.value.trim().toLowerCase();
-  emailInput.value=email;
+  var name=document.getElementById('suNameInput').value.trim();
   var gang=document.getElementById('suGangSelect').value;
   var position=document.getElementById('suPositionSelect').value;
   var codename=document.getElementById('suCodenameInput').value.trim();
@@ -3194,7 +3223,7 @@ async function submitSignup(){
   var pw=document.getElementById('suPasswordInput').value;
   var file=document.getElementById('suIdFile').files[0];
   var missing=[];
-  if(!email){markFieldError('suFieldEmail');missing.push('email');}
+  if(!name){markFieldError('suFieldName');missing.push('name');}
   if(!gang){markFieldError('suFieldGang');missing.push('gang');}
   if(!position){markFieldError('suFieldPosition');missing.push('position');}
   if(!codename){markFieldError('suFieldCodename');missing.push('codename');}
@@ -3204,109 +3233,55 @@ async function submitSignup(){
   if(!document.getElementById('suPasswordResponsibility').checked){markFieldError('suFieldPassword');missing.push('password responsibility acknowledgment');}
   if(!file){markFieldError('suFieldId');missing.push('ID picture');}
   if(missing.length){showSignupError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to submit for verification.');return;}
-  if(!isDeliverableEmailFormat(emailInput)){
-    markFieldError('suFieldEmail');
-    showSignupError('Enter a valid email address that can receive the verification email.');
-    return;
-  }
   if(file.size>5*1024*1024){markFieldError('suFieldId');showSignupError('ID picture must be 5 MB or smaller.');return;}
+
+  var uidCheck=await supabaseClient.rpc('aez_facebook_uid_exists',{p_facebook_uid:fbUid});
+  if(uidCheck.error){showSignupError('Facebook UID verification is unavailable. Make sure the ÆZ member registration SQL update has been applied.');return;}
+  if(uidCheck.data===true){markFieldError('suFieldFb');showSignupError('This Facebook UID is already registered. Each member must use a unique Facebook UID.');return;}
 
   var btn=document.querySelector('#signupForm .enter-full');
   btn.disabled=true; btn.textContent='Creating Account…';
-  var auth=await supabaseClient.auth.signUp({email:email,password:pw,options:{
-    emailRedirectTo:window.location.origin+window.location.pathname,
-    data:{codename:codename,gang:gang,position:position,facebook_uid:fbUid,joined_date:joined}
+  /* Members do not enter an email. A Supabase Edge Function creates the Auth
+     user server-side with email_confirm=true, so the existing gang officer
+     email-verification requirement can remain enabled for gang registration.
+     The service-role key never reaches this browser. */
+  var created=await supabaseClient.functions.invoke('create-member',{body:{
+    name:name,gang:gang,position:position,codename:codename,facebook_uid:fbUid,joined_date:joined,password:pw
   }});
-  if(auth.error){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError(auth.error.message);return;}
-  var user=auth.data.user;
-  if(!user){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Registration could not be completed.');return;}
+  if(created.error){btn.disabled=false;btn.textContent='Submit Registration';showSignupError(created.error.message||'Member account could not be created.');return;}
+  if(!created.data || !created.data.user_id || !created.data.auth_email){btn.disabled=false;btn.textContent='Submit Registration';showSignupError('Member account could not be created. Deploy the create-member Supabase Edge Function first.');return;}
 
-  /* Keep the registration draft client-side until the mailbox is verified.
-     The password is deliberately NOT stored. The ID path is stored only after
-     the upload succeeds so verification can finish the same application later. */
-  btn.textContent='Saving ID…';
+  var auth=await supabaseClient.auth.signInWithPassword({email:created.data.auth_email,password:pw});
+  if(auth.error || !auth.data || !auth.data.user){btn.disabled=false;btn.textContent='Submit Registration';showSignupError('The member account was created but could not be signed in for registration. Please contact Division Command.');return;}
+  var user=auth.data.user;
+
+  btn.textContent='Saving Registration…';
   var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
   var path=user.id+'/'+crypto.randomUUID()+'.'+ext;
   var upload=await supabaseClient.storage.from('id-documents').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
-  if(upload.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Account created, but the ID upload failed: '+upload.error.message);return;}
+  if(upload.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit Registration';showSignupError('Account created, but the ID upload failed: '+upload.error.message);return;}
 
-  var upd=await supabaseClient.from('profiles').update({id_photo_path:path}).eq('id',user.id);
-  if(upd.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Your account was created but the ID reference could not be saved: '+upd.error.message);return;}
+  var upd=await supabaseClient.from('profiles').update({full_name:name,email_verified:true,id_photo_path:path}).eq('id',user.id);
+  if(upd.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit Registration';showSignupError('Your account was created but the member information could not be saved: '+upd.error.message);return;}
 
-  pendingApplicant={codename:codename,gang:gang,position:position,fbUid:fbUid,joined:joined,email:email,photoPath:path};
-  localStorage.setItem('aez_pending_member_verification',JSON.stringify(pendingApplicant));
+  pendingApplicant={full_name:name,codename:codename,gang:gang,position:position,fbUid:fbUid,joined:joined,photoPath:path};
+  localStorage.setItem('aez_pending_member_submission',JSON.stringify(pendingApplicant));
 
-  /* Do not log or present this as submitted to Admin Review yet. The profile
-     remains hidden from Admin Review by the email_verified flag until the
-     mailbox is confirmed. */
+  document.getElementById('pendingName').textContent=name;
   document.getElementById('pendingCodename').textContent=codename;
   document.getElementById('pendingGang').textContent=gang;
-  document.getElementById('pendingEmail').textContent=email;
-  document.getElementById('pendingEmailInline').textContent=email;
   document.getElementById('pendingFb').textContent=fbUid;
   document.getElementById('pendingJoined').textContent=new Date(joined+'T00:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
   document.getElementById('pendingPhoto').src=document.getElementById('uploadPreview').src;
-  document.getElementById('pendingStamp').textContent='EMAIL VERIFICATION REQUIRED';
-  document.getElementById('pendingStamp').className='stamp neutral';
-  document.getElementById('pendingApplicationStatus').textContent='Waiting for email verification';
-  document.getElementById('pendingNote').innerHTML='We created your account, but your application has <strong>not</strong> been submitted to Admin Review yet. Open the verification email sent to <strong>'+escapeHtml(email)+'</strong>, then return here and tap <strong>I&#39;ve Verified My Email</strong>.';
-  document.getElementById('signupForm').style.display='none';
-  document.getElementById('signupPending').style.display='block';
-  btn.disabled=false;btn.textContent='Submit for Verification';
-
-  /* If Supabase returned a confirmed user/session (for example when Confirm
-     email is disabled in development), finish immediately through the same
-     verification gate. Production with Confirm email enabled will wait here. */
-  if(user.email_confirmed_at){
-    await verifyGangMemberEmail();
-  }else{
-    await supabaseClient.auth.signOut();
-  }
-}
-
-async function verifyGangMemberEmail(){
-  var btn=document.getElementById('verifyMemberEmailBtn');
-  if(btn){btn.disabled=true;btn.textContent='Checking Email…';}
-  if(!supabaseReady){if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}showSignupError('Supabase is not configured yet.');return;}
-
-  var raw=localStorage.getItem('aez_pending_member_verification');
-  var draft=null;
-  try{draft=raw?JSON.parse(raw):pendingApplicant;}catch(e){draft=null;}
-  if(!draft || !draft.email){if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}showSignupError('This verification session has expired. Please start the registration again.');return;}
-
-  var r=await supabaseClient.auth.getUser();
-  var user=r.data && r.data.user;
-  if(r.error || !user || !user.email_confirmed_at){
-    if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}
-    showSignupError('Your email is not verified in this browser yet. Open the verification email, tap the link, then return here.');
-    return;
-  }
-  if(String(user.email||'').toLowerCase()!==String(draft.email||'').toLowerCase()){
-    if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}
-    showSignupError('The verified email does not match the email used for this registration.');
-    return;
-  }
-
-  /* Mark the profile as mailbox-verified. Admin Review only loads profiles
-     whose email_verified flag is true, so this is the point where the
-     application becomes visible for review. */
-  var upd=await supabaseClient.from('profiles').update({email_verified:true}).eq('id',user.id);
-  if(upd.error){
-    if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}
-    showSignupError('Email was verified, but the application could not be finalized: '+upd.error.message+' Make sure the email verification SQL update has been applied.');
-    return;
-  }
-
-  pendingApplicant=draft;
-  await logAgentActivity('Registration Submitted','REGISTRATION','Submitted an ÆZ Agent registration for Admin Review after email verification.',{gang:draft.gang,position:draft.position||'Member'});
-  localStorage.removeItem('aez_pending_member_verification');
-
   document.getElementById('pendingStamp').textContent='PENDING ADMIN APPROVAL';
   document.getElementById('pendingStamp').className='stamp neutral';
   document.getElementById('pendingApplicationStatus').textContent='Submitted to Admin Review';
-  document.getElementById('pendingNote').innerHTML='Your email has been verified and your registration is now stored securely for ÆZ Owner/Admin review. You cannot enter the Arena until an authorized administrator approves the application.';
-  if(btn) btn.style.display='none';
+  document.getElementById('pendingNote').innerHTML='Your registration has been submitted to Admin Review. You cannot enter the Arena until an authorized administrator approves the application.';
+  document.getElementById('signupForm').style.display='none';
+  document.getElementById('signupPending').style.display='block';
+  await logAgentActivity('Registration Submitted','REGISTRATION','Submitted an ÆZ Agent registration for Admin Review.',{name:name,gang:gang,position:position,facebook_uid:fbUid});
   await supabaseClient.auth.signOut();
+  btn.disabled=false;btn.textContent='Submit Registration';
 }
 
 async function adminLogin(){
@@ -3588,7 +3563,7 @@ if(supabaseReady){
   });
 }
 
-var ADMIN_GANGS=['NUDE Gang','DD Gang','SEBI Gang','STESI Gang','BBM Gang','SARAH Gang'];
+var ADMIN_GANGS=[];
 var adminGangFilter='ALL';
 var adminStatusFilter='ALL';
 var adminSearchQuery='';
@@ -3679,11 +3654,11 @@ function renderAdminApplications(){
       var safeId=escapeHtml(a.id||'');
       var status=a.status||'pending';
       var safeCode=escapeHtml(a.codename||'Unnamed');
-      var safeEmail=escapeHtml(a.email||'—');
+      var safeName=escapeHtml(a.full_name||a.codename||'Unnamed');
       var initials=(a.codename||'AEZ').trim().slice(0,2).toUpperCase();
       html+='<button type="button" class="admin-roster-item '+(a.id===adminSelectedMemberId?'active':'')+'" data-member-id="'+safeId+'" onclick="selectAdminMember(this.dataset.memberId)">'
         +'<div id="adminRosterPhoto_'+safeId+'" class="admin-roster-avatar">'+escapeHtml(initials)+'</div>'
-        +'<div class="admin-roster-copy"><strong>'+safeCode+'</strong><div class="sub">'+safeEmail+'</div><div class="gang">'+escapeHtml(a.gang||'Unassigned')+'</div></div>'
+        +'<div class="admin-roster-copy"><strong>'+safeName+'</strong><div class="sub">'+safeCode+'</div><div class="gang">'+escapeHtml(a.gang||'Unassigned')+'</div></div>'
         +'<span class="admin-roster-status '+adminStatusClass(status)+' '+escapeHtml(status)+'">'+escapeHtml(adminStatusLabel(status))+'</span>'
         +'</button>';
     });
@@ -3745,13 +3720,13 @@ function renderAdminSelectedMember(id){
     +'<div class="admin-detail-head">'
       +'<div class="admin-detail-identity">'
         +'<div id="adminDetailPhoto_'+safeId+'" class="admin-detail-photo">'+escapeHtml(initials)+'</div>'
-        +'<div><div class="admin-detail-name">'+escapeHtml(a.codename||'Unnamed Member')+'</div><div class="admin-detail-email">'+escapeHtml(a.email||'—')+'</div>'
+        +'<div><div class="admin-detail-name">'+escapeHtml(a.full_name||a.codename||'Unnamed Member')+'</div><div class="admin-detail-email">'+escapeHtml(a.codename||'—')+'</div>'
         +'<div class="admin-detail-meta"><span class="mini">'+escapeHtml(a.gang||'Unassigned')+'</span><span class="mini">Role: '+escapeHtml(a.role||'member')+'</span><span class="mini">Facebook UID: '+escapeHtml(a.facebook_uid||'—')+'</span></div></div>'
       +'</div>'
       +'<span class="admin-status-badge '+adminStatusClass(status)+'">'+escapeHtml(adminStatusLabel(status))+'</span>'
     +'</div>'
     +'<div class="admin-detail-grid">'
-      +'<div class="admin-member-field"><div class="label">Email</div><div class="value">'+escapeHtml(a.email||'—')+'</div></div>'
+      +'<div class="admin-member-field"><div class="label">Name</div><div class="value">'+escapeHtml(a.full_name||'—')+'</div></div>'
       +'<div class="admin-member-field"><div class="label">Gang</div><div class="value">'+escapeHtml(a.gang||'Unassigned')+'</div></div>'
       +'<div class="admin-member-field"><div class="label">Codename</div><div class="value">'+escapeHtml(a.codename||'—')+'</div></div>'
       +'<div class="admin-member-field"><div class="label">Facebook UID</div><div class="value">'+escapeHtml(a.facebook_uid||'—')+'</div></div>'
@@ -3929,7 +3904,7 @@ async function loadAdminApplications(){
 
   var res=await supabaseClient
     .from('profiles')
-    .select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at,approved_at,approved_by,rejection_reason,email_verified')
+    .select('id,email,full_name,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at,approved_at,approved_by,rejection_reason,email_verified')
     .eq('email_verified',true)
     .order('gang',{ascending:true})
     .order('created_at',{ascending:true});
@@ -3939,6 +3914,7 @@ async function loadAdminApplications(){
     return;
   }
   adminRosterData=res.data||[];
+  ADMIN_GANGS=[...new Set(adminRosterData.map(function(a){return String(a.gang||'').trim();}).filter(Boolean))].sort();
   renderAdminApplications();
 }
 function formatAdminJoinedDate(v){
