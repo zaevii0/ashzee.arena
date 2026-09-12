@@ -1460,6 +1460,13 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
         <div class="pw-wrap">
           <input type="password" placeholder="Choose a password" id="suPasswordInput" oninput="clearFieldError('suFieldPassword')">
         </div>
+        <div class="login-note" style="margin-top:9px;border:1px solid rgba(255,190,70,.35);padding:10px 12px;border-radius:8px;line-height:1.45;">
+          ⚠️ <strong>Password Responsibility:</strong> Please save your password somewhere safe and do not forget it. If you need a password reset, the request will be sent to your gang’s registered email. <strong>Email recovery is limited</strong>, so use it only when necessary. Your gang officers decide whether to proceed with the recovery. ÆZ Arena is not responsible for forgotten passwords.
+        </div>
+        <label style="display:flex;gap:9px;align-items:flex-start;margin-top:10px;font-size:12px;line-height:1.45;cursor:pointer;">
+          <input type="checkbox" id="suPasswordResponsibility" onchange="clearFieldError('suFieldPassword')" style="margin-top:2px;flex:0 0 auto;">
+          <span>I understand that I am responsible for remembering and securely keeping my password.</span>
+        </label>
       </div>
       <div class="field" id="suFieldId">
         <label>Upload ID picture</label>
@@ -3194,6 +3201,7 @@ async function submitSignup(){
   if(!fbUid){markFieldError('suFieldFb');missing.push('Facebook UID');}
   if(!joined){markFieldError('suFieldJoined');missing.push('join date');}
   if(!pw){markFieldError('suFieldPassword');missing.push('password');}
+  if(!document.getElementById('suPasswordResponsibility').checked){markFieldError('suFieldPassword');missing.push('password responsibility acknowledgment');}
   if(!file){markFieldError('suFieldId');missing.push('ID picture');}
   if(missing.length){showSignupError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to submit for verification.');return;}
   if(!isDeliverableEmailFormat(emailInput)){
