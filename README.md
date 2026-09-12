@@ -12,3 +12,13 @@ does not allow an unconfirmed account to sign in.
 
 Do not disable **Confirm email**: a client-only application cannot safely test
 mailbox ownership or SMTP deliverability itself.
+
+## ÆZ Arena PWA
+
+This project is configured as an installable Progressive Web App (PWA) for Android and iPhone/iPad.
+
+- Android/Chrome: open the HTTPS site and use **Install app** when offered.
+- iPhone/iPad/Safari: open the HTTPS site, tap **Share → Add to Home Screen**.
+- The app uses `manifest.json`, a versioned `sw.js` service worker, and PNG icons for broad install compatibility.
+
+After deploying an update, the service worker cache version should be incremented when cached shell files change.

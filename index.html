@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ÆZ Arena — Beyond the source code.</title>
 <!-- AEZ PWA INSTALLED -->
 <link rel="manifest" href="./manifest.json">
@@ -11,7 +11,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ÆZ Arena">
-<link rel="apple-touch-icon" href="./icon-192.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<meta name="apple-mobile-web-app-orientations" content="portrait">
 
 <style>
 :root{
@@ -959,6 +962,32 @@ body:not(.authenticated) .bottom-nav{
   .content{padding-left:12px;padding-right:12px;}
 }
 
+/* ============ PWA INSTALL UI ============ */
+.mobile-install-card{display:none;margin:12px 0 4px;padding:12px;border:1px solid rgba(201,162,39,.22);border-radius:14px;background:rgba(201,162,39,.055);}
+.mobile-install-card.show{display:block;}
+.mobile-install-title{font-size:12px;font-weight:650;color:var(--bone);margin-bottom:4px;}
+.mobile-install-sub{font-size:10.5px;line-height:1.45;color:var(--ash-dim);margin-bottom:9px;}
+.mobile-install-btn{width:100%;min-height:40px;border:1px solid rgba(201,162,39,.35);border-radius:10px;background:rgba(201,162,39,.10);color:var(--bone);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;}
+.mobile-install-btn:active{transform:scale(.985);}
+.pwa-guide-veil{display:none;position:fixed;inset:0;z-index:220;background:rgba(0,0,0,.66);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);align-items:flex-end;justify-content:center;padding:14px;}
+.pwa-guide-veil.show{display:flex;}
+.pwa-guide-sheet{width:min(520px,100%);max-height:min(82vh,680px);overflow:auto;background:rgba(20,23,27,.98);border:1px solid var(--hair-strong);border-radius:22px;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 30px 90px rgba(0,0,0,.65);}
+.pwa-guide-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.pwa-guide-title{font-size:16px;font-weight:650;}
+.pwa-guide-close{width:34px;height:34px;border-radius:10px;border:1px solid var(--hair);background:rgba(255,255,255,.04);color:var(--ash);font-size:18px;}
+.pwa-guide-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--hair);}
+.pwa-guide-step:last-child{border-bottom:0;}
+.pwa-step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 26px;background:rgba(201,162,39,.12);border:1px solid rgba(201,162,39,.28);color:var(--gold);font-family:var(--font-mono);font-size:11px;}
+.pwa-guide-step b{font-size:12px;display:block;margin-bottom:3px;}
+.pwa-guide-step span{font-size:11px;line-height:1.5;color:var(--ash);}
+.pwa-guide-note{font-size:10.5px;color:var(--ash-dim);line-height:1.5;margin-top:12px;}
+@media(max-width:960px){
+  body{padding-bottom:env(safe-area-inset-bottom);}
+  .topbar{padding-top:env(safe-area-inset-top);height:calc(58px + env(safe-area-inset-top));}
+  .mobile-menu-btn{top:calc(10px + env(safe-area-inset-top));}
+  .mobile-drawer{padding-top:calc(16px + env(safe-area-inset-top));padding-bottom:calc(22px + env(safe-area-inset-bottom));}
+}
+
 /* bottom nav (mobile) */
 .bottom-nav{
   display:none;position:fixed;bottom:0;left:0;right:0;height:74px;
@@ -1434,6 +1463,11 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
       <button class="mobile-drawer-close" type="button" aria-label="Close navigation" onclick="closeMobileMenu()">×</button>
     </div>
     <div id="mobileNavContent"></div>
+    <div class="mobile-install-card" id="mobileInstallCard">
+      <div class="mobile-install-title">Install ÆZ Arena</div>
+      <div class="mobile-install-sub" id="mobileInstallSub">Install Arena on your phone for an app-like experience.</div>
+      <button class="mobile-install-btn" id="mobileInstallBtn" type="button" onclick="installAezPwa()">Install app</button>
+    </div>
   </aside>
   <aside class="sidebar">
     <div class="side-brand"><div class="glyph">Æ</div><div class="name">ÆZ Arena</div></div>
@@ -1982,6 +2016,17 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
     <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 2 7l10 5 10-5-10-5Z"/></svg></div><div><div class="list-title">Black Operation ends in 14h</div><div class="list-sub">Cipher 07 · no correct answer logged yet</div></div></div></div>
     <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v16M4 4h11l-1.5 4L15 12H4"/></svg></div><div><div class="list-title">Fliptop War registration closes tonight</div><div class="list-sub">Campaign Breach · Trojan of Cadence</div></div></div></div>
     <div class="list-row"><div class="list-left"><div class="list-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l1 4H8l1-4Z"/></svg></div><div><div class="list-title">New directive issued by Division Command</div><div class="list-sub">12-A · mandatory Case Review attendance</div></div></div></div>
+  </div>
+</div>
+
+<!-- PWA INSTALL GUIDE -->
+<div class="pwa-guide-veil" id="pwaGuide" role="dialog" aria-modal="true" aria-labelledby="pwaGuideTitle" onclick="closePwaGuideOutside(event)">
+  <div class="pwa-guide-sheet">
+    <div class="pwa-guide-head">
+      <div class="pwa-guide-title" id="pwaGuideTitle">Install ÆZ Arena</div>
+      <button class="pwa-guide-close" type="button" aria-label="Close" onclick="closePwaGuide()">×</button>
+    </div>
+    <div id="pwaGuideContent"></div>
   </div>
 </div>
 
@@ -3009,6 +3054,7 @@ function initMobileMenu(){
   if(!source || !target || target.childElementCount) return;
   source.querySelectorAll('.nav-group').forEach(function(group){
     var clone=group.cloneNode(true);
+    clone.querySelectorAll('[id]').forEach(function(node){ node.removeAttribute('id'); });
     clone.querySelectorAll('.nav-item').forEach(function(item){
       item.setAttribute('onclick','nav(this)');
       item.addEventListener('click', closeMobileMenu);
@@ -4075,6 +4121,73 @@ restoreSupabaseSession();
 /* ÆZ THEME SCRIPT END */
 </script>
 
+<script id="aez-pwa-install">
+(function(){
+  var deferredPrompt=null;
+  var installCard=document.getElementById('mobileInstallCard');
+  var installBtn=document.getElementById('mobileInstallBtn');
+  var installSub=document.getElementById('mobileInstallSub');
+  var guide=document.getElementById('pwaGuide');
+  var guideContent=document.getElementById('pwaGuideContent');
+
+  function isStandalone(){
+    return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  }
+  function isIOS(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  }
+  function showInstallCard(mode){
+    if(!installCard || isStandalone()) return;
+    installCard.classList.add('show');
+    if(mode==='ios'){
+      if(installSub) installSub.textContent='Add Arena to your iPhone Home Screen for an app-like experience.';
+      if(installBtn) installBtn.textContent='How to install on iPhone';
+    }else{
+      if(installSub) installSub.textContent='Install Arena on your phone for quick access and an app-like window.';
+      if(installBtn) installBtn.textContent='Install app';
+    }
+  }
+  function buildGuide(){
+    if(!guideContent) return;
+    if(isIOS()){
+      guideContent.innerHTML=''
+        +'<div class="pwa-guide-step"><div class="pwa-step-num">1</div><div><b>Open ÆZ Arena in Safari</b><span>Use Safari on your iPhone or iPad. The Add to Home Screen option is not available from every in-app browser.</span></div></div>'
+        +'<div class="pwa-guide-step"><div class="pwa-step-num">2</div><div><b>Tap Share</b><span>Tap the Share button in Safari, then scroll through the actions.</span></div></div>'
+        +'<div class="pwa-guide-step"><div class="pwa-step-num">3</div><div><b>Choose “Add to Home Screen”</b><span>Keep the name “ÆZ Arena” and tap Add. The ÆZ icon will appear on your Home Screen.</span></div></div>'
+        +'<div class="pwa-guide-note">After installation, launch ÆZ Arena from the Home Screen to open it as a standalone app.</div>';
+    }else{
+      guideContent.innerHTML=''
+        +'<div class="pwa-guide-step"><div class="pwa-step-num">1</div><div><b>Approve the install prompt</b><span>Tap Install when your browser asks to install ÆZ Arena.</span></div></div>'
+        +'<div class="pwa-guide-step"><div class="pwa-step-num">2</div><div><b>Launch from your Home Screen</b><span>ÆZ Arena will open in its own app-style window instead of a normal browser tab.</span></div></div>'
+        +'<div class="pwa-guide-note">If no install prompt appears, use your browser menu and look for “Install app” or “Add to Home screen.”</div>';
+    }
+  }
+  window.installAezPwa=function(){
+    if(isStandalone()) return;
+    if(isIOS()){
+      buildGuide(); if(guide) guide.classList.add('show'); return;
+    }
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){ deferredPrompt=null; if(installCard) installCard.classList.remove('show'); }).catch(function(){});
+      return;
+    }
+    buildGuide(); if(guide) guide.classList.add('show');
+  };
+  window.closePwaGuide=function(){if(guide) guide.classList.remove('show');};
+  window.closePwaGuideOutside=function(e){if(e.target===guide) closePwaGuide();};
+
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault(); deferredPrompt=e; showInstallCard('android');
+  });
+  window.addEventListener('appinstalled',function(){deferredPrompt=null; if(installCard) installCard.classList.remove('show');});
+  window.addEventListener('load',function(){
+    if(!isStandalone() && isIOS()) showInstallCard('ios');
+    else if(!isStandalone() && deferredPrompt) showInstallCard('android');
+  });
+  window.addEventListener('resize',function(){ if(isStandalone() && installCard) installCard.classList.remove('show'); });
+})();
+</script>
 <script id="aez-pwa-registration">
 (function(){
   if ('serviceWorker' in navigator) {

@@ -2,7 +2,7 @@
   "name": "ÆZ Arena",
   "short_name": "ÆZ Arena",
   "description": "ÆZ Arena — Beyond the source code.",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0A0A0B",
@@ -10,16 +10,22 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "./icon-192.svg",
+      "src": "./icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "./icon-512.svg",
+      "src": "./icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "prefer_related_applications": false
 }
