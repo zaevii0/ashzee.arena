@@ -1477,19 +1477,19 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
     </div>
 
     <div id="signupPending" style="display:none;text-align:center;">
-      <div class="stamp neutral" id="pendingStamp" style="transform:rotate(-2deg);margin-bottom:18px;display:inline-block">PENDING VERIFICATION</div>
+      <div class="stamp neutral" id="pendingStamp" style="transform:rotate(-2deg);margin-bottom:18px;display:inline-block">EMAIL VERIFICATION REQUIRED</div>
       <div class="pending-photo-wrap"><img id="pendingPhoto"></div>
       <div class="pending-name" id="pendingCodename">—</div>
       <div class="page-sub" id="pendingGang">—</div>
       <div class="kv-row"><span class="k">Email</span><span class="v" id="pendingEmail">—</span></div>
       <div class="kv-row"><span class="k">Facebook UID</span><span class="v" id="pendingFb">—</span></div>
       <div class="kv-row"><span class="k">Joined gang</span><span class="v" id="pendingJoined">—</span></div>
-      <div class="kv-row"><span class="k">Submitted</span><span class="v">Just now</span></div>
+      <div class="kv-row"><span class="k">Application</span><span class="v" id="pendingApplicationStatus">Waiting for email verification</span></div>
       <div class="page-sub" style="margin:18px 0;text-align:left" id="pendingNote">
-        Your registration has been sent to <span id="pendingGangInline">your gang</span> for review. Once a division officer confirms your identity against this ID and Facebook profile, your access will be marked verified.
+        We created your account, but your application has <strong>not</strong> been submitted to Admin Review yet. Open the verification email sent to <span id="pendingEmailInline">your email address</span>, then return here and tap <strong>I've Verified My Email</strong>.
       </div>
-      <button class="enter-full" id="verifyDemoBtn" onclick="simulateGangVerification()" style="background:var(--gold);color:var(--void)">Simulate Gang Verification (Demo)</button>
-      <div class="login-note">In a live deployment, this step is completed by a division officer — not the applicant.</div>
+      <button class="enter-full" id="verifyMemberEmailBtn" onclick="verifyGangMemberEmail()">I've Verified My Email</button>
+      <div class="login-note">Your ID is kept with the pending application. Admin Review will only receive the application after Supabase confirms your email address.</div>
       <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
     </div>
   </div>
@@ -2305,6 +2305,8 @@ function openRegistration(){
   var pending = document.getElementById('signupPending');
   if(form) form.style.display = 'block';
   if(pending) pending.style.display = 'none';
+  var verifyBtn=document.getElementById('verifyMemberEmailBtn');
+  if(verifyBtn){verifyBtn.disabled=false;verifyBtn.textContent="I've Verified My Email";}
 }
 
 /* First-time entry:
@@ -2823,6 +2825,7 @@ function removeAuthScreensAndShowApp(){
   var adminNav=document.getElementById('adminNavItem');
   if(adminNav) adminNav.style.display=isAdminCapable?'flex':'none';
   document.body.classList.toggle('admin-capable',isAdminCapable);
+  syncMobileAdminNavVisibility();
 }
 
 function applyAgentToUI(a){
@@ -3152,7 +3155,8 @@ async function submitSignup(){
   }
   if(file.size>5*1024*1024){markFieldError('suFieldId');showSignupError('ID picture must be 5 MB or smaller.');return;}
 
-  var btn=document.querySelector('#signupForm .enter-full'); btn.disabled=true; btn.textContent='Submitting…';
+  var btn=document.querySelector('#signupForm .enter-full');
+  btn.disabled=true; btn.textContent='Creating Account…';
   var auth=await supabaseClient.auth.signUp({email:email,password:pw,options:{
     emailRedirectTo:window.location.origin+window.location.pathname,
     data:{codename:codename,gang:gang,position:position,facebook_uid:fbUid,joined_date:joined}
@@ -3161,33 +3165,91 @@ async function submitSignup(){
   var user=auth.data.user;
   if(!user){btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Registration could not be completed.');return;}
 
-  /* Supabase must have Confirm email enabled. Auth will only issue a usable
-     session after the applicant proves that this mailbox can receive email. */
+  /* Keep the registration draft client-side until the mailbox is verified.
+     The password is deliberately NOT stored. The ID path is stored only after
+     the upload succeeds so verification can finish the same application later. */
+  btn.textContent='Saving ID…';
   var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
   var path=user.id+'/'+crypto.randomUUID()+'.'+ext;
   var upload=await supabaseClient.storage.from('id-documents').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
   if(upload.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Account created, but the ID upload failed: '+upload.error.message);return;}
 
   var upd=await supabaseClient.from('profiles').update({id_photo_path:path}).eq('id',user.id);
-  if(upd.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Your application was created but could not save the ID reference. Contact Command.');return;}
+  if(upd.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit for Verification';showSignupError('Your account was created but the ID reference could not be saved: '+upd.error.message);return;}
 
-  pendingApplicant={codename:codename,gang:gang,fbUid:fbUid,joined:joined,email:email,photoPath:path};
-  /* The newly-created Supabase user is still the authenticated actor at this point. */
-  await logAgentActivity('Registration Submitted', 'REGISTRATION', 'Submitted an ÆZ Agent registration for approval.', {gang:gang, position:document.getElementById('suPositionInput') ? document.getElementById('suPositionInput').value : 'Member'});
+  pendingApplicant={codename:codename,gang:gang,position:position,fbUid:fbUid,joined:joined,email:email,photoPath:path};
+  localStorage.setItem('aez_pending_member_verification',JSON.stringify(pendingApplicant));
+
+  /* Do not log or present this as submitted to Admin Review yet. The profile
+     remains hidden from Admin Review by the email_verified flag until the
+     mailbox is confirmed. */
   document.getElementById('pendingCodename').textContent=codename;
   document.getElementById('pendingGang').textContent=gang;
-  document.getElementById('pendingGangInline').textContent=gang+' Command';
   document.getElementById('pendingEmail').textContent=email;
+  document.getElementById('pendingEmailInline').textContent=email;
   document.getElementById('pendingFb').textContent=fbUid;
   document.getElementById('pendingJoined').textContent=new Date(joined+'T00:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
   document.getElementById('pendingPhoto').src=document.getElementById('uploadPreview').src;
-  document.getElementById('pendingStamp').textContent='PENDING ADMIN APPROVAL';
+  document.getElementById('pendingStamp').textContent='EMAIL VERIFICATION REQUIRED';
   document.getElementById('pendingStamp').className='stamp neutral';
-  document.getElementById('verifyDemoBtn').style.display='none';
-  document.getElementById('pendingNote').innerHTML='Your registration is now stored securely and waiting for ÆZ Owner/Admin approval. You cannot enter the Arena until an authorized administrator approves the application.';
+  document.getElementById('pendingApplicationStatus').textContent='Waiting for email verification';
+  document.getElementById('pendingNote').innerHTML='We created your account, but your application has <strong>not</strong> been submitted to Admin Review yet. Open the verification email sent to <strong>'+escapeHtml(email)+'</strong>, then return here and tap <strong>I&#39;ve Verified My Email</strong>.';
   document.getElementById('signupForm').style.display='none';
   document.getElementById('signupPending').style.display='block';
   btn.disabled=false;btn.textContent='Submit for Verification';
+
+  /* If Supabase returned a confirmed user/session (for example when Confirm
+     email is disabled in development), finish immediately through the same
+     verification gate. Production with Confirm email enabled will wait here. */
+  if(user.email_confirmed_at){
+    await verifyGangMemberEmail();
+  }else{
+    await supabaseClient.auth.signOut();
+  }
+}
+
+async function verifyGangMemberEmail(){
+  var btn=document.getElementById('verifyMemberEmailBtn');
+  if(btn){btn.disabled=true;btn.textContent='Checking Email…';}
+  if(!supabaseReady){if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}showSignupError('Supabase is not configured yet.');return;}
+
+  var raw=localStorage.getItem('aez_pending_member_verification');
+  var draft=null;
+  try{draft=raw?JSON.parse(raw):pendingApplicant;}catch(e){draft=null;}
+  if(!draft || !draft.email){if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}showSignupError('This verification session has expired. Please start the registration again.');return;}
+
+  var r=await supabaseClient.auth.getUser();
+  var user=r.data && r.data.user;
+  if(r.error || !user || !user.email_confirmed_at){
+    if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}
+    showSignupError('Your email is not verified in this browser yet. Open the verification email, tap the link, then return here.');
+    return;
+  }
+  if(String(user.email||'').toLowerCase()!==String(draft.email||'').toLowerCase()){
+    if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}
+    showSignupError('The verified email does not match the email used for this registration.');
+    return;
+  }
+
+  /* Mark the profile as mailbox-verified. Admin Review only loads profiles
+     whose email_verified flag is true, so this is the point where the
+     application becomes visible for review. */
+  var upd=await supabaseClient.from('profiles').update({email_verified:true}).eq('id',user.id);
+  if(upd.error){
+    if(btn){btn.disabled=false;btn.textContent="I've Verified My Email";}
+    showSignupError('Email was verified, but the application could not be finalized: '+upd.error.message+' Make sure the email verification SQL update has been applied.');
+    return;
+  }
+
+  pendingApplicant=draft;
+  await logAgentActivity('Registration Submitted','REGISTRATION','Submitted an ÆZ Agent registration for Admin Review after email verification.',{gang:draft.gang,position:draft.position||'Member'});
+  localStorage.removeItem('aez_pending_member_verification');
+
+  document.getElementById('pendingStamp').textContent='PENDING ADMIN APPROVAL';
+  document.getElementById('pendingStamp').className='stamp neutral';
+  document.getElementById('pendingApplicationStatus').textContent='Submitted to Admin Review';
+  document.getElementById('pendingNote').innerHTML='Your email has been verified and your registration is now stored securely for ÆZ Owner/Admin review. You cannot enter the Arena until an authorized administrator approves the application.';
+  if(btn) btn.style.display='none';
   await supabaseClient.auth.signOut();
 }
 
@@ -3282,10 +3344,21 @@ function exitAdminReviewPage(){
   window.scrollTo({top:0,behavior:'instant'});
 }
 
+function syncMobileAdminNavVisibility(){
+  var allowed=!!currentProfile && currentProfile.status==='approved' && ['admin','owner'].includes(currentProfile.role);
+  document.querySelectorAll('#mobileNavContent .nav-item[data-view="admin"]').forEach(function(item){
+    /* The desktop source carries style="display:none" until login. A cloned
+       mobile item keeps that inline style, so explicitly sync it after auth. */
+    item.style.display=allowed?'flex':'none';
+  });
+  document.querySelectorAll('.bn-item.admin-mobile').forEach(function(item){
+    item.style.display=allowed?'flex':'none';
+  });
+}
 function initMobileMenu(){
   var source=document.querySelector('.sidebar');
   var target=document.getElementById('mobileNavContent');
-  if(!source || !target || target.childElementCount) return;
+  if(!source || !target || target.childElementCount){ syncMobileAdminNavVisibility(); return; }
   source.querySelectorAll('.nav-group').forEach(function(group){
     var clone=group.cloneNode(true);
     clone.querySelectorAll('[id]').forEach(function(node){ node.removeAttribute('id'); });
@@ -3295,6 +3368,7 @@ function initMobileMenu(){
     });
     target.appendChild(clone);
   });
+  syncMobileAdminNavVisibility();
 }
 function toggleMobileMenu(){
   var drawer=document.getElementById('mobileDrawer');
@@ -3799,7 +3873,8 @@ async function loadAdminApplications(){
 
   var res=await supabaseClient
     .from('profiles')
-    .select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at,approved_at,approved_by,rejection_reason')
+    .select('id,email,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at,approved_at,approved_by,rejection_reason,email_verified')
+    .eq('email_verified',true)
     .order('gang',{ascending:true})
     .order('created_at',{ascending:true});
 

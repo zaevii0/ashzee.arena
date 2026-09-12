@@ -26,3 +26,7 @@ After deploying an update, the service worker cache version should be incremente
 
 ## Gang Registration
 A public **Register Gang** flow is included. One officer submits the gang details and verifies a real email address before the registration enters Admin Review. See `GANG_REGISTRATION_SETUP.md` and `gang_registrations.sql` for Supabase setup.
+
+## Gang Member Email Verification
+
+The Gang Member registration now pauses after account creation until the applicant verifies the email address. After verification, the app marks the profile `email_verified=true` and only then exposes the registration in Admin Review. Run `member_email_verification.sql` once in the Supabase SQL Editor before deploying this version.
