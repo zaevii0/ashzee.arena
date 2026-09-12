@@ -1,0 +1,222 @@
+:root{
+  --ios-bg:#0b0b0d;
+  --ios-surface:rgba(30,30,34,.72);
+  --ios-surface-strong:rgba(42,42,46,.86);
+  --ios-line:rgba(255,255,255,.10);
+  --ios-line-strong:rgba(255,255,255,.16);
+  --ios-text:#f5f5f7;
+  --ios-secondary:#a1a1a6;
+  --ios-tertiary:#707076;
+  --ios-gold:#b59643;
+  --ios-gold-soft:rgba(181,150,67,.14);
+  --ios-blue:#8aa7d2;
+  --ios-red:#c47b7b;
+  --ios-radius-xl:28px;
+  --ios-radius-lg:22px;
+  --ios-radius-md:16px;
+  --ios-radius-sm:12px;
+  --ios-ease:cubic-bezier(.22,.61,.36,1);
+  --ios-spring:cubic-bezier(.2,.8,.2,1);
+}
+
+/* ÆZ — restrained iOS / private-operations visual system */
+html{scroll-behavior:smooth;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI",sans-serif!important;
+  letter-spacing:-.012em;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button,input,select,textarea{font-family:inherit!important;}
+button{transition:transform .22s var(--ios-spring),background .22s var(--ios-ease),border-color .22s var(--ios-ease),box-shadow .22s var(--ios-ease),opacity .22s var(--ios-ease)!important;}
+button:active,.entry-btn:active,.enter-btn:active,.enter-full:active{transform:scale(.975)!important;}
+
+/* Soft depth instead of harsh contrast */
+#landing,#login,#signup,#adminLogin{
+  background:
+    radial-gradient(700px 420px at 50% -8%,rgba(181,150,67,.085),transparent 68%),
+    radial-gradient(620px 520px at 100% 100%,rgba(120,130,150,.045),transparent 70%),
+    var(--ios-bg)!important;
+}
+#landing::after,#login::after,#signup::after,#adminLogin::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent 28%,rgba(0,0,0,.12));
+}
+
+/* Typography hierarchy */
+.wordmark{
+  font-weight:650!important;
+  letter-spacing:-.065em!important;
+  line-height:.86!important;
+  background:linear-gradient(180deg,#fff 0%,#d8d8dc 52%,#929299 100%)!important;
+  -webkit-background-clip:text!important;background-clip:text!important;
+  filter:drop-shadow(0 12px 35px rgba(0,0,0,.25));
+}
+.wordmark small{font-weight:450!important;letter-spacing:.11em!important;color:#8e8e94!important;}
+.tagline{font-size:15px!important;color:var(--ios-secondary)!important;font-style:normal!important;letter-spacing:.005em!important;}
+.mark-glyph{font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;font-size:10px!important;color:var(--ios-tertiary)!important;letter-spacing:.18em!important;}
+.mark-glyph .dot{background:var(--ios-gold)!important;box-shadow:0 0 12px rgba(181,150,67,.55)!important;}
+.landing-foot{font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;color:#626268!important;letter-spacing:.09em!important;}
+
+/* iOS glass buttons */
+.entry-choice-grid{gap:10px!important;}
+.entry-btn,.enter-btn,.enter-full,.entry-back-btn{
+  border-radius:999px!important;
+  border:1px solid var(--ios-line-strong)!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.045)!important;
+  backdrop-filter:blur(22px) saturate(135%);-webkit-backdrop-filter:blur(22px) saturate(135%);
+}
+.entry-btn{
+  min-height:58px!important;
+  padding:15px 50px 15px 22px!important;
+  background:rgba(255,255,255,.055)!important;
+  color:var(--ios-text)!important;
+}
+.entry-btn:hover{background:rgba(255,255,255,.09)!important;border-color:rgba(255,255,255,.22)!important;transform:translateY(-1px)!important;box-shadow:0 14px 34px rgba(0,0,0,.23),inset 0 1px 0 rgba(255,255,255,.06)!important;}
+.entry-btn-admin{background:var(--ios-gold-soft)!important;border-color:rgba(181,150,67,.28)!important;}
+.entry-btn-admin:hover{background:rgba(181,150,67,.19)!important;border-color:rgba(181,150,67,.42)!important;}
+.enter-btn{background:rgba(255,255,255,.075)!important;color:#f5f5f7!important;}
+.enter-btn:hover{background:rgba(255,255,255,.115)!important;transform:translateY(-1px)!important;}
+.enter-full{background:#f5f5f7!important;color:#111113!important;min-height:50px;box-shadow:0 8px 25px rgba(0,0,0,.24)!important;}
+.enter-full:hover{background:#fff!important;box-shadow:0 12px 32px rgba(0,0,0,.30)!important;}
+.entry-back-btn{background:rgba(255,255,255,.035)!important;color:var(--ios-secondary)!important;border-color:var(--ios-line)!important;}
+.entry-back-btn:hover{background:rgba(255,255,255,.065)!important;color:var(--ios-text)!important;}
+
+/* Login / signup surfaces */
+.login-card{
+  max-width:430px!important;
+  background:rgba(24,24,27,.72)!important;
+  border:1px solid var(--ios-line)!important;
+  border-radius:var(--ios-radius-xl)!important;
+  padding:34px!important;
+  box-shadow:0 30px 90px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.035)!important;
+  backdrop-filter:blur(34px) saturate(130%);-webkit-backdrop-filter:blur(34px) saturate(130%);
+  animation:iosAppear .55s var(--ios-spring) both!important;
+}
+.login-head .glyph{font-weight:650!important;letter-spacing:-.025em!important;}
+.login-head .sub{font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;font-size:10px!important;color:var(--ios-tertiary)!important;letter-spacing:.13em!important;}
+.field{margin-bottom:17px!important;}
+.field label{font-size:12px!important;color:#a8a8ad!important;letter-spacing:0!important;font-weight:500!important;}
+.field input,.field select{
+  min-height:48px!important;padding:13px 15px!important;
+  border-radius:var(--ios-radius-sm)!important;
+  border:1px solid rgba(255,255,255,.085)!important;
+  background:rgba(118,118,128,.12)!important;
+  color:var(--ios-text)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+.field input::placeholder{color:#737378!important;}
+.field input:focus,.field select:focus{
+  border-color:rgba(181,150,67,.55)!important;
+  background:rgba(118,118,128,.16)!important;
+  box-shadow:0 0 0 3px rgba(181,150,67,.10)!important;
+}
+.field select option{background:#222226!important;color:#f5f5f7!important;}
+.pw-toggle{border-radius:10px!important;color:#85858b!important;}
+.pw-toggle:hover{background:rgba(255,255,255,.06)!important;color:#b9b9be!important;}
+.status-row{border-radius:var(--ios-radius-md)!important;background:rgba(118,118,128,.085)!important;border:1px solid var(--ios-line)!important;}
+.status-item .lbl{color:#737379!important;font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;}
+.status-item .val.ok{color:var(--ios-blue)!important;}
+.login-error{border-radius:var(--ios-radius-md)!important;background:rgba(196,123,123,.09)!important;border-color:rgba(196,123,123,.24)!important;color:#d19a9a!important;}
+
+/* Cards, panels and app chrome */
+.card,.panel,.glass,.surface,.admin-card,.stat-card,.intel-card,.rank-card,.activity-card,.profile-card{
+  border-radius:var(--ios-radius-lg)!important;
+  border-color:var(--ios-line)!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.025)!important;
+  backdrop-filter:blur(24px) saturate(125%);-webkit-backdrop-filter:blur(24px) saturate(125%);
+}
+.sidebar,.topbar,.bottom-nav{
+  background:rgba(18,18,20,.76)!important;
+  border-color:var(--ios-line)!important;
+  backdrop-filter:blur(28px) saturate(140%);-webkit-backdrop-filter:blur(28px) saturate(140%);
+}
+.nav-item,.bottom-nav button,.bottom-nav a{
+  border-radius:14px!important;
+  transition:all .22s var(--ios-ease)!important;
+}
+.nav-item:hover,.bottom-nav button:hover,.bottom-nav a:hover{background:rgba(255,255,255,.055)!important;}
+.nav-item.active{background:rgba(181,150,67,.10)!important;color:#e4d4a4!important;}
+
+/* Icons: clean, consistent, no oversized decoration */
+svg{stroke-linecap:round;stroke-linejoin:round;}
+.icon,.nav-icon,.action-icon{width:20px!important;height:20px!important;}
+.avatar,.profile-avatar,.user-avatar{border-radius:50%!important;box-shadow:0 4px 18px rgba(0,0,0,.20)!important;}
+
+/* Pills / chips / status */
+.badge,.pill,.chip,.tag,.status,.status-pill{border-radius:999px!important;border:1px solid var(--ios-line)!important;background:rgba(118,118,128,.10)!important;color:#bdbdc2!important;}
+
+/* Native-feeling modals / sheets */
+.modal-backdrop,.modal-overlay{background:rgba(0,0,0,.48)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;}
+.modal,.modal-content,.sheet,.dialog{border-radius:28px!important;border:1px solid var(--ios-line)!important;background:rgba(31,31,34,.88)!important;box-shadow:0 30px 100px rgba(0,0,0,.45)!important;backdrop-filter:blur(34px) saturate(135%);-webkit-backdrop-filter:blur(34px) saturate(135%);}
+
+/* Motion language */
+@keyframes iosAppear{from{opacity:0;transform:translateY(12px) scale(.985);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@keyframes iosFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.login-card,.entry-choice-grid{will-change:transform,opacity;}
+.entry-choice-grid{animation:iosAppear .65s .08s var(--ios-spring) both;}
+.mark-glyph .dot{animation:iosPulse 2.8s ease-in-out infinite!important;}
+@keyframes iosPulse{0%,100%{opacity:.38;transform:scale(.9)}50%{opacity:1;transform:scale(1.05)}}
+
+/* Respect reduced-motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important;}
+}
+
+/* Light mode — purpose-built, not inverted */
+body.light-mode{
+  --ios-bg:#f5f5f7;
+  --ios-surface:rgba(255,255,255,.76);
+  --ios-surface-strong:rgba(255,255,255,.92);
+  --ios-line:rgba(60,60,67,.14);
+  --ios-line-strong:rgba(60,60,67,.20);
+  --ios-text:#1d1d1f;
+  --ios-secondary:#6e6e73;
+  --ios-tertiary:#8e8e93;
+  --ios-gold:#806519;
+  --ios-gold-soft:rgba(128,101,25,.09);
+  --ios-blue:#486b9a;
+  --ios-red:#a55757;
+  background:#f5f5f7!important;color:#1d1d1f!important;
+}
+body.light-mode #landing,body.light-mode #login,body.light-mode #signup,body.light-mode #adminLogin{
+  background:
+    radial-gradient(650px 420px at 50% -10%,rgba(128,101,25,.055),transparent 70%),
+    radial-gradient(560px 500px at 100% 100%,rgba(90,100,120,.035),transparent 72%),
+    #f5f5f7!important;
+}
+body.light-mode #landing::after,body.light-mode #login::after,body.light-mode #signup::after,body.light-mode #adminLogin::after{background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 35%,rgba(60,60,67,.025))!important;}
+body.light-mode .wordmark{background:linear-gradient(180deg,#1d1d1f 0%,#454549 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;filter:none!important;}
+body.light-mode .wordmark small{color:#6e6e73!important;}
+body.light-mode .tagline{color:#6e6e73!important;}
+body.light-mode .mark-glyph{color:#8e8e93!important;}
+body.light-mode .landing-foot{color:#8e8e93!important;}
+body.light-mode .entry-btn,body.light-mode .enter-btn,body.light-mode .entry-back-btn{background:rgba(255,255,255,.68)!important;color:#1d1d1f!important;border-color:rgba(60,60,67,.14)!important;box-shadow:0 10px 28px rgba(30,35,45,.07),inset 0 1px 0 rgba(255,255,255,.9)!important;}
+body.light-mode .entry-btn:hover,body.light-mode .enter-btn:hover,body.light-mode .entry-back-btn:hover{background:rgba(255,255,255,.90)!important;box-shadow:0 14px 34px rgba(30,35,45,.10)!important;}
+body.light-mode .entry-btn-admin{background:rgba(128,101,25,.075)!important;border-color:rgba(128,101,25,.22)!important;}
+body.light-mode .enter-full{background:#1d1d1f!important;color:#fff!important;box-shadow:0 9px 24px rgba(30,30,35,.15)!important;}
+body.light-mode .login-card{background:rgba(255,255,255,.73)!important;border-color:rgba(60,60,67,.13)!important;box-shadow:0 28px 80px rgba(30,35,45,.10),inset 0 1px 0 rgba(255,255,255,.9)!important;}
+body.light-mode .login-head .sub{color:#8e8e93!important;}
+body.light-mode .field label{color:#6e6e73!important;}
+body.light-mode .field input,body.light-mode .field select{background:rgba(118,118,128,.085)!important;color:#1d1d1f!important;border-color:rgba(60,60,67,.14)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)!important;}
+body.light-mode .field input::placeholder{color:#8e8e93!important;}
+body.light-mode .field input:focus,body.light-mode .field select:focus{background:rgba(118,118,128,.12)!important;border-color:rgba(128,101,25,.45)!important;box-shadow:0 0 0 3px rgba(128,101,25,.08)!important;}
+body.light-mode .field select option{background:#fff!important;color:#1d1d1f!important;}
+body.light-mode .status-row{background:rgba(118,118,128,.065)!important;border-color:rgba(60,60,67,.12)!important;}
+body.light-mode .status-item .lbl{color:#8e8e93!important;}
+body.light-mode .status-item .val.ok{color:#486b9a!important;}
+body.light-mode .sidebar,body.light-mode .topbar,body.light-mode .bottom-nav{background:rgba(248,248,250,.78)!important;border-color:rgba(60,60,67,.13)!important;box-shadow:0 10px 35px rgba(30,35,45,.06)!important;}
+body.light-mode .nav-item:hover,body.light-mode .bottom-nav button:hover,body.light-mode .bottom-nav a:hover{background:rgba(118,118,128,.08)!important;}
+body.light-mode .nav-item.active{background:rgba(128,101,25,.075)!important;color:#6d5517!important;}
+body.light-mode .card,body.light-mode .panel,body.light-mode .glass,body.light-mode .surface,body.light-mode .admin-card,body.light-mode .stat-card,body.light-mode .intel-card,body.light-mode .rank-card,body.light-mode .activity-card,body.light-mode .profile-card{background:rgba(255,255,255,.72)!important;border-color:rgba(60,60,67,.12)!important;box-shadow:0 18px 48px rgba(30,35,45,.065),inset 0 1px 0 rgba(255,255,255,.92)!important;}
+body.light-mode .badge,body.light-mode .pill,body.light-mode .chip,body.light-mode .tag,body.light-mode .status,body.light-mode .status-pill{background:rgba(118,118,128,.075)!important;border-color:rgba(60,60,67,.12)!important;color:#6e6e73!important;}
+body.light-mode .modal,.body.light-mode .modal-content,body.light-mode .sheet,body.light-mode .dialog{background:rgba(250,250,252,.90)!important;color:#1d1d1f!important;box-shadow:0 30px 90px rgba(30,35,45,.16)!important;}
+
+/* Mobile: touch-first proportions */
+@media(max-width:650px){
+  .login-card{border-radius:24px!important;padding:27px 21px!important;}
+  .entry-btn{min-height:56px!important;}
+  .enter-full{min-height:52px!important;}
+  .field input,.field select{min-height:50px!important;font-size:16px!important;}
+  .nav-item,.bottom-nav button,.bottom-nav a{min-height:44px!important;}
+}

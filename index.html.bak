@@ -647,6 +647,16 @@ body:not(.authenticated) .bottom-nav{
   }
 }
 
+/* On phones, keep only the roster visible initially. Tapping a member opens
+   the complete record as the mobile detail page; the back button returns to
+   the roster list. */
+@media(max-width:600px){
+  body.admin-review-mode #adminSelectedMemberPanel{display:none;}
+  body.admin-review-mode.admin-member-selected #adminSelectedMemberPanel{display:block;}
+  body.admin-review-mode.admin-member-selected #adminRosterPanel{}
+  .admin-mobile-back{display:none;}
+  body.admin-review-mode.admin-member-selected .admin-mobile-back{display:inline-flex;}
+}
 
 .welcome-card{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
 .welcome-card h2{font-size:22px;font-weight:600;margin-bottom:6px;}
@@ -1329,7 +1339,7 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
 
   <div class="main">
     <div class="topbar">
-      <div class="top-left"><button type="button" class="mobile-menu-btn" onclick="openMobileMenu(); return false;" aria-label="Open menu" aria-controls="mobileMenu" aria-expanded="false"><span></span><span></span><span></span></button><div class="top-mark">ÆZ</div><div class="top-clock" id="liveClock">—</div></div>
+      <div class="top-left"><div class="top-mark">ÆZ</div><div class="top-clock" id="liveClock">—</div></div>
       <div class="top-right">
         <div class="icon-btn clickable" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
         <div class="icon-btn clickable" onclick="openNotif()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot"></span></div>
@@ -1821,16 +1831,6 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
   </div>
 </div>
 
-<!-- MOBILE OPTIONS MENU -->
-<div class="modal-veil mobile-menu-veil" id="mobileMenu" onclick="closeMobileMenuOutside(event)" aria-hidden="true">
-  <div class="sheet mobile-menu-sheet" role="dialog" aria-modal="true" aria-label="Arena options">
-    <div class="sheet-close" onclick="closeMobileMenu()" aria-label="Close menu">✕</div>
-    <div class="sheet-handle"></div>
-    <div class="mobile-menu-head"><div class="page-sub">ÆZ ARENA</div><div class="mobile-menu-title">Options</div></div>
-    <div id="mobileMenuLinks" class="mobile-menu-links"></div>
-  </div>
-</div>
-
 <!-- QUICK SEARCH --><!-- QUICK SEARCH -->
 <div class="modal-veil" id="searchModal" onclick="closeSearchOutside(event)">
   <div class="sheet" style="max-width:520px;">
@@ -1868,7 +1868,6 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
   <a class="bn-item" data-view="profile" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><span>Profile</span></a>
   <a class="bn-item" data-view="passes" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg><span>Passes</span></a>
   <a class="bn-item" data-view="rules" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l1 4H8l1-4Z"/><path d="M6 6h12l1 15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1L6 6Z"/></svg><span>Rules</span></a>
-  <button type="button" class="bn-item mobile-menu-trigger" onclick="openMobileMenu(); return false;" aria-label="Open options"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
   <a class="bn-item admin-mobile" data-view="admin" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 7v5c0 5 3 8 8 9 5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>Admin Review</span></a>
 </div>
 
@@ -2872,44 +2871,9 @@ function exitAdminReviewPage(){
   window.scrollTo({top:0,behavior:'instant'});
 }
 
-function openMobileMenu(){
-  var menu=document.getElementById('mobileMenu');
-  var links=document.getElementById('mobileMenuLinks');
-  if(!menu||!links) return;
-  links.innerHTML='';
-  document.querySelectorAll('.sidebar .nav-item').forEach(function(item){
-    if(item.getAttribute('data-view')==='admin' && (!currentProfile || !['admin','owner'].includes(currentProfile.role))) return;
-    var clone=item.cloneNode(true);
-    clone.removeAttribute('id');
-    clone.className='mobile-menu-link';
-    clone.addEventListener('click',function(e){
-      e.preventDefault();
-      closeMobileMenu();
-      nav(clone);
-    });
-    links.appendChild(clone);
-  });
-  menu.classList.add('show');
-  menu.setAttribute('aria-hidden','false');
-  var trigger=document.querySelector('.mobile-menu-btn');
-  if(trigger) trigger.setAttribute('aria-expanded','true');
-  document.body.classList.add('mobile-menu-open');
-}
-function closeMobileMenu(){
-  var menu=document.getElementById('mobileMenu');
-  if(menu){menu.classList.remove('show');menu.setAttribute('aria-hidden','true');}
-  var trigger=document.querySelector('.mobile-menu-btn');
-  if(trigger) trigger.setAttribute('aria-expanded','false');
-  document.body.classList.remove('mobile-menu-open');
-}
-function closeMobileMenuOutside(event){
-  if(event && event.target && event.target.id==='mobileMenu') closeMobileMenu();
-}
-
 function nav(el){
   if(!currentProfile || currentProfile.status!=='approved'){ showScreen('login'); return; }
   var view = el.getAttribute('data-view');
-  closeMobileMenu();
 
   if(view==='admin' && !['admin','owner'].includes(currentProfile.role)){
     return;
@@ -3156,22 +3120,23 @@ function selectAdminMember(id){
   document.querySelectorAll('.admin-roster-item').forEach(function(el){
     el.classList.toggle('active',el.dataset.memberId===id);
   });
-  renderAdminSelectedMember(id);
   if(window.matchMedia && window.matchMedia('(max-width:600px)').matches){
     document.body.classList.add('admin-member-selected');
-    document.body.style.overflow='hidden';
   }
+  renderAdminSelectedMember(id);
+  setTimeout(function(){ window.scrollTo({top:0,behavior:'smooth'}); },20);
 }
 function backToAdminRosterMobile(){
   document.body.classList.remove('admin-member-selected');
-  document.body.style.overflow='';
+  var panel=document.getElementById('adminSelectedMemberPanel');
+  if(panel){ panel.scrollIntoView({behavior:'smooth',block:'start'}); }
 }
 function renderAdminSelectedMember(id){
   var panel=document.getElementById('adminSelectedMemberPanel');
   if(!panel) return;
   var a=adminRosterData.find(function(x){return x.id===id;});
   if(!a){
-    panel.innerHTML='<div class="card admin-detail-empty"><div><div class="stamp active" style="margin-bottom:14px">COMMAND REVIEW</div><h2 style="font-size:20px;margin-bottom:8px">Select a Member</h2><div class="page-sub" style="max-width:620px;margin:0 auto;line-height:1.6">Choose a registered member from the roster. Their complete submitted information, ID picture, status, registration date/time, gang details, and decision history will appear here.</div></div></div>';
+    panel.innerHTML='<button type="button" class="admin-mobile-back admin-page-btn" onclick="backToAdminRosterMobile(); return false;" style="margin-bottom:12px;width:100%;justify-content:center;">← Back to Members</button><div class="card admin-detail-empty"><div><div class="stamp active" style="margin-bottom:14px">COMMAND REVIEW</div><h2 style="font-size:20px;margin-bottom:8px">Select a Member</h2><div class="page-sub" style="max-width:620px;margin:0 auto;line-height:1.6">Choose a registered member from the left-side roster. Their complete submitted information, ID picture, status, registration date/time, gang details, and decision history will appear here.</div></div></div>';
     return;
   }
   var status=a.status||'pending';
@@ -3188,7 +3153,7 @@ function renderAdminSelectedMember(id){
       +'<button class="admin-btn reject" data-application-id="'+safeId+'" onclick="rejectApplication(this.dataset.applicationId)">Reject Registration</button>'
       +'</div>';
   }
-  var mobileBack='<button type="button" class="admin-mobile-back admin-page-btn" onclick="backToAdminRosterMobile(); return false;" aria-label="Close member details">✕</button>';
+  var mobileBack='<button type="button" class="admin-mobile-back admin-page-btn" onclick="backToAdminRosterMobile(); return false;" style="margin-bottom:12px;width:100%;justify-content:center;">← Back to Members</button>';
   panel.innerHTML=mobileBack+'<div class="card admin-detail-card">'
     +'<div class="admin-detail-head">'
       +'<div class="admin-detail-identity">'

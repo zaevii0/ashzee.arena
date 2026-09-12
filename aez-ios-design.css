@@ -220,3 +220,216 @@ body.light-mode .modal,.body.light-mode .modal-content,body.light-mode .sheet,bo
   .field input,.field select{min-height:50px!important;font-size:16px!important;}
   .nav-item,.bottom-nav button,.bottom-nav a{min-height:44px!important;}
 }
+
+/* ÆZ Mobile Command UI — senior responsive pass */
+.mobile-menu-btn{display:none;position:relative;width:40px;height:40px;flex:0 0 40px;border:1px solid var(--ios-line);border-radius:13px;background:rgba(118,118,128,.10);align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--ios-text);}
+.mobile-menu-btn span{display:block;width:16px;height:1.5px;border-radius:2px;background:currentColor;transition:transform .22s var(--ios-ease),opacity .22s var(--ios-ease);}
+.mobile-menu-btn[aria-expanded="true"] span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+.mobile-menu-btn[aria-expanded="true"] span:nth-child(2){opacity:0;}
+.mobile-menu-btn[aria-expanded="true"] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+.mobile-menu-veil{z-index:200!important;opacity:0;pointer-events:none;transition:opacity .22s var(--ios-ease);}
+.mobile-menu-veil.show{opacity:1;pointer-events:auto;}
+.mobile-menu-sheet{width:min(92vw,420px);max-height:min(82vh,720px);overflow:auto;padding:22px 16px calc(20px + env(safe-area-inset-bottom));transform:translateY(18px) scale(.985);transition:transform .28s var(--ios-spring);}
+.mobile-menu-veil.show .mobile-menu-sheet{transform:none;}
+.mobile-menu-head{padding:0 8px 14px;border-bottom:1px solid var(--ios-line);}
+.mobile-menu-title{font-size:24px;font-weight:650;letter-spacing:-.035em;margin-top:3px;}
+.mobile-menu-links{display:flex;flex-direction:column;gap:4px;padding-top:10px;}
+.mobile-menu-link{width:100%;display:flex;align-items:center;gap:12px;padding:12px 12px!important;border:0!important;background:transparent!important;color:var(--ios-secondary)!important;border-radius:13px!important;font-size:14px!important;text-align:left!important;min-height:46px!important;}
+.mobile-menu-link svg{width:19px!important;height:19px!important;flex:0 0 19px;opacity:.78;}
+.mobile-menu-link:hover,.mobile-menu-link:active{background:rgba(255,255,255,.065)!important;color:var(--ios-text)!important;transform:none!important;}
+.mobile-menu-link.active{background:rgba(181,150,67,.11)!important;color:#e4d4a4!important;}
+.mobile-menu-trigger{display:none!important;border:0;background:transparent;color:var(--ios-dim);font-family:inherit;cursor:pointer;}
+.mobile-menu-trigger svg{width:20px;height:20px;}
+.admin-mobile-back{display:none;}
+
+@media(max-width:960px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden;}
+  #app{min-width:0;width:100%;}
+  .main{min-width:0;width:100%;}
+  .topbar{padding:0 16px;height:60px;padding-top:env(safe-area-inset-top);height:calc(60px + env(safe-area-inset-top));}
+  .top-left,.top-right{min-width:0;gap:9px;}
+  .top-mark{font-size:15px;}
+  .top-right{margin-left:auto;}
+  .content{padding:18px 16px calc(92px + env(safe-area-inset-bottom));max-width:none;}
+  .page-head{margin-bottom:18px;align-items:flex-start;}
+  .page-head h1{font-size:23px;line-height:1.12;}
+  .page-head .page-sub{font-size:12px;line-height:1.45;}
+  .card{padding:18px!important;border-radius:20px!important;min-width:0;}
+  .grid{gap:12px;}
+  .list-row{min-width:0;}
+  .list-left{min-width:0;}
+  .list-title,.list-sub{overflow-wrap:anywhere;}
+  .bottom-nav{height:calc(68px + env(safe-area-inset-bottom));padding:5px 8px calc(7px + env(safe-area-inset-bottom));}
+}
+
+@media(max-width:600px){
+  .mobile-menu-btn{display:flex;}
+  .topbar .top-right .icon-btn:first-child{display:none;}
+  .bottom-nav{justify-content:space-around;gap:2px;overflow:hidden;}
+  .bottom-nav .bn-item{display:none!important;flex:1 1 0;min-width:0;width:auto;height:54px;padding:5px 2px;border-radius:13px!important;}
+  .bottom-nav .bn-item[data-view="dashboard"],
+  .bottom-nav .bn-item[data-view="activities"],
+  .bottom-nav .bn-item[data-view="intel"],
+  .bottom-nav .bn-item[data-view="schedule"],
+  .bottom-nav .bn-item[data-view="profile"],
+  .bottom-nav .mobile-menu-trigger{display:flex!important;}
+  .bottom-nav .bn-item span{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58px;}
+  .bottom-nav .bn-item svg{width:19px;height:19px;}
+  .mobile-menu-trigger{color:var(--ios-secondary)!important;align-items:center;justify-content:center;flex-direction:column;gap:4px;}
+  .admin-review-page-head{position:sticky!important;top:calc(env(safe-area-inset-top));z-index:20;padding:10px 0 14px!important;margin-bottom:12px!important;}
+  body.admin-review-mode #view-admin{padding:calc(10px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom))!important;}
+  body.admin-review-mode #view-admin .page-head{background:linear-gradient(180deg,var(--void) 82%,rgba(10,10,11,0));}
+  .admin-review-head-actions{width:auto!important;gap:7px;}
+  .admin-review-head-actions .admin-page-btn:first-child{display:none;}
+  .admin-review-head-actions .admin-page-btn{flex:0 0 auto!important;min-height:42px;}
+  .admin-roster-panel{padding:14px!important;border-radius:20px!important;}
+  .admin-roster-head{align-items:flex-start;}
+  .admin-roster-head .title{font-size:11px;}
+  .admin-filter-row{gap:6px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .admin-filter-row::-webkit-scrollbar{display:none;}
+  .admin-filter-btn{flex:0 0 auto;min-height:38px;padding:8px 11px;}
+  .admin-search-row{gap:8px!important;}
+  .admin-search-input,.admin-search-category{min-height:46px!important;font-size:15px!important;border-radius:13px!important;}
+  .admin-roster-item{min-height:64px!important;padding:10px!important;border-radius:14px!important;}
+  .admin-roster-avatar{width:42px;height:42px;border-radius:12px;}
+  .admin-roster-copy strong{font-size:12.5px;}
+  .admin-roster-copy .sub{font-size:10px;}
+  .admin-roster-copy .gang{font-size:9.5px;}
+  .admin-roster-status{font-size:7px;padding:5px 6px;}
+
+  /* Keep the selected member panel in the same Admin Review context. */
+  body.admin-review-mode::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:0;pointer-events:none;z-index:1000;transition:opacity .24s var(--ios-ease);}
+  body.admin-review-mode.admin-member-selected::before{opacity:1;pointer-events:auto;}
+  body.admin-review-mode #adminSelectedMemberPanel{display:block!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;max-height:min(86vh,760px)!important;overflow:auto!important;z-index:1001!important;padding:10px 12px calc(12px + env(safe-area-inset-bottom))!important;background:rgba(24,24,27,.94)!important;border:1px solid var(--ios-line)!important;border-bottom:0!important;border-radius:28px 28px 0 0!important;box-shadow:0 -24px 70px rgba(0,0,0,.45)!important;backdrop-filter:blur(30px) saturate(135%)!important;-webkit-backdrop-filter:blur(30px) saturate(135%)!important;transform:translateY(105%);opacity:0;pointer-events:none;transition:transform .34s var(--ios-spring),opacity .22s var(--ios-ease);}
+  body.admin-review-mode.admin-member-selected #adminSelectedMemberPanel{transform:translateY(0);opacity:1;pointer-events:auto;}
+  body.admin-review-mode #adminSelectedMemberPanel::before{content:"";display:block;width:38px;height:4px;border-radius:999px;background:rgba(255,255,255,.22);margin:1px auto 10px;}
+  .admin-mobile-back{display:none!important;position:absolute!important;top:14px;right:14px;width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;border-radius:50%!important;z-index:5;}
+  body.admin-review-mode.admin-member-selected .admin-mobile-back{display:inline-flex!important;}
+  .admin-detail-card{padding:16px!important;margin:0!important;border-radius:20px!important;box-shadow:none!important;background:rgba(255,255,255,.025)!important;}
+  .admin-detail-head{padding:6px 48px 16px 0!important;}
+  .admin-detail-photo{width:64px;height:64px;border-radius:15px;}
+  .admin-detail-name{font-size:19px!important;}
+  .admin-detail-email{font-size:11px;max-width:100%;}
+  .admin-detail-meta{padding-right:4px;}
+  .admin-detail-grid{grid-template-columns:1fr!important;gap:8px!important;margin-top:14px!important;}
+  .admin-member-field{padding:11px!important;border-radius:13px!important;}
+  .admin-member-field .value{font-size:12px;overflow-wrap:anywhere;}
+  .admin-member-actions{gap:8px!important;margin-top:14px!important;}
+  .admin-member-actions .admin-btn{min-height:48px!important;border-radius:13px!important;}
+  .admin-readonly-note{font-size:9px;}
+  .admin-change-request-body{grid-template-columns:1fr!important;}
+  .admin-change-actions{flex-direction:column!important;}
+}
+
+@media(max-width:380px){
+  .content{padding-left:12px;padding-right:12px;}
+  .page-head h1{font-size:21px;}
+  .card{padding:15px!important;}
+  .admin-review-head-actions .admin-page-btn{padding:9px 11px;font-size:10px;}
+  .admin-roster-item{gap:8px!important;}
+  .admin-roster-status{display:none;}
+}
+
+/* ÆZ Mobile Command UI — senior responsive pass */
+.mobile-menu-btn{display:none;position:relative;width:40px;height:40px;flex:0 0 40px;border:1px solid var(--ios-line);border-radius:13px;background:rgba(118,118,128,.10);align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--ios-text);}
+.mobile-menu-btn span{display:block;width:16px;height:1.5px;border-radius:2px;background:currentColor;transition:transform .22s var(--ios-ease),opacity .22s var(--ios-ease);}
+.mobile-menu-btn[aria-expanded="true"] span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+.mobile-menu-btn[aria-expanded="true"] span:nth-child(2){opacity:0;}
+.mobile-menu-btn[aria-expanded="true"] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+.mobile-menu-veil{z-index:200!important;opacity:0;pointer-events:none;transition:opacity .22s var(--ios-ease);}
+.mobile-menu-veil.show{opacity:1;pointer-events:auto;}
+.mobile-menu-sheet{width:min(92vw,420px);max-height:min(82vh,720px);overflow:auto;padding:22px 16px calc(20px + env(safe-area-inset-bottom));transform:translateY(18px) scale(.985);transition:transform .28s var(--ios-spring);}
+.mobile-menu-veil.show .mobile-menu-sheet{transform:none;}
+.mobile-menu-head{padding:0 8px 14px;border-bottom:1px solid var(--ios-line);}
+.mobile-menu-title{font-size:24px;font-weight:650;letter-spacing:-.035em;margin-top:3px;}
+.mobile-menu-links{display:flex;flex-direction:column;gap:4px;padding-top:10px;}
+.mobile-menu-link{width:100%;display:flex;align-items:center;gap:12px;padding:12px!important;border:0!important;background:transparent!important;color:var(--ios-secondary)!important;border-radius:13px!important;font-size:14px!important;text-align:left!important;min-height:46px!important;}
+.mobile-menu-link svg{width:19px!important;height:19px!important;flex:0 0 19px;opacity:.78;}
+.mobile-menu-link:hover,.mobile-menu-link:active{background:rgba(255,255,255,.065)!important;color:var(--ios-text)!important;transform:none!important;}
+.mobile-menu-link.active{background:rgba(181,150,67,.11)!important;color:#e4d4a4!important;}
+.mobile-menu-trigger{display:none!important;border:0;background:transparent;color:var(--ios-secondary);font-family:inherit;cursor:pointer;}
+.mobile-menu-trigger svg{width:20px;height:20px;}
+.admin-mobile-back{display:none;}
+
+@media(max-width:960px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden;}
+  #app{min-width:0;width:100%;}
+  .main{min-width:0;width:100%;}
+  .topbar{padding:0 16px;height:calc(60px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);}
+  .top-left,.top-right{min-width:0;gap:9px;}
+  .top-mark{font-size:15px;}
+  .top-right{margin-left:auto;}
+  .content{padding:18px 16px calc(92px + env(safe-area-inset-bottom));max-width:none;}
+  .page-head{margin-bottom:18px;align-items:flex-start;}
+  .page-head h1{font-size:23px;line-height:1.12;}
+  .page-head .page-sub{font-size:12px;line-height:1.45;}
+  .card{padding:18px!important;border-radius:20px!important;min-width:0;}
+  .grid{gap:12px;}
+  .list-row,.list-left{min-width:0;}
+  .list-title,.list-sub{overflow-wrap:anywhere;}
+  .bottom-nav{height:calc(68px + env(safe-area-inset-bottom));padding:5px 8px calc(7px + env(safe-area-inset-bottom));}
+}
+
+@media(max-width:600px){
+  .mobile-menu-btn{display:flex;}
+  .topbar .top-right .icon-btn:first-child{display:none;}
+  .bottom-nav{justify-content:space-around;gap:2px;overflow:hidden;}
+  .bottom-nav .bn-item{display:none!important;flex:1 1 0;min-width:0;width:auto;height:54px;padding:5px 2px;border-radius:13px!important;}
+  .bottom-nav .bn-item[data-view="dashboard"],
+  .bottom-nav .bn-item[data-view="activities"],
+  .bottom-nav .bn-item[data-view="intel"],
+  .bottom-nav .bn-item[data-view="schedule"],
+  .bottom-nav .bn-item[data-view="profile"],
+  .bottom-nav .mobile-menu-trigger{display:flex!important;}
+  .bottom-nav .bn-item span{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58px;}
+  .bottom-nav .bn-item svg{width:19px;height:19px;}
+  .mobile-menu-trigger{color:var(--ios-secondary)!important;align-items:center;justify-content:center;flex-direction:column;gap:4px;}
+  .admin-review-page-head{position:sticky!important;top:env(safe-area-inset-top);z-index:20;padding:10px 0 14px!important;margin-bottom:12px!important;}
+  body.admin-review-mode #view-admin{padding:calc(10px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom))!important;}
+  body.admin-review-mode #view-admin .page-head{background:linear-gradient(180deg,var(--void) 82%,rgba(10,10,11,0));}
+  .admin-review-head-actions{width:auto!important;gap:7px;}
+  .admin-review-head-actions .admin-page-btn:first-child{display:none;}
+  .admin-review-head-actions .admin-page-btn{flex:0 0 auto!important;min-height:42px;}
+  .admin-roster-panel{padding:14px!important;border-radius:20px!important;}
+  .admin-roster-head{align-items:flex-start;}
+  .admin-filter-row{gap:6px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .admin-filter-row::-webkit-scrollbar{display:none;}
+  .admin-filter-btn{flex:0 0 auto;min-height:38px;padding:8px 11px;}
+  .admin-search-row{gap:8px!important;}
+  .admin-search-input,.admin-search-category{min-height:46px!important;font-size:15px!important;border-radius:13px!important;}
+  .admin-roster-item{min-height:64px!important;padding:10px!important;border-radius:14px!important;}
+  .admin-roster-avatar{width:42px;height:42px;border-radius:12px;}
+  .admin-roster-copy strong{font-size:12.5px;}
+  .admin-roster-copy .sub{font-size:10px;}
+  .admin-roster-copy .gang{font-size:9.5px;}
+  .admin-roster-status{font-size:7px;padding:5px 6px;}
+
+  /* Keep member details in the same Admin Review context as an iOS sheet. */
+  body.admin-review-mode::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:0;pointer-events:none;z-index:1000;transition:opacity .24s var(--ios-ease);}
+  body.admin-review-mode.admin-member-selected::before{opacity:1;pointer-events:auto;}
+  body.admin-review-mode #adminSelectedMemberPanel{display:block!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;max-height:min(86vh,760px)!important;overflow:auto!important;z-index:1001!important;padding:10px 12px calc(12px + env(safe-area-inset-bottom))!important;background:rgba(24,24,27,.94)!important;border:1px solid var(--ios-line)!important;border-bottom:0!important;border-radius:28px 28px 0 0!important;box-shadow:0 -24px 70px rgba(0,0,0,.45)!important;backdrop-filter:blur(30px) saturate(135%)!important;-webkit-backdrop-filter:blur(30px) saturate(135%)!important;transform:translateY(105%);opacity:0;pointer-events:none;transition:transform .34s var(--ios-spring),opacity .22s var(--ios-ease);}
+  body.admin-review-mode.admin-member-selected #adminSelectedMemberPanel{transform:translateY(0);opacity:1;pointer-events:auto;}
+  body.admin-review-mode #adminSelectedMemberPanel::before{content:"";display:block;width:38px;height:4px;border-radius:999px;background:rgba(255,255,255,.22);margin:1px auto 10px;}
+  .admin-mobile-back{display:none!important;position:absolute!important;top:14px;right:14px;width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;border-radius:50%!important;z-index:5;}
+  body.admin-review-mode.admin-member-selected .admin-mobile-back{display:inline-flex!important;}
+  .admin-detail-card{padding:16px!important;margin:0!important;border-radius:20px!important;box-shadow:none!important;background:rgba(255,255,255,.025)!important;}
+  .admin-detail-head{padding:6px 48px 16px 0!important;}
+  .admin-detail-photo{width:64px;height:64px;border-radius:15px;}
+  .admin-detail-name{font-size:19px!important;}
+  .admin-detail-grid{grid-template-columns:1fr!important;gap:8px!important;margin-top:14px!important;}
+  .admin-member-field{padding:11px!important;border-radius:13px!important;}
+  .admin-member-field .value{font-size:12px;overflow-wrap:anywhere;}
+  .admin-member-actions{gap:8px!important;margin-top:14px!important;}
+  .admin-member-actions .admin-btn{min-height:48px!important;border-radius:13px!important;}
+  .admin-change-request-body{grid-template-columns:1fr!important;}
+  .admin-change-actions{flex-direction:column!important;}
+}
+
+@media(max-width:380px){
+  .content{padding-left:12px;padding-right:12px;}
+  .page-head h1{font-size:21px;}
+  .card{padding:15px!important;}
+  .admin-review-head-actions .admin-page-btn{padding:9px 11px;font-size:10px;}
+  .admin-roster-item{gap:8px!important;}
+  .admin-roster-status{display:none;}
+}
