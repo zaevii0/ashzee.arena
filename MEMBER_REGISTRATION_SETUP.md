@@ -48,3 +48,16 @@ The browser asks Supabase for the internal Auth email associated with the Facebo
 ## 5. Password recovery
 
 The form warns members that password recovery is limited and controlled through their gang's registered email. The dedicated gang-officer recovery/approval workflow is intentionally separate and should be implemented before production password-reset use. Do not use the internal member Auth email as the recovery mailbox.
+
+
+## 5. Member approval and officer permissions
+
+Run `member_approval_system.sql` after the identity SQL. This is required for the approval workflow.
+
+New member registrations are forced to `pending` at the database level. The browser cannot approve them directly.
+
+Owner/Admin can enable or disable `can_approve_members` for approved Leaders, Co-Leaders, and Secretaries. An enabled officer can review only members whose `gang` matches the officer's gang. Owner/Admin can always review any member.
+
+The approval decision is performed by the `aez_review_member_registration` security-definer RPC, so changing the browser code cannot bypass the permission check.
+
+After registration, the member should screenshot the pending confirmation and show it to an authorized gang officer or Arena Official/Admin.

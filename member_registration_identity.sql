@@ -27,6 +27,7 @@ as $$
   select distinct upper(trim(gr.gang_initial)) as gang_initial
   from public.gang_registrations gr
   where gr.status = 'approved'
+    and coalesce(gr.arena_status,'active') = 'active'
     and trim(coalesce(gr.gang_initial,'')) <> ''
   order by 1;
 $$;

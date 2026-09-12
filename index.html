@@ -1209,6 +1209,21 @@ body.light-mode #themeToggle .moon{opacity:.45}
 body.light-mode #themeToggle .sun{opacity:1} body.light-mode #themeToggle .moon{opacity:.45}
 @media(max-width:650px){#themeToggle{top:12px;right:12px;width:64px;height:34px;padding:2px}#themeToggle .theme-icon{width:28px;height:28px;font-size:14px}#themeToggle .theme-knob{top:2px;left:2px;width:28px;height:28px}body.light-mode #themeToggle .theme-knob{transform:translateX(30px)}}
 
+
+/* ===== MEMBER REGISTRATION APPROVAL SYSTEM ===== */
+.member-approval-tools{margin-top:16px;display:grid;gap:12px;}
+.approval-permission-row,.approval-review-row{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:13px 14px;border:1px solid var(--hair);border-radius:12px;background:rgba(0,0,0,.12);
+}
+.approval-permission-copy{min-width:0;}
+.approval-permission-name{font-size:12px;font-weight:600;color:var(--bone);}
+.approval-permission-meta{font-size:10px;color:var(--ash-dim);margin-top:3px;line-height:1.45;}
+.approval-toggle{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;}
+.approval-toggle input{accent-color:var(--gold);width:16px;height:16px;}
+.approval-review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.approval-proof-note{margin-top:12px;padding:12px;border:1px solid rgba(214,180,100,.25);border-radius:10px;background:rgba(214,180,100,.06);font-size:10.5px;line-height:1.55;color:var(--ash);}
+
 </style>
 <style id="aez-ios-lightmode-v2">
 /* ÆZ — intentional iOS light theme. This is a visual layer only. */
@@ -1474,20 +1489,20 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
       <button class="enter-full" onclick="submitSignup()">Submit Registration</button>
       <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
       <button type="button" class="entry-back-btn" onclick="closeRegistration(); goToMemberSecureAccess(); return false;">Back to ÆZ Secure Access</button>
-      <div class="login-note">Your gang reviews new registrations against the ID and Facebook profile submitted here.</div>
+      <div class="login-note">Your registration is never auto-approved. Authorized gang officers or Arena Officials must review it before you can enter the Arena.</div>
     </div>
 
     <div id="signupPending" style="display:none;text-align:center;">
-      <div class="stamp neutral" id="pendingStamp" style="transform:rotate(-2deg);margin-bottom:18px;display:inline-block">PENDING ADMIN APPROVAL</div>
+      <div class="stamp neutral" id="pendingStamp" style="transform:rotate(-2deg);margin-bottom:18px;display:inline-block">PENDING — AWAITING REVIEW</div>
       <div class="pending-photo-wrap"><img id="pendingPhoto"></div>
       <div class="pending-name" id="pendingCodename">—</div>
       <div class="page-sub" id="pendingGang">—</div>
       <div class="kv-row"><span class="k">Name</span><span class="v" id="pendingName">—</span></div>
       <div class="kv-row"><span class="k">Facebook UID</span><span class="v" id="pendingFb">—</span></div>
       <div class="kv-row"><span class="k">Joined gang</span><span class="v" id="pendingJoined">—</span></div>
-      <div class="kv-row"><span class="k">Application</span><span class="v" id="pendingApplicationStatus">Submitted to Admin Review</span></div>
+      <div class="kv-row"><span class="k">Application</span><span class="v" id="pendingApplicationStatus">Submitted — Pending Review</span></div>
       <div class="page-sub" style="margin:18px 0;text-align:left" id="pendingNote">
-        Your registration has been submitted to Admin Review. You cannot enter the Arena until an authorized administrator approves the application.
+        Your registration is <strong>PENDING</strong>. Take a screenshot of this pending confirmation and show it to your gang Leader, Co-Leader, Secretary, or an Arena Official/Admin for review. You cannot enter the Arena until an authorized reviewer approves it.
       </div>
       <div class="login-note">Your ID picture is stored with the pending application for authorized Command review. Your Facebook UID must be unique.</div>
       <a class="entry-back-btn" href="javascript:void(0)" onclick="closeRegistration(); backToEntryFromRegistration(); return false;">Back to entry selection</a>
@@ -1998,7 +2013,7 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
           <input type="text" id="grLeaderInput" placeholder="Full name / RP name" maxlength="100" oninput="clearFieldError('grFieldLeader')">
         </div>
         <div class="field" id="grFieldCoo">
-          <label>COO Leader's Name</label>
+          <label>Co-leader's Name</label>
           <input type="text" id="grCooInput" placeholder="Full name / RP name" maxlength="100" oninput="clearFieldError('grFieldCoo')">
         </div>
       </div>
@@ -2096,6 +2111,23 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
       </div>
     </div>
     </div>
+  <div class="card member-approval-tools" id="memberApprovalTools">
+    <div class="admin-roster-head">
+      <div>
+        <div class="title" id="memberApprovalTitle">MEMBER APPROVAL CONTROL</div>
+        <div class="page-sub" style="margin-top:3px" id="memberApprovalSubtitle">Authorized reviewers only.</div>
+      </div>
+      <button type="button" class="admin-page-btn" onclick="loadMemberApprovalTools(); return false;">Refresh</button>
+    </div>
+    <div id="memberApprovalStatus" class="pill">Loading…</div>
+    <div id="memberApprovalOfficerList"></div>
+    <div id="memberApprovalReviewList"></div>
+    <div class="approval-proof-note" id="memberApprovalProofNote" style="display:none">
+      Members are shown as <strong>PENDING</strong> until an authorized reviewer makes a decision.
+      Approval permission can be enabled or disabled by Owner/Admin at any time.
+    </div>
+  </div>
+
   <div class="card" style="margin-top:16px;">
     <div class="admin-roster-head">
       <div>
@@ -2863,9 +2895,13 @@ function removeAuthScreensAndShowApp(){
   var dashboard=document.getElementById('view-dashboard');
   if(dashboard) dashboard.classList.add('active');
   showScreen('app');
-  var isAdminCapable=(currentProfile.role==='admin'||currentProfile.role==='owner');
+  var isAdminCapable=['admin','owner','leader','co-leader','secretary'].includes(String(currentProfile.role||'').toLowerCase());
   var adminNav=document.getElementById('adminNavItem');
-  if(adminNav) adminNav.style.display=isAdminCapable?'flex':'none';
+  if(adminNav){
+    adminNav.style.display=isAdminCapable?'flex':'none';
+    var rr=String(currentProfile.role||'').toLowerCase();
+    adminNav.lastChild && (adminNav.lastChild.nodeValue=(rr==='owner'||rr==='admin')?'Admin Review':'Member Approvals');
+  }
   document.body.classList.toggle('admin-capable',isAdminCapable);
   syncMobileAdminNavVisibility();
 }
@@ -3218,6 +3254,7 @@ async function submitSignup(){
   var gang=document.getElementById('suGangSelect').value;
   var position=document.getElementById('suPositionSelect').value;
   var codename=document.getElementById('suCodenameInput').value.trim();
+  var fbProfileLink=document.getElementById('suFbLinkInput').value.trim();
   var fbUid=document.getElementById('suFbInput').value.trim();
   var joined=dateTextToIso(document.getElementById('suJoinedInput').value);
   var pw=document.getElementById('suPasswordInput').value;
@@ -3246,7 +3283,7 @@ async function submitSignup(){
      email-verification requirement can remain enabled for gang registration.
      The service-role key never reaches this browser. */
   var created=await supabaseClient.functions.invoke('create-member',{body:{
-    name:name,gang:gang,position:position,codename:codename,facebook_uid:fbUid,joined_date:joined,password:pw
+    name:name,gang:gang,position:position,codename:codename,facebook_profile_link:fbProfileLink,facebook_uid:fbUid,joined_date:joined,password:pw
   }});
   if(created.error){btn.disabled=false;btn.textContent='Submit Registration';showSignupError(created.error.message||'Member account could not be created.');return;}
   if(!created.data || !created.data.user_id || !created.data.auth_email){btn.disabled=false;btn.textContent='Submit Registration';showSignupError('Member account could not be created. Deploy the create-member Supabase Edge Function first.');return;}
@@ -3261,7 +3298,7 @@ async function submitSignup(){
   var upload=await supabaseClient.storage.from('id-documents').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
   if(upload.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit Registration';showSignupError('Account created, but the ID upload failed: '+upload.error.message);return;}
 
-  var upd=await supabaseClient.from('profiles').update({full_name:name,email_verified:true,id_photo_path:path}).eq('id',user.id);
+  var upd=await supabaseClient.from('profiles').update({full_name:name,email_verified:true,id_photo_path:path,facebook_profile_link:fbProfileLink,status:'pending'}).eq('id',user.id);
   if(upd.error){await supabaseClient.auth.signOut();btn.disabled=false;btn.textContent='Submit Registration';showSignupError('Your account was created but the member information could not be saved: '+upd.error.message);return;}
 
   pendingApplicant={full_name:name,codename:codename,gang:gang,position:position,fbUid:fbUid,joined:joined,photoPath:path};
@@ -3273,10 +3310,10 @@ async function submitSignup(){
   document.getElementById('pendingFb').textContent=fbUid;
   document.getElementById('pendingJoined').textContent=new Date(joined+'T00:00:00').toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
   document.getElementById('pendingPhoto').src=document.getElementById('uploadPreview').src;
-  document.getElementById('pendingStamp').textContent='PENDING ADMIN APPROVAL';
+  document.getElementById('pendingStamp').textContent='PENDING — AWAITING REVIEW';
   document.getElementById('pendingStamp').className='stamp neutral';
-  document.getElementById('pendingApplicationStatus').textContent='Submitted to Admin Review';
-  document.getElementById('pendingNote').innerHTML='Your registration has been submitted to Admin Review. You cannot enter the Arena until an authorized administrator approves the application.';
+  document.getElementById('pendingApplicationStatus').textContent='Submitted — Pending Review';
+  document.getElementById('pendingNote').innerHTML='Your registration is <strong>PENDING</strong>. Take a screenshot of this pending confirmation and show it to your gang Leader, Co-Leader, Secretary, or an Arena Official/Admin for review. You cannot enter the Arena until an authorized reviewer approves it.';
   document.getElementById('signupForm').style.display='none';
   document.getElementById('signupPending').style.display='block';
   await logAgentActivity('Registration Submitted','REGISTRATION','Submitted an ÆZ Agent registration for Admin Review.',{name:name,gang:gang,position:position,facebook_uid:fbUid});
@@ -3433,7 +3470,7 @@ function nav(el){
   if(!currentProfile || currentProfile.status!=='approved'){ showScreen('login'); return; }
   var view = el.getAttribute('data-view');
 
-  if(view==='admin' && !['admin','owner'].includes(currentProfile.role)){
+  if(view==='admin' && !['admin','owner','leader','co-leader','secretary'].includes(String(currentProfile.role||'').toLowerCase())){
     return;
   }
 
@@ -3870,11 +3907,28 @@ async function loadGangRegistrations(){
   box.innerHTML=gangRegistrationData.map(function(g){
     var status=g.status||'pending';
     var actions=status==='pending'?'<div class="gang-admin-actions"><button class="admin-btn approve" onclick="reviewGangRegistration(\''+escapeHtml(g.id)+'\',\'approved\')">Approve Gang</button><button class="admin-btn reject" onclick="reviewGangRegistration(\''+escapeHtml(g.id)+'\',\'rejected\')">Reject Gang</button></div>':'';
+    var arenaStatus=g.arena_status||'active';
+    var arenaLabels={active:'Active',inactive:'Inactive',hiatus:'Hiatus',not_in_arena:'Does Not Belong / Left Already'};
+    var arenaStatusLabel=arenaLabels[arenaStatus]||arenaStatus;
+    var arenaStatusActions=status==='approved' ? '<div class="gang-admin-actions" style="margin-top:12px"><label style="display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Arena Gang Status</label><select class="admin-search-select" style="min-width:220px" onchange="updateGangArenaStatus(\''+escapeHtml(g.id)+"\',this.value)" data-gang-status-id="'+escapeHtml(g.id)+'"><option value="active"'+(arenaStatus==='active'?' selected':'')+'>Active</option><option value="inactive"'+(arenaStatus==='inactive'?' selected':'')+'>Inactive</option><option value="hiatus"'+(arenaStatus==='hiatus'?' selected':'')+'>Hiatus</option><option value="not_in_arena"'+(arenaStatus==='not_in_arena'?' selected':'')+'>Does Not Belong / Left Already</option></select></div>' : '';
     return '<article class="gang-admin-item"><div class="gang-admin-head"><div><div class="gang-admin-name">'+escapeHtml(g.gang_name||'Unnamed Gang')+' <span style="color:var(--gold)">['+escapeHtml(g.gang_initial||'—')+']</span></div><div class="gang-admin-meta">Submitted by '+escapeHtml(g.email||'—')+' · '+escapeHtml(formatAdminDate(g.created_at))+'</div></div><span class="gang-status '+escapeHtml(status)+'">'+escapeHtml(status)+'</span></div><div class="gang-admin-fields">'+
-      gangCell('Alias / Alis',g.alias)+gangCell('Motto',g.motto)+gangCell('Date Created',formatAdminJoinedDate(g.date_created))+gangCell('Active Members',g.active_members)+gangCell("Leader's Name",g.leader_name)+gangCell('COO Leader',g.coo_leader_name)+gangCell('Officer Email',g.email)+gangCell('Decision',g.reviewed_at?formatAdminDate(g.reviewed_at):'Pending')+'</div>'+actions+'</article>';
+      gangCell('Alias / Alis',g.alias)+gangCell('Motto',g.motto)+gangCell('Date Created',formatAdminJoinedDate(g.date_created))+gangCell('Active Members',g.active_members)+gangCell("Leader's Name",g.leader_name)+gangCell('Co-leader',g.coo_leader_name)+gangCell('Officer Email',g.email)+gangCell('Arena Status',arenaStatusLabel)+gangCell('Status Changed',g.arena_status_changed_at?formatAdminDate(g.arena_status_changed_at):'—')+'</div>'+actions+arenaStatusActions+'</article>';
   }).join('');
 }
 function gangCell(label,value){return '<div class="gang-admin-field"><div class="label">'+escapeHtml(label)+'</div><div class="value">'+escapeHtml(value==null||value===''?'—':value)+'</div></div>';}
+async function updateGangArenaStatus(id,newStatus){
+  if(!currentProfile || !['owner','admin'].includes(String(currentProfile.role||'').toLowerCase())){alert('Restricted: only an ÆZ Owner or Admin can change a gang's Arena status.');return;}
+  var allowed=['active','inactive','hiatus','not_in_arena'];
+  if(!allowed.includes(newStatus)){alert('Invalid Arena gang status.');return;}
+  var old=(gangRegistrationData.find(function(g){return String(g.id)===String(id);})||{}).arena_status||'active';
+  if(old===newStatus) return;
+  var labels={active:'Active',inactive:'Inactive',hiatus:'Hiatus',not_in_arena:'Does Not Belong / Left Already'};
+  if(!confirm('Change this gang's Arena status to '+labels[newStatus]+'?')){await loadGangRegistrations();return;}
+  var upd=await supabaseClient.from('gang_registrations').update({arena_status:newStatus,arena_status_changed_by:currentProfile.id}).eq('id',id).eq('status','approved');
+  if(upd.error){alert('Could not update the gang status: '+upd.error.message);await loadGangRegistrations();return;}
+  await logAgentActivity('Changed Gang Arena Status','ADMIN','Updated the Arena status of a gang.',{gang_registration_id:id,arena_status:newStatus,previous_arena_status:old});
+  await loadGangRegistrations();
+}
 async function reviewGangRegistration(id,status){
   if(!currentProfile || !['owner','admin'].includes(currentProfile.role)){alert('Restricted: only an ÆZ Owner or Admin can review gang registrations.');return;}
   var verb=status==='approved'?'approve':'reject';
@@ -3890,9 +3944,11 @@ async function reviewGangRegistration(id,status){
 async function loadAdminApplications(){
   var statusEl=document.getElementById('adminStatus');
   var box=document.getElementById('adminApplications');
+  var role=String(currentProfile && currentProfile.role || '').toLowerCase();
+  var reviewerRoles=['admin','owner','leader','co-leader','secretary'];
 
-  if(!currentProfile || currentProfile.status!=='approved' || !['admin','owner'].includes(currentProfile.role)){
-    if(statusEl) statusEl.textContent='Restricted: ÆZ Owner/Admin access only.';
+  if(!currentProfile || currentProfile.status!=='approved' || !reviewerRoles.includes(role)){
+    if(statusEl) statusEl.textContent='Restricted: authorized reviewers only.';
     if(box) box.innerHTML='';
     return;
   }
@@ -3902,20 +3958,17 @@ async function loadAdminApplications(){
   if(box) box.innerHTML='';
   renderAdminFilters();
 
-  var res=await supabaseClient
-    .from('profiles')
-    .select('id,email,full_name,codename,gang,facebook_uid,joined_date,status,role,id_photo_path,created_at,approved_at,approved_by,rejection_reason,email_verified')
-    .eq('email_verified',true)
-    .order('gang',{ascending:true})
-    .order('created_at',{ascending:true});
+  var res=await supabaseClient.rpc('aez_member_registrations_for_reviewer');
 
   if(res.error){
     if(statusEl) statusEl.textContent='Could not load registrations: '+res.error.message;
+    if(box) box.innerHTML='<div class="page-sub" style="padding:12px 2px">Apply member_approval_system.sql in Supabase to enable member approval control.</div>';
     return;
   }
   adminRosterData=res.data||[];
   ADMIN_GANGS=[...new Set(adminRosterData.map(function(a){return String(a.gang||'').trim();}).filter(Boolean))].sort();
   renderAdminApplications();
+  await loadMemberApprovalTools();
 }
 function formatAdminJoinedDate(v){
   if(!v) return '—';
@@ -3923,83 +3976,132 @@ function formatAdminJoinedDate(v){
 }
 function escapeHtml(v){return String(v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
 function formatAdminDate(v){try{return new Date(v).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});}catch(e){return v||'';}}
-async function approveApplication(id){
-  if(!currentProfile || !['admin','owner'].includes(currentProfile.role)){
-    alert('Restricted: only an ÆZ Owner or Admin can approve members.');
-    return;
-  }
-  if(!confirm('Approve this registration?')) return;
-
-  var userResult = await supabaseClient.auth.getUser();
-  var user = userResult.data && userResult.data.user;
-  if(userResult.error || !user){
-    alert('Approval failed: your admin session is no longer valid. Please log in again.');
+async function reviewMemberApplication(id, decision){
+  var role=String(currentProfile && currentProfile.role || '').toLowerCase();
+  var reviewerRoles=['admin','owner','leader','co-leader','secretary'];
+  if(!currentProfile || currentProfile.status!=='approved' || !reviewerRoles.includes(role)){
+    alert('Restricted: you are not an authorized member-registration reviewer.');
     return;
   }
 
-  var now = new Date().toISOString();
-  var r = await supabaseClient
-    .from('profiles')
-    .update({
-      status:'approved',
-      approved_by:user.id,
-      approved_at:now,
-      rejection_reason:null
-    })
-    .eq('id',id)
-    .eq('status','pending')
-    .select('id,status');
+  var reason='';
+  if(decision==='rejected'){
+    reason=prompt('Optional rejection reason:','') ;
+    if(reason===null) return;
+  }else if(!confirm('Approve this member registration?')){
+    return;
+  }
+
+  var r=await supabaseClient.rpc('aez_review_member_registration',{
+    p_member_id:id,
+    p_decision:decision,
+    p_rejection_reason:reason||null
+  });
 
   if(r.error){
-    alert('Approval failed: '+r.error.message+'\n\nIf this says the operation is blocked by Row Level Security, apply the Supabase policy supplied with this update.');
+    alert((decision==='approved'?'Approval':'Rejection')+' failed: '+r.error.message);
     return;
   }
 
-  if(!r.data || r.data.length===0){
-    alert('This application is no longer pending, or Supabase did not allow the update.');
-    await loadAdminApplications();
-    return;
-  }
-
-  await logAgentActivity('Approved Registration', 'ADMIN', 'Approved a pending ÆZ registration.', {member_id:id});
+  await logAgentActivity(
+    decision==='approved'?'Approved Registration':'Rejected Registration',
+    'ADMIN',
+    (decision==='approved'?'Approved':'Rejected')+' a pending ÆZ member registration.',
+    {member_id:id,reason:reason||''}
+  );
   await loadAdminApplications();
 }
+function approveApplication(id){ return reviewMemberApplication(id,'approved'); }
+function rejectApplication(id){ return reviewMemberApplication(id,'rejected'); }
 
-async function rejectApplication(id){
-  if(!currentProfile || !['admin','owner'].includes(currentProfile.role)){
-    alert('Restricted: only an ÆZ Owner or Admin can reject members.');
+/* ===== MEMBER APPROVAL CONTROL ===== */
+async function loadMemberApprovalTools(){
+  var wrap=document.getElementById('memberApprovalTools');
+  var status=document.getElementById('memberApprovalStatus');
+  var officerList=document.getElementById('memberApprovalOfficerList');
+  var reviewList=document.getElementById('memberApprovalReviewList');
+  var title=document.getElementById('memberApprovalTitle');
+  var subtitle=document.getElementById('memberApprovalSubtitle');
+  var proof=document.getElementById('memberApprovalProofNote');
+  if(!wrap || !supabaseReady || !currentProfile) return;
+
+  var role=String(currentProfile.role||'').toLowerCase();
+  var canReview=['admin','owner','leader','co-leader','secretary'].includes(role);
+  if(!canReview){
+    wrap.style.display='none';
     return;
   }
+  wrap.style.display='grid';
 
-  var reason=prompt('Optional rejection reason:','');
-  if(reason===null) return;
+  if(role==='owner'||role==='admin'){
+    if(title) title.textContent='MEMBER APPROVAL CONTROL';
+    if(subtitle) subtitle.textContent='Review registrations and control which gang officers may approve members.';
+    if(officerList) officerList.innerHTML='<div class="page-sub" style="padding:8px 2px">Loading officer permissions…</div>';
 
-  var userResult=await supabaseClient.auth.getUser();
-  var user=userResult.data && userResult.data.user;
-  if(userResult.error || !user){
-    alert('Rejection failed: your admin session is no longer valid. Please log in again.');
-    return;
+    var officers=await supabaseClient.rpc('aez_list_member_approval_officers');
+    if(officers.error){
+      if(officerList) officerList.innerHTML='<div class="page-sub">Officer permission controls are unavailable. Apply member_approval_system.sql.</div>';
+    }else{
+      if(!officers.data || !officers.data.length){
+        officerList.innerHTML='<div class="page-sub">No approved gang officers found.</div>';
+      }else{
+        officerList.innerHTML=officers.data.map(function(o){
+          var checked=o.can_approve_members===true?' checked':'';
+          return '<div class="approval-permission-row">'
+            +'<div class="approval-permission-copy"><div class="approval-permission-name">'+escapeHtml(o.full_name||o.codename||'Unnamed Officer')+'</div>'
+            +'<div class="approval-permission-meta">'+escapeHtml(o.role||'Officer')+' · '+escapeHtml(o.gang||'Unassigned')+' · '+escapeHtml(o.codename||'—')+'</div></div>'
+            +'<label class="approval-toggle"><input type="checkbox"'+checked+' onchange="setOfficerApprovalPermission(this.dataset.id,this.checked)" data-id="'+escapeHtml(o.id)+'"><span>'+ (o.can_approve_members===true?'ON':'OFF') +'</span></label>'
+            +'</div>';
+        }).join('');
+      }
+    }
+  }else{
+    if(title) title.textContent='GANG MEMBER APPROVALS';
+    if(subtitle) subtitle.textContent='You can approve members of your gang only when Owner/Admin has enabled your approval permission.';
+    if(officerList) officerList.innerHTML='';
   }
 
-  var r=await supabaseClient
-    .from('profiles')
-    .update({
-      status:'rejected',
-      approved_by:user.id,
-      approved_at:new Date().toISOString(),
-      rejection_reason:reason||null
-    })
-    .eq('id',id)
-    .eq('status','pending')
-    .select('id,status');
-
+  var review=await supabaseClient.rpc('aez_member_registrations_for_reviewer');
+  if(review.error){
+    if(reviewList) reviewList.innerHTML='<div class="page-sub">Member approval review is unavailable. Apply member_approval_system.sql.</div>';
+  }else{
+    var pending=(review.data||[]).filter(function(a){return a.status==='pending';});
+    if(status) status.textContent=pending.length+' pending registration'+(pending.length===1?'':'s');
+    if(proof) proof.style.display='block';
+    if(reviewList){
+      if(!pending.length){
+        reviewList.innerHTML='<div class="page-sub" style="padding:8px 2px">No pending member registrations for your review scope.</div>';
+      }else{
+        reviewList.innerHTML=pending.map(function(a){
+          return '<div class="approval-review-row"><div style="min-width:0"><div class="approval-permission-name">'+escapeHtml(a.full_name||a.codename||'Unnamed Member')+'</div>'
+            +'<div class="approval-permission-meta">'+escapeHtml(a.codename||'—')+' · '+escapeHtml(a.gang||'—')+' · Facebook UID '+escapeHtml(a.facebook_uid||'—')+'</div>'
+            +'</div><div class="approval-review-actions"><button class="admin-btn approve" data-application-id="'+escapeHtml(a.id)+'" onclick="approveApplication(this.dataset.applicationId)">Approve</button>'
+            +'<button class="admin-btn reject" data-application-id="'+escapeHtml(a.id)+'" onclick="rejectApplication(this.dataset.applicationId)">Disallow / Reject</button></div></div>';
+        }).join('');
+      }
+    }
+  }
+}
+async function setOfficerApprovalPermission(id, enabled){
+  var role=String(currentProfile && currentProfile.role || '').toLowerCase();
+  if(!['owner','admin'].includes(role)){
+    alert('Only Owner/Admin can change officer approval permissions.');
+    await loadMemberApprovalTools();
+    return;
+  }
+  var r=await supabaseClient.rpc('aez_set_member_approval_permission',{
+    p_officer_id:id,
+    p_enabled:!!enabled
+  });
   if(r.error){
-    alert('Rejection failed: '+r.error.message+'\n\nIf this says the operation is blocked by Row Level Security, apply the Supabase policy supplied with this update.');
+    alert('Could not change approval permission: '+r.error.message);
+    await loadMemberApprovalTools();
     return;
   }
-
-  await logAgentActivity('Rejected Registration', 'ADMIN', 'Rejected a pending ÆZ registration.', {member_id:id, reason:reason||''});
-  await loadAdminApplications();
+  await logAgentActivity('Changed Officer Approval Permission','ADMIN',
+    (enabled?'Enabled':'Disabled')+' member approval authority for a gang officer.',
+    {officer_id:id,enabled:!!enabled});
+  await loadMemberApprovalTools();
 }
 
 /* ============ ANIMATED COUNTERS ============ */

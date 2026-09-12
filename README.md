@@ -45,3 +45,16 @@ For this member flow, **Supabase Authentication → Email → Confirm Email must
 Member password recovery is intentionally treated as a gang-level responsibility. The registration warning tells members to save their password and explains that recovery email is limited and routed through the gang's registered email. The gang officers decide whether a recovery request should proceed.
 
 The actual gang-officer recovery workflow should be implemented separately before production use; do not treat the internal member Auth email as a recovery mailbox.
+
+
+## Member Approval System
+
+Run `member_approval_system.sql` once in Supabase SQL Editor. New member profiles are forced to `pending`; registration never auto-approves.
+
+- Members register with Name, approved Gang, Position, Codename, Facebook Profile Link, Facebook UID, Date Joined, Password, and ID Picture.
+- After submission, the member sees a pending confirmation and is instructed to screenshot it and show it to a gang officer or Arena Official/Admin.
+- Leader, Co-Leader, and Secretary approval is controlled by the Owner/Admin `Can Approve Member Registrations` permission.
+- Owner/Admin can approve or reject any member registration regardless of the gang officer permission setting.
+- Gang officers with permission ON can review only pending members of their own gang.
+- Approved members can log in with Facebook UID + Gang + Codename + Password.
+- Pending and rejected members cannot enter the member dashboard.

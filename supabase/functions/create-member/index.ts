@@ -26,15 +26,16 @@ Deno.serve(async (req) => {
     const gang = String(body.gang ?? '').trim().toUpperCase()
     const position = String(body.position ?? '').trim()
     const codename = String(body.codename ?? '').trim()
+    const facebookProfileLink = String(body.facebook_profile_link ?? '').trim()
     const facebookUid = String(body.facebook_uid ?? '').replace(/\D/g, '')
     const joinedDate = String(body.joined_date ?? '').trim()
     const password = String(body.password ?? '')
 
-    if (!name || !gang || !position || !codename || !facebookUid || !joinedDate || !password) {
+    if (!name || !gang || !position || !codename || !facebookProfileLink || !facebookUid || !joinedDate || !password) {
       return json({ error: 'Missing required member registration fields.' }, 400)
     }
     if (facebookUid.length < 5) return json({ error: 'Facebook UID is invalid.' }, 400)
-    if (name.length > 120 || codename.length > 80) return json({ error: 'Name or codename is too long.' }, 400)
+    if (name.length > 120 || codename.length > 80 || facebookProfileLink.length > 500) return json({ error: 'Name or codename is too long.' }, 400)
     if (password.length < 6) return json({ error: 'Password must meet the Supabase password requirements.' }, 400)
 
     const gangCheck = await admin
@@ -65,6 +66,7 @@ Deno.serve(async (req) => {
         codename,
         gang,
         position,
+        facebook_profile_link: facebookProfileLink,
         facebook_uid: facebookUid,
         joined_date: joinedDate,
       },
@@ -73,6 +75,29 @@ Deno.serve(async (req) => {
     if (created.error) {
       const duplicate = /already|exists|duplicate/i.test(created.error.message || '')
       return json({ error: duplicate ? 'This member account already exists. Check the Facebook UID.' : created.error.message }, duplicate ? 409 : 400)
+    }
+
+    // Never auto-approve a newly created member. The service-role update also
+    // protects this invariant even if the profiles insert trigger has a legacy
+    // default status.
+    const pendingProfile = await admin
+      .from('profiles')
+      .update({
+        full_name: name,
+        gang,
+        position,
+        codename,
+        facebook_profile_link: facebookProfileLink,
+        facebook_uid: facebookUid,
+        joined_date: joinedDate,
+        status: 'pending',
+        email_verified: true,
+      })
+      .eq('id', created.data.user.id)
+
+    if (pendingProfile.error) {
+      await admin.auth.admin.deleteUser(created.data.user.id)
+      return json({ error: 'Member account could not be placed into pending review. No account was kept.' }, 500)
     }
 
     return json({ user_id: created.data.user.id, auth_email: authEmail })
