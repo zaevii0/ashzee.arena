@@ -38,7 +38,8 @@ for each row execute function public.touch_gang_arena_status();
 -- 2. Only Owner/Admin can change officer approval permissions.
 -- 3. Leader/Co-Leader/Secretary can approve/disallow only their own gang
 --    and only while can_approve_members=true.
--- 4. Owner/Admin can approve/disallow any member.
+-- 4. Owner/Admin can approve/disallow any member, across every gang.
+--    Arena Admins are not limited by gang and do not depend on officer toggles.
 -- 5. The browser never directly changes member status; review goes through
 --    security-definer RPCs.
 

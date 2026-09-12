@@ -2315,39 +2315,66 @@ function closeRegistration(){
 /* Dedicated registration entry point. The explicit inline handler calls this
    so the registration transition cannot accidentally leave Secure Access
    visible. */
-async function loadApprovedGangOptions(){
+async function loadApprovedGangOptions(forceRefresh){
   var selects=[document.getElementById('suGangSelect'),document.getElementById('gangSelect')].filter(Boolean);
   if(!selects.length) return;
-  selects.forEach(function(sel){sel.innerHTML='<option value="" selected disabled>Loading approved gangs…</option>';sel.disabled=true;});
-  if(!supabaseReady){
-    selects.forEach(function(sel){sel.innerHTML='<option value="" selected disabled>Supabase unavailable</option>';});
-    return;
+  var CACHE_KEY='aez_active_gang_options_v2';
+  var CACHE_TTL=10*60*1000;
+
+  function render(rows){
+    rows=Array.isArray(rows)?rows:[];
+    selects.forEach(function(sel){
+      var previous=sel.value;
+      sel.innerHTML='';
+      if(!rows.length){
+        sel.innerHTML='<option value="" selected disabled>No active gangs available</option>';
+        sel.disabled=true;
+        return;
+      }
+      var first=document.createElement('option');
+      first.value=''; first.textContent='Select your gang'; first.disabled=true; first.selected=true;
+      sel.appendChild(first);
+      rows.forEach(function(row){
+        var initial=String(row.gang_initial||'').trim().toUpperCase();
+        var name=String(row.gang_name||'').trim();
+        if(!initial) return;
+        var opt=document.createElement('option');
+        opt.value=initial;
+        opt.textContent=name ? name+' ['+initial+']' : initial;
+        sel.appendChild(opt);
+      });
+      sel.disabled=false;
+      if(previous && rows.some(function(row){return String(row.gang_initial||'').trim().toUpperCase()===previous;})) sel.value=previous;
+    });
+    ADMIN_GANGS=rows.map(function(row){return String(row.gang_initial||'').trim().toUpperCase();}).filter(Boolean);
+    if(typeof renderAdminFilters==='function') renderAdminFilters();
   }
+
+  var cached=null;
+  try{cached=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');}catch(e){}
+  if(cached && Array.isArray(cached.rows) && cached.savedAt && (Date.now()-cached.savedAt<CACHE_TTL)){
+    render(cached.rows);
+    if(!forceRefresh) {
+      /* Refresh in the background so login never waits for the gang query. */
+      setTimeout(function(){loadApprovedGangOptions(true);},0);
+      return;
+    }
+  }else{
+    selects.forEach(function(sel){sel.innerHTML='<option value="" selected disabled>Loading gangs…</option>';sel.disabled=true;});
+  }
+
+  if(!supabaseReady) return;
   var res=await supabaseClient.rpc('aez_approved_gang_initials');
   if(res.error){
     console.warn('Approved gang list unavailable:',res.error.message);
-    selects.forEach(function(sel){sel.innerHTML='<option value="" selected disabled>No approved gangs available</option>';});
+    if(!cached || !Array.isArray(cached.rows)) render([]);
     return;
   }
   var rows=res.data||[];
-  selects.forEach(function(sel){
-    sel.innerHTML='';
-    if(!rows.length){
-      sel.innerHTML='<option value="" selected disabled>No approved gangs available</option>';
-      sel.disabled=true;
-      return;
-    }
-    var first=document.createElement('option'); first.value=''; first.textContent='Select an approved gang'; first.disabled=true; first.selected=true; sel.appendChild(first);
-    rows.forEach(function(row){
-      var initial=String(row.gang_initial||'').trim().toUpperCase();
-      if(!initial) return;
-      var opt=document.createElement('option'); opt.value=initial; opt.textContent=initial; sel.appendChild(opt);
-    });
-    sel.disabled=false;
-  });
-  ADMIN_GANGS=rows.map(function(row){return String(row.gang_initial||'').trim().toUpperCase();}).filter(Boolean);
-  if(typeof renderAdminFilters==='function') renderAdminFilters();
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify({savedAt:Date.now(),rows:rows}));}catch(e){}
+  render(rows);
 }
+
 
 function openRegistration(){
   window.aezRegistrationOpen = true;
@@ -2491,6 +2518,7 @@ function backToEntryFromGangRegistration(){
 }
 
 function enterArenaAsMember(){
+  loadApprovedGangOptions(false);
   /* Member/Gangster entry is isolated to the member Secure Access screen.
      The Admin Command screen is explicitly hidden and cannot appear behind it. */
   arenaEntryMode='member';
@@ -2655,7 +2683,7 @@ function goToMemberSecureAccess(){
   if(codenameInput) codenameInput.disabled=false;
 
   hideLoginError();
-  loadApprovedGangOptions();
+  loadApprovedGangOptions(false);
   var email=document.getElementById('emailInput');
   if(email) setTimeout(function(){ email.focus(); },50);
 }
@@ -3463,7 +3491,11 @@ function closeMobileMenu(){
 }
 window.addEventListener('keydown',function(e){ if(e.key==='Escape') closeMobileMenu(); });
 window.addEventListener('resize',function(){ if(window.innerWidth>960) closeMobileMenu(); });
-document.addEventListener('DOMContentLoaded',initMobileMenu);
+document.addEventListener('DOMContentLoaded',function(){
+  initMobileMenu();
+  /* Warm the active-gang cache before the member reaches Secure Access. */
+  setTimeout(function(){loadApprovedGangOptions(false);},0);
+});
 
 function nav(el){
   closeMobileMenu();
@@ -3910,20 +3942,20 @@ async function loadGangRegistrations(){
     var arenaStatus=g.arena_status||'active';
     var arenaLabels={active:'Active',inactive:'Inactive',hiatus:'Hiatus',not_in_arena:'Does Not Belong / Left Already'};
     var arenaStatusLabel=arenaLabels[arenaStatus]||arenaStatus;
-    var arenaStatusActions=status==='approved' ? '<div class="gang-admin-actions" style="margin-top:12px"><label style="display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Arena Gang Status</label><select class="admin-search-select" style="min-width:220px" onchange="updateGangArenaStatus(\''+escapeHtml(g.id)+"\',this.value)" data-gang-status-id="'+escapeHtml(g.id)+'"><option value="active"'+(arenaStatus==='active'?' selected':'')+'>Active</option><option value="inactive"'+(arenaStatus==='inactive'?' selected':'')+'>Inactive</option><option value="hiatus"'+(arenaStatus==='hiatus'?' selected':'')+'>Hiatus</option><option value="not_in_arena"'+(arenaStatus==='not_in_arena'?' selected':'')+'>Does Not Belong / Left Already</option></select></div>' : '';
+    var arenaStatusActions=status==='approved' ? '<div class="gang-admin-actions" style="margin-top:12px"><label style="display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Arena Gang Status</label><select class="admin-search-select" style="min-width:220px" data-gang-status-id="'+escapeHtml(g.id)+'" onchange="updateGangArenaStatus(this.dataset.gangStatusId,this.value)"><option value="active"'+(arenaStatus==='active'?' selected':'')+'>Active</option><option value="inactive"'+(arenaStatus==='inactive'?' selected':'')+'>Inactive</option><option value="hiatus"'+(arenaStatus==='hiatus'?' selected':'')+'>Hiatus</option><option value="not_in_arena"'+(arenaStatus==='not_in_arena'?' selected':'')+'>Does Not Belong / Left Already</option></select></div>' : '';
     return '<article class="gang-admin-item"><div class="gang-admin-head"><div><div class="gang-admin-name">'+escapeHtml(g.gang_name||'Unnamed Gang')+' <span style="color:var(--gold)">['+escapeHtml(g.gang_initial||'—')+']</span></div><div class="gang-admin-meta">Submitted by '+escapeHtml(g.email||'—')+' · '+escapeHtml(formatAdminDate(g.created_at))+'</div></div><span class="gang-status '+escapeHtml(status)+'">'+escapeHtml(status)+'</span></div><div class="gang-admin-fields">'+
       gangCell('Alias / Alis',g.alias)+gangCell('Motto',g.motto)+gangCell('Date Created',formatAdminJoinedDate(g.date_created))+gangCell('Active Members',g.active_members)+gangCell("Leader's Name",g.leader_name)+gangCell('Co-leader',g.coo_leader_name)+gangCell('Officer Email',g.email)+gangCell('Arena Status',arenaStatusLabel)+gangCell('Status Changed',g.arena_status_changed_at?formatAdminDate(g.arena_status_changed_at):'—')+'</div>'+actions+arenaStatusActions+'</article>';
   }).join('');
 }
 function gangCell(label,value){return '<div class="gang-admin-field"><div class="label">'+escapeHtml(label)+'</div><div class="value">'+escapeHtml(value==null||value===''?'—':value)+'</div></div>';}
 async function updateGangArenaStatus(id,newStatus){
-  if(!currentProfile || !['owner','admin'].includes(String(currentProfile.role||'').toLowerCase())){alert('Restricted: only an ÆZ Owner or Admin can change a gang's Arena status.');return;}
+  if(!currentProfile || !['owner','admin'].includes(String(currentProfile.role||'').toLowerCase())){alert("Restricted: only an ÆZ Owner or Admin can change a gang's Arena status.");return;}
   var allowed=['active','inactive','hiatus','not_in_arena'];
   if(!allowed.includes(newStatus)){alert('Invalid Arena gang status.');return;}
   var old=(gangRegistrationData.find(function(g){return String(g.id)===String(id);})||{}).arena_status||'active';
   if(old===newStatus) return;
   var labels={active:'Active',inactive:'Inactive',hiatus:'Hiatus',not_in_arena:'Does Not Belong / Left Already'};
-  if(!confirm('Change this gang's Arena status to '+labels[newStatus]+'?')){await loadGangRegistrations();return;}
+  if(!confirm("Change this gang's Arena status to "+labels[newStatus]+"?")){await loadGangRegistrations();return;}
   var upd=await supabaseClient.from('gang_registrations').update({arena_status:newStatus,arena_status_changed_by:currentProfile.id}).eq('id',id).eq('status','approved');
   if(upd.error){alert('Could not update the gang status: '+upd.error.message);await loadGangRegistrations();return;}
   await logAgentActivity('Changed Gang Arena Status','ADMIN','Updated the Arena status of a gang.',{gang_registration_id:id,arena_status:newStatus,previous_arena_status:old});
@@ -4035,7 +4067,7 @@ async function loadMemberApprovalTools(){
 
   if(role==='owner'||role==='admin'){
     if(title) title.textContent='MEMBER APPROVAL CONTROL';
-    if(subtitle) subtitle.textContent='Review registrations and control which gang officers may approve members.';
+    if(subtitle) subtitle.textContent='Review registrations from ALL gangs and control which gang officers may approve members.';
     if(officerList) officerList.innerHTML='<div class="page-sub" style="padding:8px 2px">Loading officer permissions…</div>';
 
     var officers=await supabaseClient.rpc('aez_list_member_approval_officers');
@@ -4057,7 +4089,7 @@ async function loadMemberApprovalTools(){
     }
   }else{
     if(title) title.textContent='GANG MEMBER APPROVALS';
-    if(subtitle) subtitle.textContent='You can approve members of your gang only when Owner/Admin has enabled your approval permission.';
+    if(subtitle) subtitle.textContent='You can approve members of your own gang only when Owner/Admin has enabled your approval permission. Arena Admins/Owner can approve members from ALL gangs.';
     if(officerList) officerList.innerHTML='';
   }
 

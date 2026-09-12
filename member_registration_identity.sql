@@ -15,21 +15,23 @@ create unique index if not exists profiles_facebook_uid_unique
   on public.profiles (trim(facebook_uid))
   where facebook_uid is not null and trim(facebook_uid) <> '';
 
--- Return only approved gang initials to the registration UI. This avoids
--- exposing the gang officer email or other gang-registration fields.
+-- Return only approved, active gang names/initials to the registration UI.
+-- This avoids exposing the gang officer email or other gang-registration fields.
 create or replace function public.aez_approved_gang_initials()
-returns table(gang_initial text)
+returns table(gang_initial text, gang_name text)
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select distinct upper(trim(gr.gang_initial)) as gang_initial
+  select upper(trim(gr.gang_initial)) as gang_initial,
+         max(trim(coalesce(gr.gang_name,''))) as gang_name
   from public.gang_registrations gr
   where gr.status = 'approved'
     and coalesce(gr.arena_status,'active') = 'active'
     and trim(coalesce(gr.gang_initial,'')) <> ''
-  order by 1;
+  group by upper(trim(gr.gang_initial))
+  order by upper(trim(gr.gang_initial));
 $$;
 
 revoke execute on function public.aez_approved_gang_initials() from public;
