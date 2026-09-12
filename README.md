@@ -22,3 +22,7 @@ This project is configured as an installable Progressive Web App (PWA) for Andro
 - The app uses `manifest.json`, a versioned `sw.js` service worker, and PNG icons for broad install compatibility.
 
 After deploying an update, the service worker cache version should be incremented when cached shell files change.
+
+
+## Gang Registration
+A public **Register Gang** flow is included. One officer submits the gang details and verifies a real email address before the registration enters Admin Review. See `GANG_REGISTRATION_SETUP.md` and `gang_registrations.sql` for Supabase setup.

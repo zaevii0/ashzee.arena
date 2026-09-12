@@ -1240,6 +1240,46 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
 <link rel="stylesheet" href="aez-ios-design.css">
 <link rel="stylesheet" href="aez-light-palette.css">
 <link rel="stylesheet" href="aez-premium-ui.css">
+
+<style id="aez-gang-registration-style">
+.gang-register-card{max-width:560px!important;width:min(100%,560px)!important}
+.gang-register-intro{font-size:12px;line-height:1.6;color:var(--ash-dim);margin:-4px 0 18px;text-align:left}
+.gang-register-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gang-register-grid .full{grid-column:1/-1}
+.gang-verify-box{display:none;margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.gang-verify-box.show{display:block}
+.gang-verify-title{font-size:11px;letter-spacing:.1em;color:var(--gold);font-weight:700;margin-bottom:6px}
+.gang-verify-copy{font-size:12px;line-height:1.5;color:var(--ash-dim);margin-bottom:12px}
+.gang-otp{letter-spacing:.35em;text-align:center;font-size:20px;font-weight:700}
+.gang-success{display:none;text-align:center;padding:10px 0 4px}
+.gang-success.show{display:block}
+.gang-success .stamp{display:inline-flex;margin-bottom:14px}
+.gang-success h2{font-size:21px;margin-bottom:8px}
+.gang-success p{font-size:12px;line-height:1.65;color:var(--ash-dim);margin:0 auto 18px;max-width:440px}
+.gang-open-btn{margin-top:10px!important;max-width:420px!important}
+.gang-admin-list{display:grid;gap:12px}
+.gang-admin-item{border:1px solid var(--line);border-radius:18px;padding:15px;background:rgba(255,255,255,.02)}
+.gang-admin-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.gang-admin-name{font-size:16px;font-weight:700}
+.gang-admin-meta{font-size:10px;color:var(--ash-dim);margin-top:3px;line-height:1.5}
+.gang-admin-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+.gang-admin-field{padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.025);min-width:0}
+.gang-admin-field.full{grid-column:1/-1}
+.gang-admin-field .label{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--ash-dim);margin-bottom:4px}
+.gang-admin-field .value{font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+.gang-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.gang-status{font-size:9px;text-transform:uppercase;letter-spacing:.08em;border-radius:999px;padding:5px 8px;border:1px solid var(--line);white-space:nowrap}
+.gang-status.pending{color:var(--gold);border-color:rgba(201,162,39,.3);background:rgba(201,162,39,.07)}
+.gang-status.approved{color:#78d69a;border-color:rgba(120,214,154,.25);background:rgba(120,214,154,.06)}
+.gang-status.rejected{color:#ff8b8b;border-color:rgba(255,139,139,.25);background:rgba(255,139,139,.06)}
+@media(max-width:600px){
+  .gang-register-grid,.gang-admin-fields{grid-template-columns:1fr}
+  .gang-register-grid .full,.gang-admin-field.full{grid-column:auto}
+  .gang-register-card{padding:22px!important}
+  .gang-admin-head{flex-direction:column}
+}
+body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mode .gang-admin-field{background:rgba(118,118,128,.06)!important;border-color:var(--aez-light-border)!important}
+</style>
 </head>
 <body>
 <style id="aez-entry-initial-lock">
@@ -1265,6 +1305,10 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
     <button class="enter-btn entry-btn-admin" onclick="enterArenaAsAdmin()" aria-label="Enter the Arena as Admin Command">
       <span>Admin Command</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+    </button>
+    <button class="enter-btn gang-open-btn" onclick="openGangRegistration(); return false;" aria-label="Register a gang">
+      <span>Register Gang</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
     </button>
   </div>
   <div class="landing-foot">
@@ -1911,6 +1955,73 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
   </div>
 </section>
 
+<!-- ============ GANG REGISTRATION ============ -->
+<section id="gangRegister" class="screen" aria-label="Gang Registration">
+  <div class="login-card gang-register-card" id="gangRegisterCard">
+    <div class="login-head">
+      <div class="glyph">ÆZ GANG REGISTRATION</div>
+      <div class="sub">ONE OFFICER · ONE OFFICIAL GANG SUBMISSION</div>
+    </div>
+    <div id="gangRegisterForm">
+      <div class="gang-register-intro">Only one authorized gang officer should complete this form for the whole gang. A real email is required and must be verified before the registration is submitted to Division Command.</div>
+      <div class="gang-register-grid">
+        <div class="field full" id="grFieldEmail">
+          <label>Officer's Email</label>
+          <input type="email" id="grEmailInput" placeholder="officer@example.com" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="254" required oninput="clearFieldError('grFieldEmail')">
+        </div>
+        <div class="field" id="grFieldName">
+          <label>Gang Name</label>
+          <input type="text" id="grGangNameInput" placeholder="e.g. NUDE Gang" maxlength="80" oninput="clearFieldError('grFieldName')">
+        </div>
+        <div class="field" id="grFieldInitial">
+          <label>Gang Initial</label>
+          <input type="text" id="grGangInitialInput" placeholder="e.g. NG" maxlength="12" oninput="this.value=this.value.toUpperCase();clearFieldError('grFieldInitial')">
+        </div>
+        <div class="field" id="grFieldAlias">
+          <label>Alias / Alis</label>
+          <input type="text" id="grAliasInput" placeholder="Gang alias" maxlength="80" oninput="clearFieldError('grFieldAlias')">
+        </div>
+        <div class="field" id="grFieldCreated">
+          <label>Date Created</label>
+          <input type="date" id="grCreatedInput" onchange="clearFieldError('grFieldCreated')">
+        </div>
+        <div class="field" id="grFieldMembers">
+          <label>Active Members</label>
+          <input type="number" id="grMembersInput" placeholder="0" min="1" max="9999" inputmode="numeric" oninput="clearFieldError('grFieldMembers')">
+        </div>
+        <div class="field full" id="grFieldMotto">
+          <label>Motto</label>
+          <input type="text" id="grMottoInput" placeholder="Gang motto" maxlength="160" oninput="clearFieldError('grFieldMotto')">
+        </div>
+        <div class="field" id="grFieldLeader">
+          <label>Leader's Name</label>
+          <input type="text" id="grLeaderInput" placeholder="Full name / RP name" maxlength="100" oninput="clearFieldError('grFieldLeader')">
+        </div>
+        <div class="field" id="grFieldCoo">
+          <label>COO Leader's Name</label>
+          <input type="text" id="grCooInput" placeholder="Full name / RP name" maxlength="100" oninput="clearFieldError('grFieldCoo')">
+        </div>
+      </div>
+      <div class="login-error" id="gangRegisterError" style="display:none"></div>
+      <button class="enter-full" id="gangRegisterSendBtn" onclick="sendGangVerification()">Verify Email & Continue</button>
+      <button type="button" class="entry-back-btn" onclick="backToEntryFromGangRegistration(); return false;">Back to entry selection</button>
+      <div class="login-note">Your email is used only to verify the submitting officer and associate the submission with the person who registered the gang.</div>
+    </div>
+    <div class="gang-verify-box" id="gangVerifyBox">
+      <div class="gang-verify-title">EMAIL VERIFICATION SENT</div>
+      <div class="gang-verify-copy">Open the verification email sent to <strong id="gangVerifyEmail">—</strong>. After verification, return to ÆZ Arena. If your Supabase email template uses a verification link, simply tap the link.</div>
+      <button type="button" class="enter-full" onclick="checkGangVerification()">I've Verified My Email</button>
+      <button type="button" class="entry-back-btn" onclick="backToEntryFromGangRegistration(); return false;">Cancel</button>
+    </div>
+    <div class="gang-success" id="gangRegisterSuccess">
+      <div class="stamp active">SUBMITTED FOR REVIEW</div>
+      <h2>Gang registration received.</h2>
+      <p id="gangSuccessCopy">Your gang information has been securely submitted to Division Command. The gang will not be treated as officially registered until an authorized admin approves it.</p>
+      <button type="button" class="enter-full" onclick="backToEntryFromGangRegistration(); return false;">Return to Entry Page</button>
+    </div>
+  </div>
+</section>
+
 <!-- CASE FILE MODAL -->
 <div class="modal-veil" id="caseModal" onclick="closeModalOutside(event)">
   <div class="sheet">
@@ -1940,7 +2051,7 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
     </div>
     <div class="admin-review-head-actions">
       <button type="button" class="admin-page-btn" onclick="exitAdminReviewPage(); return false;">Back to Main Page</button>
-      <button type="button" class="admin-page-btn primary" onclick="loadAdminApplications(); return false;">Refresh</button>
+      <button type="button" class="admin-page-btn primary" onclick="loadAdminApplications(); loadGangRegistrations(); return false;">Refresh</button>
     </div>
   </div>
   <div class="admin-review-shell">
@@ -1985,6 +2096,18 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
       </div>
     </div>
     </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="admin-roster-head">
+      <div>
+        <div class="title">GANG REGISTRATIONS</div>
+        <div class="page-sub" style="margin-top:3px">Review one-officer gang submissions before they become official.</div>
+      </div>
+      <button type="button" class="admin-page-btn" onclick="loadGangRegistrations(); return false;">Refresh</button>
+    </div>
+    <div id="gangRegistrationStatus" class="pill" style="margin:10px 0">Loading…</div>
+    <div id="gangRegistrationList" class="gang-admin-list"><div class="page-sub">Loading…</div></div>
+  </div>
+
   <div class="card" style="margin-top:16px;">
     <div class="admin-roster-head">
       <div>
@@ -2103,7 +2226,7 @@ function showScreen(id){
   /* While registration is open, no other screen is allowed to replace it.
      This protects the registration view from session/auth callbacks firing
      in the background and accidentally bringing Secure Access back. */
-  if(window.aezRegistrationOpen && id !== 'signup'){
+  if(window.aezRegistrationOpen && id !== 'signup' && id !== 'gangRegister'){
     id = 'signup';
   }
 
@@ -2112,7 +2235,7 @@ function showScreen(id){
   /* Registration is a hard visual boundary: when opened, hide every other
      screen explicitly (not only via the .active class). This prevents the
      login / Secure Access UI from remaining visible behind registration. */
-  if(id === 'signup'){
+  if(id === 'signup' || id === 'gangRegister'){
     screens.forEach(function(s){
       s.classList.remove('active');
       s.style.display = 'none';
@@ -2148,7 +2271,7 @@ function showScreen(id){
   var screen = document.getElementById(id);
   if(screen){
     screen.classList.add('active');
-    screen.style.display = (id === 'login' || id === 'signup' || id === 'adminLogin') ? 'flex' : 'block';
+    screen.style.display = (id === 'login' || id === 'signup' || id === 'gangRegister' || id === 'adminLogin') ? 'flex' : 'block';
     screen.setAttribute('aria-hidden','false');
   }
 }
@@ -2188,6 +2311,117 @@ function openRegistration(){
    fade out the splash screen, remove it completely, then show
    the requested access screen. */
 var arenaEntryMode = 'member';
+
+function openGangRegistration(){
+  window.aezRegistrationOpen=true;
+  sessionStorage.setItem('aez_arena_entered','1');
+  document.querySelectorAll('.screen').forEach(function(screen){
+    screen.classList.remove('active');
+    screen.style.setProperty('display','none','important');
+    screen.setAttribute('aria-hidden','true');
+  });
+  var screen=document.getElementById('gangRegister');
+  if(screen){screen.classList.add('active');screen.style.setProperty('display','flex','important');screen.setAttribute('aria-hidden','false');}
+  var form=document.getElementById('gangRegisterForm');
+  var verify=document.getElementById('gangVerifyBox');
+  var success=document.getElementById('gangRegisterSuccess');
+  if(form) form.style.display='block';
+  if(verify) verify.classList.remove('show');
+  if(success) success.classList.remove('show');
+  hideGangRegistrationError();
+}
+function showGangRegistrationError(msg){
+  var el=document.getElementById('gangRegisterError'); if(!el) return;
+  el.textContent=msg; el.style.display='flex';
+  var card=document.getElementById('gangRegisterCard');
+  if(card){card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake');}
+}
+function hideGangRegistrationError(){var el=document.getElementById('gangRegisterError');if(el){el.style.display='none';el.textContent='';}}
+function clearGangRegistrationFields(){
+  ['grEmailInput','grGangNameInput','grGangInitialInput','grAliasInput','grCreatedInput','grMembersInput','grMottoInput','grLeaderInput','grCooInput'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+}
+function validGangEmail(input){
+  if(!input || !input.checkValidity()) return false;
+  var email=input.value.trim().toLowerCase(), at=email.lastIndexOf('@'), domain=at<0?'':email.slice(at+1);
+  if(email.length>254 || !domain || domain.indexOf('.')<1) return false;
+  return domain.split('.').every(function(label){return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(label);});
+}
+function getGangRegistrationPayload(){
+  return {
+    email:document.getElementById('grEmailInput').value.trim().toLowerCase(),
+    gang_name:document.getElementById('grGangNameInput').value.trim(),
+    gang_initial:document.getElementById('grGangInitialInput').value.trim().toUpperCase(),
+    alias:document.getElementById('grAliasInput').value.trim(),
+    motto:document.getElementById('grMottoInput').value.trim(),
+    date_created:document.getElementById('grCreatedInput').value,
+    active_members:Number(document.getElementById('grMembersInput').value),
+    leader_name:document.getElementById('grLeaderInput').value.trim(),
+    coo_leader_name:document.getElementById('grCooInput').value.trim()
+  };
+}
+function validateGangRegistration(p){
+  ['grFieldEmail','grFieldName','grFieldInitial','grFieldAlias','grFieldCreated','grFieldMembers','grFieldMotto','grFieldLeader','grFieldCoo'].forEach(clearFieldError);
+  var missing=[];
+  if(!p.email) {markFieldError('grFieldEmail');missing.push('officer email');}
+  if(!p.gang_name){markFieldError('grFieldName');missing.push('gang name');}
+  if(!p.gang_initial){markFieldError('grFieldInitial');missing.push('gang initial');}
+  if(!p.alias){markFieldError('grFieldAlias');missing.push('alias');}
+  if(!p.motto){markFieldError('grFieldMotto');missing.push('motto');}
+  if(!p.date_created){markFieldError('grFieldCreated');missing.push('date created');}
+  if(!Number.isInteger(p.active_members)||p.active_members<1){markFieldError('grFieldMembers');missing.push('active member count');}
+  if(!p.leader_name){markFieldError('grFieldLeader');missing.push("leader's name");}
+  if(!p.coo_leader_name){markFieldError('grFieldCoo');missing.push("COO leader's name");}
+  if(missing.length){showGangRegistrationError('Complete '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+'.');return false;}
+  if(!validGangEmail(document.getElementById('grEmailInput'))){markFieldError('grFieldEmail');showGangRegistrationError('Enter a valid email address that can receive verification mail.');return false;}
+  return true;
+}
+async function sendGangVerification(){
+  hideGangRegistrationError();
+  if(!supabaseReady){showGangRegistrationError('Supabase is not configured.');return;}
+  var p=getGangRegistrationPayload();
+  if(!validateGangRegistration(p)) return;
+  var btn=document.getElementById('gangRegisterSendBtn'); if(btn){btn.disabled=true;btn.textContent='Sending Verification…';}
+  /* Store only the submitted gang fields locally until the verified email session is established. */
+  localStorage.setItem('aez_pending_gang_registration',JSON.stringify(p));
+  var auth=await supabaseClient.auth.signInWithOtp({email:p.email,options:{shouldCreateUser:true,emailRedirectTo:window.location.origin+window.location.pathname}});
+  if(auth.error){localStorage.removeItem('aez_pending_gang_registration');if(btn){btn.disabled=false;btn.textContent='Verify Email & Continue';}showGangRegistrationError(auth.error.message);return;}
+  document.getElementById('gangVerifyEmail').textContent=p.email;
+  document.getElementById('gangVerifyBox').classList.add('show');
+  if(btn){btn.disabled=false;btn.textContent='Verification Email Sent';}
+}
+async function checkGangVerification(){
+  var r=await supabaseClient.auth.getUser();
+  if(r.error || !r.data || !r.data.user){
+    showGangRegistrationError('Your email is not verified in this browser yet. Open the verification email, tap the link, then return here.');
+    return;
+  }
+  await finalizeGangRegistration(r.data.user);
+}
+async function finalizeGangRegistration(user){
+  var raw=localStorage.getItem('aez_pending_gang_registration');
+  if(!raw || !user) return false;
+  var p; try{p=JSON.parse(raw);}catch(e){localStorage.removeItem('aez_pending_gang_registration');return false;}
+  if(String(user.email||'').toLowerCase()!==String(p.email||'').toLowerCase()){
+    showGangRegistrationError('The verified email does not match the email used for this gang registration.');
+    return false;
+  }
+  var insert=await supabaseClient.from('gang_registrations').insert({officer_user_id:user.id,email:p.email,gang_name:p.gang_name,gang_initial:p.gang_initial,alias:p.alias,motto:p.motto,date_created:p.date_created,active_members:p.active_members,leader_name:p.leader_name,coo_leader_name:p.coo_leader_name,status:'pending'}).select('id').single();
+  if(insert.error){
+    var duplicate=/duplicate|unique/i.test(insert.error.message||'');
+    showGangRegistrationError(duplicate?'That gang name or initial is already registered or awaiting review.':'Gang registration could not be saved: '+insert.error.message);
+    return false;
+  }
+  localStorage.removeItem('aez_pending_gang_registration');
+  await supabaseClient.auth.signOut();
+  document.getElementById('gangRegisterForm').style.display='none';
+  document.getElementById('gangVerifyBox').classList.remove('show');
+  document.getElementById('gangRegisterSuccess').classList.add('show');
+  return true;
+}
+function backToEntryFromGangRegistration(){
+  window.aezRegistrationOpen=false;sessionStorage.removeItem('aez_arena_entered');arenaEntryMode='member';currentAgent=null;currentProfile=null;document.body.classList.remove('authenticated');
+  if(supabaseClient){supabaseClient.auth.signOut().finally(showEntryPageOnly);}else{showEntryPageOnly();}
+}
 
 function enterArenaAsMember(){
   /* Member/Gangster entry is isolated to the member Secure Access screen.
@@ -2267,7 +2501,7 @@ function backToEntryFromAdmin(){
   }
 }
 
-var ENTRY_PAGE_MARKUP = "<section id=\"landing\" class=\"screen active\">\n  <div class=\"grid-veil\"></div>\n  <div class=\"noise-drift\"></div>\n  <div class=\"mark-glyph\"><span class=\"dot\"></span> SECURE CHANNEL · ENCRYPTED</div>\n  <div class=\"wordmark\">ÆZ<small>Ash · Zee Arena</small></div>\n  <div class=\"tagline\">\"Beyond the source code.\"</div>\n  <div class=\"entry-choice-label\"></div>\n  <div class=\"entry-choice-grid\">\n    <button class=\"enter-btn entry-btn-primary\" onclick=\"enterArenaAsMember()\" aria-label=\"Enter the Arena as Gangster or Member\">\n      <span>Gang Member</span>\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg>\n    </button>\n    <button class=\"enter-btn entry-btn-admin\" onclick=\"enterArenaAsAdmin()\" aria-label=\"Enter the Arena as Admin Command\">\n      <span>Admin Command</span>\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z\"/><path d=\"m9 12 2 2 4-4\"/></svg>\n    </button>\n  </div>\n  <div class=\"landing-foot\">\n    <span>EST. 2024</span><span>DIVISION-CLASS SYSTEM</span><span>NO PUBLIC RECORD</span>\n  </div>\n</section>";
+var ENTRY_PAGE_MARKUP = "<section id=\"landing\" class=\"screen active\">\n  <div class=\"grid-veil\"></div>\n  <div class=\"noise-drift\"></div>\n  <div class=\"mark-glyph\"><span class=\"dot\"></span> SECURE CHANNEL · ENCRYPTED</div>\n  <div class=\"wordmark\">ÆZ<small>Ash · Zee Arena</small></div>\n  <div class=\"tagline\">\"Beyond the source code.\"</div>\n  <div class=\"entry-choice-label\"></div>\n  <div class=\"entry-choice-grid\">\n    <button class=\"enter-btn entry-btn-primary\" onclick=\"enterArenaAsMember()\" aria-label=\"Enter the Arena as Gangster or Member\">\n      <span>Gang Member</span>\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg>\n    </button>\n    <button class=\"enter-btn entry-btn-admin\" onclick=\"enterArenaAsAdmin()\" aria-label=\"Enter the Arena as Admin Command\">\n      <span>Admin Command</span>\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z\"/><path d=\"m9 12 2 2 4-4\"/></svg>\n    </button>\n    <button class=\"enter-btn gang-open-btn\" onclick=\"openGangRegistration(); return false;\" aria-label=\"Register a gang\">\n      <span>Register Gang</span>\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 5v14M5 12h14\"/></svg>\n    </button>\n  </div>\n  <div class=\"landing-foot\">\n    <span>EST. 2024</span><span>DIVISION-CLASS SYSTEM</span><span>NO PUBLIC RECORD</span>\n  </div>\n</section>"
 
 function showEntryPageOnly(){
   /* Hard-return to the exact first entry page. Rebuild it if a previous
@@ -3117,6 +3351,7 @@ function nav(el){
     }
     window.scrollTo({top:0,behavior:'instant'});
     loadAdminApplications();
+    loadGangRegistrations();
     return;
   }
 
@@ -3210,6 +3445,9 @@ async function restoreSupabaseSession(){
    from remaining visible after an expired/removed session. */
 if(supabaseReady){
   supabaseClient.auth.onAuthStateChange(function(event, session){
+    if(event==='SIGNED_IN' && session && localStorage.getItem('aez_pending_gang_registration')){
+      setTimeout(function(){ finalizeGangRegistration(session.user).catch(function(err){ console.warn('Gang registration finalization failed:',err); }); },250);
+    }
     if(event==='SIGNED_OUT' || !session){
       document.body.classList.remove('authenticated');
       currentAgent=null;
@@ -3511,6 +3749,37 @@ async function rejectProfileChangeRequest(id){
   var done=await supabaseClient.from('profile_change_requests').update({status:'rejected',reviewed_by:currentProfile.id,reviewed_at:new Date().toISOString(),rejection_reason:reason.trim()||null}).eq('id',id).eq('status','pending');
   if(done.error){alert('Could not reject the request: '+done.error.message+'\n\nMake sure the profile_change_requests UPDATE policy from the supplied SQL has been applied.');return;}
   await loadProfileChangeRequests();
+}
+
+var gangRegistrationData=[];
+async function loadGangRegistrations(){
+  var box=document.getElementById('gangRegistrationList'), statusEl=document.getElementById('gangRegistrationStatus');
+  if(!box || !currentProfile || !['admin','owner'].includes(currentProfile.role)) return;
+  if(statusEl) statusEl.textContent='Loading gang registrations…';
+  var res=await supabaseClient.from('gang_registrations').select('*').order('created_at',{ascending:false});
+  if(res.error){if(statusEl)statusEl.textContent='Could not load: '+res.error.message;if(box)box.innerHTML='<div class="page-sub">Create the gang_registrations table and apply the supplied RLS SQL.</div>';return;}
+  gangRegistrationData=res.data||[];
+  var pending=gangRegistrationData.filter(function(x){return x.status==='pending';}).length;
+  if(statusEl)statusEl.textContent=gangRegistrationData.length+' total · '+pending+' pending';
+  if(!gangRegistrationData.length){box.innerHTML='<div class="page-sub">No gang registrations yet.</div>';return;}
+  box.innerHTML=gangRegistrationData.map(function(g){
+    var status=g.status||'pending';
+    var actions=status==='pending'?'<div class="gang-admin-actions"><button class="admin-btn approve" onclick="reviewGangRegistration(\''+escapeHtml(g.id)+'\',\'approved\')">Approve Gang</button><button class="admin-btn reject" onclick="reviewGangRegistration(\''+escapeHtml(g.id)+'\',\'rejected\')">Reject Gang</button></div>':'';
+    return '<article class="gang-admin-item"><div class="gang-admin-head"><div><div class="gang-admin-name">'+escapeHtml(g.gang_name||'Unnamed Gang')+' <span style="color:var(--gold)">['+escapeHtml(g.gang_initial||'—')+']</span></div><div class="gang-admin-meta">Submitted by '+escapeHtml(g.email||'—')+' · '+escapeHtml(formatAdminDate(g.created_at))+'</div></div><span class="gang-status '+escapeHtml(status)+'">'+escapeHtml(status)+'</span></div><div class="gang-admin-fields">'+
+      gangCell('Alias / Alis',g.alias)+gangCell('Motto',g.motto)+gangCell('Date Created',formatAdminJoinedDate(g.date_created))+gangCell('Active Members',g.active_members)+gangCell("Leader's Name",g.leader_name)+gangCell('COO Leader',g.coo_leader_name)+gangCell('Officer Email',g.email)+gangCell('Decision',g.reviewed_at?formatAdminDate(g.reviewed_at):'Pending')+'</div>'+actions+'</article>';
+  }).join('');
+}
+function gangCell(label,value){return '<div class="gang-admin-field"><div class="label">'+escapeHtml(label)+'</div><div class="value">'+escapeHtml(value==null||value===''?'—':value)+'</div></div>';}
+async function reviewGangRegistration(id,status){
+  if(!currentProfile || !['owner','admin'].includes(currentProfile.role)){alert('Restricted: only an ÆZ Owner or Admin can review gang registrations.');return;}
+  var verb=status==='approved'?'approve':'reject';
+  var reason=null;
+  if(status==='rejected'){reason=prompt('Reason for rejecting this gang registration:','Please revise the submitted information.');if(reason===null)return;}
+  else if(!confirm('Approve this gang registration?')) return;
+  var upd=await supabaseClient.from('gang_registrations').update({status:status,reviewed_by:currentProfile.id,reviewed_at:new Date().toISOString(),rejection_reason:reason?reason.trim():null}).eq('id',id).eq('status','pending');
+  if(upd.error){alert('Could not '+verb+' the gang: '+upd.error.message+'\\n\\nMake sure the gang_registrations RLS policies are applied.');return;}
+  await logAgentActivity((status==='approved'?'Approved':'Rejected')+' Gang Registration','ADMIN','Reviewed a gang registration.',{gang_registration_id:id,status:status});
+  await loadGangRegistrations();
 }
 
 async function loadAdminApplications(){
