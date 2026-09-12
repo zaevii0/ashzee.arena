@@ -1438,8 +1438,12 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
         <input type="text" placeholder="Choose a codename" id="suCodenameInput" oninput="clearFieldError('suFieldCodename')">
       </div>
       <div class="field" id="suFieldFb">
-        <label>Facebook UID</label>
-        <input type="text" placeholder="e.g. 100081234567890" id="suFbInput" oninput="clearFieldError('suFieldFb')">
+        <label>Facebook Profile Link</label>
+        <input type="url" placeholder="https://www.facebook.com/your.profile" id="suFbLinkInput" autocomplete="url" oninput="handleFacebookLinkInput(this)">
+        <div class="login-note" style="margin-top:7px;">Paste your Facebook profile link. If the numeric Facebook UID is present in the link, it will be filled automatically below. You can also enter the UID manually.</div>
+        <label style="margin-top:12px;">Facebook UID</label>
+        <input type="text" placeholder="e.g. 100081234567890" id="suFbInput" inputmode="numeric" oninput="clearFieldError('suFieldFb'); this.value=this.value.replace(/\D/g,'')">
+        <div id="suFbHint" class="login-note" style="margin-top:6px;display:none;"></div>
       </div>
       <div class="field" id="suFieldJoined">
         <label>Date joined the gang</label>
@@ -3107,6 +3111,50 @@ function showSignupError(msg){
   el.style.display = 'flex';
   var card = document.getElementById('signupCard');
   card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+}
+
+/* Facebook profile URL helper. A numeric UID can be extracted locally from
+   common profile URLs such as /profile.php?id=123 or /123456789012345/.
+   Vanity URLs (facebook.com/username) cannot reliably be resolved to a UID
+   from the browser without Facebook's API and an approved app/token, so the
+   manual UID field remains available. */
+function extractFacebookUid(value){
+  var raw=(value||'').trim();
+  if(!raw) return '';
+  var candidate=raw;
+  if(/^\d{5,30}$/.test(candidate)) return candidate;
+  try{
+    var url=new URL(/^https?:\/\//i.test(candidate)?candidate:'https://'+candidate);
+    var host=url.hostname.toLowerCase().replace(/^www\./,'');
+    if(host!=='facebook.com' && !host.endsWith('.facebook.com')) return '';
+    var id=url.searchParams.get('id');
+    if(id && /^\d{5,30}$/.test(id)) return id;
+    var parts=url.pathname.split('/').filter(Boolean);
+    for(var i=0;i<parts.length;i++){
+      if(/^\d{5,30}$/.test(parts[i])) return parts[i];
+    }
+  }catch(e){}
+  return '';
+}
+
+function handleFacebookLinkInput(input){
+  var link=input.value.trim();
+  var uid=extractFacebookUid(link);
+  var uidInput=document.getElementById('suFbInput');
+  var hint=document.getElementById('suFbHint');
+  clearFieldError('suFieldFb');
+  if(uid){
+    uidInput.value=uid;
+    hint.textContent='Facebook UID detected automatically: '+uid;
+    hint.style.display='block';
+    return;
+  }
+  if(link){
+    hint.textContent='This profile link does not expose a numeric UID. If Facebook uses a username in the link, enter the Facebook UID manually.';
+    hint.style.display='block';
+  }else{
+    hint.style.display='none';
+  }
 }
 
 /* Browser validation catches malformed addresses before a request is sent.
