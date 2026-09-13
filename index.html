@@ -1295,6 +1295,86 @@ body.light-mode .entry-back-btn{background:rgba(118,118,128,.08)!important;color
 }
 body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mode .gang-admin-field{background:rgba(118,118,128,.06)!important;border-color:var(--aez-light-border)!important}
 </style>
+
+<style id="aez-reference-redesign">
+/* =========================================================
+   ÆZ ARENA — Reference redesign
+   Direction: iOS glass + Carrd editorial simplicity + command dashboard
+   ========================================================= */
+#landing{min-height:100svh!important;display:block!important;padding:0!important;text-align:left!important;overflow:auto!important;background:
+  radial-gradient(900px 500px at 12% 5%,rgba(142,164,194,.10),transparent 62%),
+  radial-gradient(800px 500px at 88% 45%,rgba(181,150,67,.07),transparent 65%),var(--void)!important;}
+#landing .grid-veil{opacity:.38;mask-image:radial-gradient(ellipse 90% 75% at 50% 45%,black,transparent 88%);}
+#landing .noise-drift{opacity:.55;}
+.landing-shell{width:min(1440px,calc(100% - 44px));margin:0 auto;position:relative;z-index:2;padding:24px 0 22px;}
+.landing-nav{height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ios-line);}
+.landing-brand{display:flex;align-items:center;gap:11px;}
+.landing-brand-mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;font-family:Georgia,serif;font-size:17px;background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.035));border:1px solid var(--ios-line-strong);box-shadow:inset 0 1px rgba(255,255,255,.08),0 12px 35px rgba(0,0,0,.18);}
+.landing-brand strong{display:block;font-size:13px;letter-spacing:.16em;font-weight:700;}
+.landing-brand span{display:block;margin-top:3px;font-size:9px;letter-spacing:.18em;color:var(--ios-secondary);}
+.landing-status{font-size:9px;letter-spacing:.13em;color:var(--ios-secondary);display:flex;align-items:center;gap:8px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#7da18b;box-shadow:0 0 10px rgba(125,161,139,.65);}
+.landing-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(460px,.92fr);gap:clamp(34px,6vw,96px);align-items:center;padding:clamp(58px,8vw,105px) 4vw 65px;}
+.landing-copy{max-width:680px;}
+.landing-copy .mark-glyph{margin-bottom:24px;}
+.landing-copy .wordmark{font-family:Georgia,"Times New Roman",serif;font-size:clamp(82px,10vw,148px)!important;font-weight:500!important;letter-spacing:.015em!important;line-height:.78!important;}
+.landing-copy .wordmark small{font-family:var(--font-ui);font-size:12px!important;letter-spacing:.19em!important;text-transform:uppercase;margin-top:20px!important;color:var(--ios-secondary)!important;}
+.landing-copy h1{font-size:clamp(30px,4vw,54px);line-height:1.02;letter-spacing:-.055em;margin:30px 0 15px;font-weight:620;}
+.landing-copy>p{max-width:590px;font-size:15px;line-height:1.7;color:var(--ios-secondary);}
+.landing-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:23px;}
+.landing-tags span{padding:7px 11px;border-radius:999px;border:1px solid var(--ios-line);background:rgba(255,255,255,.035);font-size:10px;color:var(--ios-secondary);}
+.entry-choice-grid{margin:30px 0 0!important;width:min(430px,100%)!important;align-items:stretch!important;}
+.entry-choice-grid .enter-btn{min-height:52px!important;border-radius:16px!important;justify-content:center!important;}
+.entry-choice-grid .entry-btn-primary{background:linear-gradient(135deg,rgba(239,239,242,.15),rgba(255,255,255,.045))!important;border-color:rgba(255,255,255,.19)!important;box-shadow:0 12px 40px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.08)!important;}
+.landing-secondary-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.landing-secondary-actions .enter-btn{font-size:11px!important;min-height:47px!important;}
+.landing-preview{position:relative;min-height:480px;display:flex;align-items:center;justify-content:center;}
+.preview-glow{position:absolute;width:82%;height:72%;border-radius:50%;background:radial-gradient(circle,rgba(124,143,168,.15),transparent 66%);filter:blur(18px);}
+.preview-window{position:relative;width:min(600px,100%);aspect-ratio:1.15;border-radius:25px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(145deg,rgba(29,32,37,.82),rgba(10,11,14,.88));backdrop-filter:blur(26px) saturate(135%);box-shadow:0 40px 110px rgba(0,0,0,.52),inset 0 1px rgba(255,255,255,.08);transform:perspective(1100px) rotateY(-5deg) rotateX(2deg);overflow:hidden;}
+.preview-window:after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.045),transparent 34%,transparent 70%,rgba(255,255,255,.025));pointer-events:none;}
+.preview-top{height:48px;border-bottom:1px solid var(--ios-line);display:flex;align-items:center;gap:14px;padding:0 15px;color:var(--ios-secondary);}
+.preview-brand{font-family:Georgia,serif;color:var(--ios-text);font-size:15px;}
+.preview-search{height:27px;display:flex;align-items:center;padding:0 10px;flex:1;max-width:230px;border:1px solid var(--ios-line);border-radius:999px;background:rgba(255,255,255,.035);font-size:8px;}
+.preview-avatar{margin-left:auto;width:24px;height:24px;border-radius:50%;background:linear-gradient(145deg,#767c87,#202329);border:1px solid var(--ios-line-strong);}
+.preview-body{display:grid;grid-template-columns:92px 1fr;height:calc(100% - 48px);}
+.preview-body aside{border-right:1px solid var(--ios-line);padding:15px 9px;display:flex;flex-direction:column;gap:9px;}
+.preview-logo{font-size:7px;letter-spacing:.12em;color:var(--ios-text);margin:0 3px 10px;}
+.preview-body aside i{height:27px;border-radius:9px;border:1px solid transparent;background:rgba(255,255,255,.018);}
+.preview-body aside i.on{background:rgba(255,255,255,.08);border-color:var(--ios-line);}
+.preview-body main{padding:19px;display:flex;flex-direction:column;gap:12px;}
+.preview-hero{min-height:118px;border-radius:16px;padding:18px;background:linear-gradient(125deg,rgba(58,66,80,.55),rgba(18,20,24,.58));border:1px solid var(--ios-line);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;position:relative;}
+.preview-hero:before{content:"";position:absolute;inset:auto -15% -35% 25%;height:130px;background:radial-gradient(ellipse,rgba(155,171,193,.22),transparent 65%);}
+.preview-hero small{font-size:7px;letter-spacing:.14em;color:#a9b6c7;position:relative;}
+.preview-hero b{font-size:20px;letter-spacing:-.04em;margin-top:6px;position:relative;}
+.preview-hero span{font-size:8px;color:var(--ios-secondary);margin-top:4px;position:relative;}
+.preview-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.preview-stats div{padding:12px;border:1px solid var(--ios-line);border-radius:13px;background:rgba(255,255,255,.025);}
+.preview-stats small{display:block;font-size:6px;letter-spacing:.11em;color:var(--ios-tertiary);}.preview-stats b{display:block;font-size:15px;margin-top:6px;}
+.preview-row{display:flex;justify-content:space-between;align-items:center;font-size:7px;letter-spacing:.1em;color:var(--ios-secondary);padding:4px 2px;}.preview-row em{font-style:normal;font-size:6px;color:#9bb7a4;padding:4px 7px;border:1px solid rgba(125,161,139,.22);border-radius:999px;background:rgba(125,161,139,.07);}
+.preview-lines{display:flex;flex-direction:column;gap:7px;}.preview-lines i{display:block;height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,.09),rgba(255,255,255,.025));}.preview-lines i:nth-child(2){width:78%}.preview-lines i:nth-child(3){width:58%}
+.preview-caption{position:absolute;right:-7px;bottom:2px;transform:translateY(100%);display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;min-width:190px;padding:10px 12px;border-top:1px solid var(--ios-line);color:var(--ios-secondary);}.preview-caption span{grid-row:span 2;font-family:var(--font-mono);font-size:9px;color:var(--ios-tertiary);}.preview-caption b{font-size:9px;letter-spacing:.1em;}.preview-caption small{font-size:8px;color:var(--ios-tertiary);}
+.landing-feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4vw 58px;}
+.landing-feature-grid article{min-height:145px;padding:20px;border:1px solid var(--ios-line);border-radius:20px;background:rgba(255,255,255,.025);backdrop-filter:blur(20px);box-shadow:inset 0 1px rgba(255,255,255,.025);transition:transform .25s var(--ios-spring),border-color .25s;}
+.landing-feature-grid article:hover{transform:translateY(-3px);border-color:var(--ios-line-strong);}
+.landing-feature-grid article span{font-family:var(--font-mono);font-size:9px;color:var(--ios-tertiary);}.landing-feature-grid article b{display:block;font-size:17px;margin-top:13px;letter-spacing:-.025em;}.landing-feature-grid article p{font-size:11px;line-height:1.65;color:var(--ios-secondary);margin-top:7px;max-width:330px;}
+.landing-foot{position:static!important;display:flex!important;justify-content:flex-start!important;flex-wrap:wrap;gap:24px!important;padding:16px 4vw 4px;border-top:1px solid var(--ios-line);font-size:8px!important;color:var(--ios-tertiary)!important;letter-spacing:.14em!important;}
+/* App shell: closer to the supplied command-dashboard reference. */
+#app{background:radial-gradient(900px 600px at 55% -15%,rgba(113,134,160,.06),transparent 65%),var(--void)!important;}
+.sidebar{width:236px!important;padding:20px 13px!important;background:rgba(13,15,18,.72)!important;}
+.side-brand{padding:5px 9px 25px!important;align-items:flex-start!important;}.side-brand .glyph{width:31px!important;height:31px!important;border-radius:10px!important;background:linear-gradient(145deg,#30343b,#14171a)!important;}.side-tagline{font-size:8px;color:var(--ios-tertiary);margin-top:3px;letter-spacing:.01em;}
+.nav-group-label{font-size:8px!important;letter-spacing:.16em!important;padding-left:9px!important;color:#666a70!important;}.nav-item{font-size:12px!important;padding:9px 10px!important;border-radius:12px!important;}.nav-item.active{background:linear-gradient(90deg,rgba(255,255,255,.09),rgba(255,255,255,.035))!important;border-color:rgba(255,255,255,.09)!important;color:#f4f4f5!important;box-shadow:inset 0 1px rgba(255,255,255,.035);}
+.topbar{height:72px!important;padding:0 28px!important;background:rgba(9,11,14,.68)!important;}.top-left{min-width:150px;}.top-mark{font-family:Georgia,serif;font-size:17px!important;letter-spacing:.08em!important;}.top-search{width:min(390px,38vw);height:38px;border-radius:999px;border:1px solid var(--ios-line);background:rgba(255,255,255,.035);display:flex;align-items:center;gap:9px;padding:0 12px;color:var(--ios-secondary);cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.025);}.top-search svg{width:14px;height:14px;}.top-search span{font-size:10px;flex:1;}.top-search kbd{font-size:9px;border:1px solid var(--ios-line);border-radius:6px;padding:2px 5px;color:var(--ios-tertiary);background:rgba(0,0,0,.18);}
+.content{max-width:1500px!important;padding:34px clamp(20px,3vw,44px) 58px!important;}.page-head{margin-bottom:20px!important;}.page-head h1{font-size:28px!important;letter-spacing:-.04em!important;font-weight:620!important;}.page-head .page-sub{font-size:11px!important;color:var(--ios-secondary)!important;}.stamp{border-radius:999px!important;border-width:1px!important;font-size:8px!important;padding:6px 10px!important;transform:none!important;letter-spacing:.12em!important;}
+#view-dashboard .grid{gap:12px!important;}.card{background:rgba(18,21,25,.62)!important;border-radius:18px!important;border-color:var(--ios-line)!important;box-shadow:0 18px 55px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.025)!important;padding:19px!important;}.welcome-card{min-height:205px!important;background:linear-gradient(120deg,rgba(48,57,68,.60),rgba(18,20,24,.82))!important;position:relative;overflow:hidden;}.welcome-card:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 55% 90% at 86% 45%,rgba(125,145,170,.17),transparent 66%);pointer-events:none;}.welcome-card h2{font-size:26px!important;letter-spacing:-.05em!important;}.id-glass{border-radius:18px!important;background:rgba(255,255,255,.045)!important;border-color:var(--ios-line-strong)!important;}.lv-val{color:#d5dbe2!important;}.stat-label{font-size:8px!important;letter-spacing:.14em!important;color:#777d85!important;}.stat-value{font-size:34px!important;letter-spacing:-.05em!important;}.stat-delta{font-size:10px!important;color:var(--ios-secondary)!important;}.list-row{padding:11px 0!important;}.list-icon{width:34px!important;height:34px!important;border-radius:11px!important;background:rgba(255,255,255,.045)!important;color:#aeb9c8!important;border-color:var(--ios-line)!important;}.pill{font-size:8px!important;padding:5px 8px!important;background:rgba(255,255,255,.04)!important;}.pill.live{background:rgba(125,161,139,.08)!important;color:#a9c2b0!important;border-color:rgba(125,161,139,.2)!important;}
+@media(max-width:980px){.landing-hero{grid-template-columns:1fr;padding-left:0;padding-right:0}.landing-copy{max-width:760px}.landing-preview{max-width:720px;width:100%;margin:0 auto}.landing-feature-grid{padding-left:0;padding-right:0}.top-search{width:min(360px,42vw)}}
+@media(max-width:700px){.landing-shell{width:min(100% - 28px,620px);padding-top:13px}.landing-nav{height:54px}.landing-status{font-size:7px}.landing-status span{display:none}.landing-hero{padding:52px 0 52px}.landing-copy .wordmark{font-size:72px!important}.landing-copy h1{font-size:36px}.landing-copy>p{font-size:14px}.landing-preview{min-height:300px;margin-top:18px}.preview-window{transform:none}.preview-caption{right:0}.landing-feature-grid{grid-template-columns:1fr;padding-bottom:42px}.landing-feature-grid article{min-height:120px}.landing-foot{gap:13px!important;padding-left:0;padding-right:0}.top-search{display:none}.top-left{min-width:0}.topbar{padding:0 18px!important}}
+@media(max-width:480px){.landing-brand strong{font-size:11px}.landing-copy .mark-glyph{font-size:8px}.landing-copy .wordmark{font-size:61px!important}.landing-copy h1{font-size:31px}.landing-secondary-actions{grid-template-columns:1fr}.preview-body{grid-template-columns:62px 1fr}.preview-body aside{padding:12px 7px}.preview-body main{padding:12px}.preview-hero{min-height:95px}.preview-hero b{font-size:16px}.preview-stats b{font-size:12px}.preview-caption{display:none}}
+body.light-mode #landing{background:radial-gradient(900px 500px at 12% 5%,rgba(130,145,170,.12),transparent 62%),radial-gradient(800px 500px at 88% 45%,rgba(154,119,16,.07),transparent 65%),var(--void)!important;}
+body.light-mode .landing-nav,body.light-mode .landing-feature-grid article,body.light-mode .preview-window,body.light-mode .preview-top,body.light-mode .preview-body aside{border-color:rgba(60,60,67,.13)!important;}
+body.light-mode .landing-feature-grid article{background:rgba(255,255,255,.58)!important;box-shadow:0 15px 40px rgba(30,35,45,.06),inset 0 1px rgba(255,255,255,.8);}
+body.light-mode .preview-window{background:rgba(248,248,250,.78)!important;box-shadow:0 35px 80px rgba(30,35,45,.13),inset 0 1px rgba(255,255,255,.9);}
+body.light-mode .preview-hero{background:linear-gradient(125deg,rgba(225,228,234,.75),rgba(250,250,252,.7));}
+</style>
 </head>
 <body>
 <style id="aez-entry-initial-lock">
@@ -1308,26 +1388,58 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
 <section id="landing" class="screen active">
   <div class="grid-veil"></div>
   <div class="noise-drift"></div>
-  <div class="mark-glyph"><span class="dot"></span> SECURE CHANNEL · ENCRYPTED</div>
-  <div class="wordmark">ÆZ<small>Ash · Zee Arena</small></div>
-  <div class="tagline">"Beyond the source code."</div>
-  <div class="entry-choice-label"></div>
-  <div class="entry-choice-grid">
-    <button class="enter-btn entry-btn-primary" onclick="enterArenaAsMember()" aria-label="Enter the Arena as Gangster or Member">
-      <span>Gang Member</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-    <button class="enter-btn entry-btn-admin" onclick="enterArenaAsAdmin()" aria-label="Enter the Arena as Admin Command">
-      <span>Admin Command</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
-    </button>
-    <button class="enter-btn gang-open-btn" onclick="openGangRegistration(); return false;" aria-label="Register a gang">
-      <span>Register Gang</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-    </button>
-  </div>
-  <div class="landing-foot">
-    <span>EST. 2024</span><span>DIVISION-CLASS SYSTEM</span><span>NO PUBLIC RECORD</span>
+  <div class="landing-shell">
+    <header class="landing-nav">
+      <div class="landing-brand">
+        <div class="landing-brand-mark">ÆZ</div>
+        <div><strong>ÆZ ARENA</strong><span>ASH · ZEE</span></div>
+      </div>
+      <div class="landing-status"><span class="status-dot"></span> PRIVATE · INVITE ONLY</div>
+    </header>
+
+    <div class="landing-hero">
+      <div class="landing-copy">
+        <div class="mark-glyph"><span class="dot"></span> SECURE CHANNEL · ENCRYPTED</div>
+        <div class="wordmark">ÆZ<small>Beyond the source code.</small></div>
+        <h1>More than meets the eye.</h1>
+        <p>One private arena for divisions, operations, rankings, records, and everything happening behind the scenes.</p>
+        <div class="landing-tags"><span>iOS-inspired</span><span>Private system</span><span>Built for Arena</span></div>
+        <div class="entry-choice-grid">
+          <button class="enter-btn entry-btn-primary" onclick="enterArenaAsMember()" aria-label="Enter the Arena as Gangster or Member">
+            <span>Enter the Arena</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <div class="landing-secondary-actions">
+            <button class="enter-btn entry-btn-admin" onclick="enterArenaAsAdmin()" aria-label="Enter the Arena as Admin Command"><span>Admin Command</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7v5c0 5 3.5 8 8 9 4.5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg></button>
+            <button class="enter-btn gang-open-btn" onclick="openGangRegistration(); return false;" aria-label="Register a gang"><span>Register Gang</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-preview" aria-hidden="true">
+        <div class="preview-glow"></div>
+        <div class="preview-window">
+          <div class="preview-top"><span class="preview-brand">ÆZ</span><span class="preview-search">⌕&nbsp; Search the Arena</span><span class="preview-avatar"></span></div>
+          <div class="preview-body">
+            <aside><span class="preview-logo">ÆZ ARENA</span><i></i><i class="on"></i><i></i><i></i><i></i><i></i></aside>
+            <main>
+              <div class="preview-hero"><small>COMMAND OVERVIEW</small><b>Welcome back, Agent.</b><span>Division status, live and secured.</span></div>
+              <div class="preview-stats"><div><small>POINTS</small><b>184.5K</b></div><div><small>RANK</small><b>#04</b></div><div><small>ATTENDANCE</small><b>96%</b></div></div>
+              <div class="preview-row"><span>ACTIVE OPERATIONS</span><em>LIVE</em></div>
+              <div class="preview-lines"><i></i><i></i><i></i></div>
+            </main>
+          </div>
+        </div>
+        <div class="preview-caption"><span>01</span><b>PRIVATE OPERATIONS</b><small>Clean data. Quiet interface. Full control.</small></div>
+      </div>
+    </div>
+
+    <div class="landing-feature-grid">
+      <article><span>01</span><b>Command</b><p>See your status, points, rank, attendance, and active operations at a glance.</p></article>
+      <article><span>02</span><b>Intelligence</b><p>Keep case logs, records, schedules, and division information in one place.</p></article>
+      <article><span>03</span><b>Operations</b><p>Built around the Arena's own systems instead of a generic dashboard.</p></article>
+    </div>
+
+    <footer class="landing-foot"><span>EST. 2024</span><span>DIVISION-CLASS SYSTEM</span><span>NO PUBLIC RECORD</span><span>ÆZ ARENA</span></footer>
   </div>
 </section>
 
@@ -1529,7 +1641,7 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
     </div>
   </aside>
   <aside class="sidebar">
-    <div class="side-brand"><div class="glyph">Æ</div><div class="name">ÆZ Arena</div></div>
+    <div class="side-brand"><div class="glyph">Æ</div><div><div class="name">ÆZ Arena</div><div class="side-tagline">More than meets the eye.</div></div></div>
 
     <div class="nav-group">
       <div class="nav-group-label">HOME</div>
@@ -1565,6 +1677,7 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
   <div class="main">
     <div class="topbar">
       <div class="top-left"><div class="top-mark">ÆZ</div><div class="top-clock" id="liveClock">—</div></div>
+      <div class="top-search" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>Search anything...</span><kbd>⌘ K</kbd></div>
       <div class="top-right">
         <div class="icon-btn clickable" onclick="openSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
         <div class="icon-btn clickable" onclick="openNotif()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="dot"></span></div>

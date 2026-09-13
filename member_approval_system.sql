@@ -107,7 +107,7 @@ returns table (
   full_name text,
   codename text,
   gang text,
-  position text,
+  "position" text,
   facebook_profile_link text,
   facebook_uid text,
   joined_date date,
@@ -151,7 +151,7 @@ begin
   end if;
 
   return query
-  select p.id,p.email,p.full_name,p.codename,p.gang,p.position,
+  select p.id,p.email,p.full_name,p.codename,p.gang,p."position",
          p.facebook_profile_link,p.facebook_uid,p.joined_date,p.status,p.role,
          p.id_photo_path,p.created_at,p.approved_at,p.approved_by,
          p.rejection_reason,p.can_approve_members
