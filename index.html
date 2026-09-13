@@ -4805,75 +4805,157 @@ function togglePasswordVisibility(){
     ? '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/>'
     : '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.6 19.6 0 0 1 4.22-5.5M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a19.6 19.6 0 0 1-2.68 3.9M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/>';
 }
+var loginInProgress = false;
+
+function withTimeout(promise, ms, message){
+  return Promise.race([
+    promise,
+    new Promise(function(_, reject){
+      setTimeout(function(){ reject(new Error(message || 'The authentication request timed out.')); }, ms);
+    })
+  ]);
+}
+
 async function login(){
-  if(lockoutTimer) return;
+  if(lockoutTimer || loginInProgress) return;
+  loginInProgress = true;
   ['fieldEmail','fieldGang','fieldCodename','fieldPassword'].forEach(clearFieldError);
-  if(!supabaseReady){ showLoginError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.'); return; }
-
-  var fbUid = document.getElementById('emailInput').value.trim();
-  var gang = document.getElementById('gangSelect').value;
-  var cn = document.getElementById('codenameInput').value.trim();
-  var pw = document.getElementById('passwordInput').value;
-  var missing=[];
-  if(!fbUid){markFieldError('fieldEmail');missing.push('Facebook UID');}
-  if(!gang){markFieldError('fieldGang');missing.push('gang');}
-  if(!cn){markFieldError('fieldCodename');missing.push('codename');}
-  if(!pw){markFieldError('fieldPassword');missing.push('password');}
-  if(missing.length){showLoginError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to continue.');return;}
-
-  /* Current member accounts use a deterministic internal Supabase Auth email
-     derived from the Facebook UID. That means login does not depend on
-     profiles.email being populated correctly. We keep a legacy RPC fallback
-     for older accounts created before this convention was standardized. */
-  var authEmail='member.'+fbUid+'@aezarena.local';
   var btn=document.getElementById('loginSubmitBtn');
-  btn.textContent='Verifying…'; btn.disabled=true;
-  var result=await supabaseClient.auth.signInWithPassword({email:authEmail,password:pw});
 
-  if(result.error){
-    var emailLookup=await supabaseClient.rpc('aez_member_auth_email',{p_facebook_uid:fbUid});
-    if(!emailLookup.error && emailLookup.data && String(emailLookup.data).toLowerCase()!==authEmail.toLowerCase()){
-      authEmail=emailLookup.data;
-      result=await supabaseClient.auth.signInWithPassword({email:authEmail,password:pw});
+  try{
+    if(!supabaseReady){
+      showLoginError('Supabase is not configured yet. Add your Project URL and Publishable Key in the CONFIG section.');
+      return;
+    }
+
+    var fbUid = document.getElementById('emailInput').value.trim();
+    var gang = document.getElementById('gangSelect').value;
+    var cn = document.getElementById('codenameInput').value.trim();
+    var pw = document.getElementById('passwordInput').value;
+    var missing=[];
+    if(!fbUid){markFieldError('fieldEmail');missing.push('Facebook UID');}
+    if(!gang){markFieldError('fieldGang');missing.push('gang');}
+    if(!cn){markFieldError('fieldCodename');missing.push('codename');}
+    if(!pw){markFieldError('fieldPassword');missing.push('password');}
+    if(missing.length){
+      showLoginError('Enter your '+(missing.length===1?missing[0]:missing.slice(0,-1).join(', ')+' and '+missing[missing.length-1])+' to continue.');
+      return;
+    }
+
+    /* Current member accounts use a deterministic internal Supabase Auth email
+       derived from the Facebook UID. Older accounts can still resolve their
+       legacy Auth email through the read-only RPC fallback. */
+    var authEmail='member.'+fbUid+'@aezarena.local';
+    btn.textContent='Verifying…';
+    btn.disabled=true;
+
+    var result;
+    try{
+      result=await withTimeout(
+        supabaseClient.auth.signInWithPassword({email:authEmail,password:pw}),
+        12000,
+        'Authentication is taking too long. Please check your internet connection and Supabase project status, then try again.'
+      );
+    }catch(authError){
+      console.error('Primary member login request failed:',authError);
+      throw authError;
+    }
+
+    if(result.error){
+      /* Legacy-account fallback. It is also protected by a timeout so the
+         button can never remain stuck on “Verifying…” if the RPC is unavailable. */
+      var emailLookup;
+      try{
+        emailLookup=await withTimeout(
+          supabaseClient.rpc('aez_member_auth_email',{p_facebook_uid:fbUid}),
+          8000,
+          'The member identity lookup timed out. Please try again.'
+        );
+      }catch(rpcError){
+        console.warn('Member identity fallback failed:',rpcError);
+        throw rpcError;
+      }
+
+      if(!emailLookup.error && emailLookup.data && String(emailLookup.data).toLowerCase()!==authEmail.toLowerCase()){
+        authEmail=emailLookup.data;
+        result=await withTimeout(
+          supabaseClient.auth.signInWithPassword({email:authEmail,password:pw}),
+          12000,
+          'The legacy account login request timed out. Please try again.'
+        );
+      }
+    }
+
+    if(result.error){
+      console.warn('Member login failed:', result.error.message);
+      failedAttempts++;
+      if(failedAttempts>=LOCKOUT_AFTER) startLockout();
+      else showLoginError('Access denied. Check your Facebook UID and password.');
+      return;
+    }
+
+    var user=result.data.user;
+    if(!user){
+      await supabaseClient.auth.signOut().catch(function(){});
+      showLoginError('Authentication succeeded, but no user session was returned. Please try again.');
+      return;
+    }
+
+    if(!user.email_confirmed_at){
+      await supabaseClient.auth.signOut().catch(function(){});
+      showLoginError('This member account is not active yet. Contact Division Command.');
+      return;
+    }
+
+    var profileResult=await withTimeout(
+      supabaseClient.from('profiles').select('*').eq('id',user.id).single(),
+      10000,
+      'Your profile lookup timed out. Please try again.'
+    );
+
+    if(profileResult.error || !profileResult.data){
+      await supabaseClient.auth.signOut().catch(function(){});
+      showLoginError('Your application record could not be found. Contact Division Command.');
+      return;
+    }
+
+    var profile=profileResult.data;
+    if(profile.gang!==gang || String(profile.codename||'').toLowerCase()!==cn.toLowerCase() || String(profile.facebook_uid||'')!==String(fbUid)){
+      await supabaseClient.auth.signOut().catch(function(){});
+      showLoginError('The selected gang, codename, and Facebook UID do not match this account.');
+      return;
+    }
+
+    if(profile.status!=='approved'){
+      await supabaseClient.auth.signOut().catch(function(){});
+      if(profile.status==='pending') showLoginError('Your registration is still pending admin approval.');
+      else if(profile.status==='rejected') showLoginError('Your registration was rejected. Contact Division Command.');
+      else showLoginError('This account is currently suspended.');
+      return;
+    }
+
+    failedAttempts=0;
+    hideLoginError();
+    currentProfile=profile;
+    currentAgent=profileToAgent(profile);
+    applyAgentToUI(currentAgent);
+    await logAgentActivity('Secure Access', 'ACCESS', 'Signed into ÆZ Arena successfully.', {method:'facebook_uid'});
+    removeAuthScreensAndShowApp();
+    nav(document.querySelector('.nav-item[data-view="dashboard"]'));
+    animateCounters();
+    document.querySelectorAll('#view-dashboard .card').forEach(function(card,i){card.classList.add('stagger-in');card.style.animationDelay=(i*45)+'ms';});
+  }catch(error){
+    console.error('Unexpected login error:',error);
+    var message=String(error && error.message || 'Unable to complete authentication.');
+    if(/timed out/i.test(message)) showLoginError(message);
+    else showLoginError('Secure Access could not be completed. Please try again.');
+  }finally{
+    loginInProgress=false;
+    if(btn && !lockoutTimer){
+      btn.disabled=false;
+      btn.textContent='Enter the Arena';
     }
   }
-
-  btn.textContent='Enter the Arena'; btn.disabled=false;
-  if(result.error){
-    console.warn('Member login failed:', result.error.message);
-    failedAttempts++;
-    if(failedAttempts>=LOCKOUT_AFTER) startLockout();
-    else showLoginError('Access denied. Check your Facebook UID and password.');
-    return;
-  }
-
-  var user=result.data.user;
-  if(!user.email_confirmed_at){
-    await supabaseClient.auth.signOut();
-    showLoginError('This member account is not active yet. Contact Division Command.');
-    return;
-  }
-  var profileResult=await supabaseClient.from('profiles').select('*').eq('id',user.id).single();
-  if(profileResult.error || !profileResult.data){ await supabaseClient.auth.signOut(); showLoginError('Your application record could not be found. Contact Division Command.'); return; }
-  var profile=profileResult.data;
-  if(profile.gang!==gang || profile.codename.toLowerCase()!==cn.toLowerCase() || String(profile.facebook_uid||'')!==String(fbUid)){
-    await supabaseClient.auth.signOut(); showLoginError('The selected gang, codename, and Facebook UID do not match this account.'); return;
-  }
-  if(profile.status!=='approved'){
-    await supabaseClient.auth.signOut();
-    if(profile.status==='pending') showLoginError('Your registration is still pending admin approval.');
-    else if(profile.status==='rejected') showLoginError('Your registration was rejected. Contact Division Command.');
-    else showLoginError('This account is currently suspended.');
-    return;
-  }
-
-  failedAttempts=0; hideLoginError(); currentProfile=profile;
-  currentAgent=profileToAgent(profile); applyAgentToUI(currentAgent);
-  await logAgentActivity('Secure Access', 'ACCESS', 'Signed into ÆZ Arena successfully.', {method:'facebook_uid'});
-  removeAuthScreensAndShowApp();
-  nav(document.querySelector('.nav-item[data-view="dashboard"]'));
-  animateCounters();
-  document.querySelectorAll('#view-dashboard .card').forEach(function(card,i){card.classList.add('stagger-in');card.style.animationDelay=(i*45)+'ms';});
 }
 
 function profileToAgent(p){
