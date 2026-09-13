@@ -6,6 +6,7 @@ const APP_SHELL = [
   './aez-social.js',
   './aez-chat.js',
   './aez-mobile-install.js',
+'./aez-mobile-ui-fix.js',
   './aez-ios-design.css',
   './aez-light-palette.css',
   './aez-premium-ui.css',
