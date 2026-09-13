@@ -2,6 +2,7 @@ const CACHE_NAME = 'aez-arena-v4';
 const APP_SHELL = [
   './',
   './index.html',
+  './aez-social.js',
   './aez-ios-design.css',
   './aez-light-palette.css',
   './aez-premium-ui.css',
