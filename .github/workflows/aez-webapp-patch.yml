@@ -20,10 +20,16 @@ jobs:
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
           marker = '<!-- AEZ SOCIAL INTELLIGENCE PATCH -->'
+          social = '<link rel="stylesheet" href="./mobile-responsive.css">\n  <script src="./aez-social.js"></script>\n  <script src="./aez-chat.js"></script>'
           if marker not in s:
-              s = s.replace('</body>', '  ' + marker + '\n  <link rel="stylesheet" href="./mobile-responsive.css">\n  <script src="./aez-social.js"></script>\n</body>', 1)
-          elif 'mobile-responsive.css' not in s:
-              s = s.replace(marker, marker + '\n  <link rel="stylesheet" href="./mobile-responsive.css">', 1)
+              s = s.replace('</body>', '  ' + marker + '\n  ' + social + '\n</body>', 1)
+          else:
+              if './aez-social.js' not in s:
+                  s = s.replace(marker, marker + '\n  <script src="./aez-social.js"></script>', 1)
+              if './aez-chat.js' not in s:
+                  s = s.replace('./aez-social.js"></script>', './aez-social.js"></script>\n  <script src="./aez-chat.js"></script>', 1)
+              if 'mobile-responsive.css' not in s:
+                  s = s.replace(marker, marker + '\n  <link rel="stylesheet" href="./mobile-responsive.css">', 1)
           mobile_marker = '<!-- AEZ MOBILE INSTALL -->'
           if mobile_marker not in s:
               s = s.replace('</body>', '  ' + mobile_marker + '\n  <script src="./aez-mobile-install.js"></script>\n</body>', 1)
@@ -32,12 +38,16 @@ jobs:
           sw = Path('sw.js')
           if sw.exists():
               x = sw.read_text(encoding='utf-8')
-              x = x.replace("aez-arena-social-v4", "aez-arena-social-v6")
-              x = x.replace("aez-arena-v4", "aez-arena-v6")
+              x = x.replace('aez-arena-social-v4', 'aez-arena-social-v7')
+              x = x.replace('aez-arena-social-v6', 'aez-arena-social-v7')
+              x = x.replace('aez-arena-v4', 'aez-arena-v7')
+              x = x.replace('aez-arena-v6', 'aez-arena-v7')
               if "'./aez-social.js'" not in x:
                   x = x.replace("  './index.html',", "  './index.html',\n  './aez-social.js',")
+              if "'./aez-chat.js'" not in x:
+                  x = x.replace("  './aez-social.js',", "  './aez-social.js',\n  './aez-chat.js',")
               if "'./aez-mobile-install.js'" not in x:
-                  x = x.replace("  './aez-social.js',", "  './aez-social.js',\n  './aez-mobile-install.js',")
+                  x = x.replace("  './aez-chat.js',", "  './aez-chat.js',\n  './aez-mobile-install.js',")
               if "'./mobile-responsive.css'" not in x:
                   x = x.replace("  './index.html',", "  './index.html',\n  './mobile-responsive.css',")
               sw.write_text(x, encoding='utf-8')
@@ -46,6 +56,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js mobile-responsive.css
-          git diff --cached --quiet || git commit -m "Add mobile install experience"
+          git add index.html sw.js mobile-responsive.css aez-social.js aez-chat.js aez-mobile-install.js
+          git diff --cached --quiet || git commit -m "Enable functional group chat"
           git push
