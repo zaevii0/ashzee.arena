@@ -8,9 +8,9 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 #aezSocial{padding:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
 #aezSocial .sx{width:100%;max-width:none;min-height:100dvh;margin:0;border-radius:0;border-left:0;border-right:0;box-shadow:none;}
 #aezSocial .sx-head{padding:14px 15px;min-height:62px;}
-#aezSocial .sx-title{font-size:13px;}
-#aezSocial .sx-sub{font-size:8px;letter-spacing:.11em;}
-#aezSocial .sx-close{padding:10px 12px;min-height:42px;}
+#aezSocial .sx-title{font-size:13px;display:block!important;visibility:visible!important;white-space:nowrap;}
+#aezSocial .sx-sub{font-size:8px;letter-spacing:.11em;display:block!important;visibility:visible!important;}
+#aezSocial .sx-close{padding:10px 12px;min-height:42px;flex-shrink:0;}
 #aezSocial .sx-tabs{padding:10px 12px;gap:7px;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:62px;z-index:3;}
 #aezSocial .sx-tabs::-webkit-scrollbar{display:none;}
 #aezSocial .sx-tab{min-height:40px;padding:9px 14px;font-size:12px;flex:0 0 auto;}
@@ -24,15 +24,20 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 #aezSocial .sx-mini{min-height:40px;padding:8px 11px;}
 #aezSocial .sx-actions{gap:6px;}
 
-/* Stack group creation controls on narrow screens */
+/* Keep Social Intelligence reachable on phones. */
+@media(max-width:700px){
+  body.authenticated .bottom-nav [data-aez-social]{display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;position:relative!important;z-index:20!important;}
+  body.authenticated .sidebar [data-aez-social]{display:none!important;}
+}
+
 @media(max-width:520px){
   #aezSocial .sx-grid{display:block;}
   #aezSocial #gName,#aezSocial #gVis,#aezSocial #gCreate{width:100%;max-width:none!important;}
   #aezSocial #gCreate{margin-top:7px;}
   #aezSocial .sx-item{padding:12px;}
+  #aezSocial .sx-head>div:first-child{min-width:0;flex:1;overflow:hidden;}
 }
 
-/* Existing Arena shell: prevent desktop layouts from overflowing phones */
 @media(max-width:700px){
   .sidebar{width:min(84vw,320px);}
   .main-content,.content,.page-content{max-width:100%;overflow-x:hidden;}
@@ -41,7 +46,13 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
   .bottom-nav{padding-bottom:calc(6px + env(safe-area-inset-bottom));}
 }
 
-/* Better touch targets for phone users */
 @media(pointer:coarse){
   .nav-item,.bottom-nav-item,.btn,.button,.action-btn{min-height:44px;}
+}
+
+/* Mobile install button: keep it above bottom navigation and safe areas. */
+@media(max-width:700px){
+  #aezInstallBtn{right:12px!important;bottom:calc(76px + env(safe-area-inset-bottom))!important;z-index:10060!important;min-height:46px!important;padding:12px 16px!important;border-radius:15px!important;font-size:13px!important;box-shadow:0 14px 45px rgba(0,0,0,.5)!important;}
+  #aezInstallBtn.show{display:block!important;visibility:visible!important;opacity:1!important;}
+  #aezInstallSheet{z-index:10070!important;}
 }
