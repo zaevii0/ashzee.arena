@@ -19,8 +19,13 @@ jobs:
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
+
+          # Keep the mobile stylesheet as a real dependency of index.html.
+          if '<link rel="stylesheet" href="./mobile-responsive.css">' not in s:
+              s = s.replace('</head>', '  <link rel="stylesheet" href="./mobile-responsive.css">\n</head>', 1)
+
           marker = '<!-- AEZ SOCIAL INTELLIGENCE PATCH -->'
-          social = '<link rel="stylesheet" href="./mobile-responsive.css">\n  <script src="./aez-social.js"></script>\n  <script src="./aez-chat.js"></script>'
+          social = '<script src="./aez-social.js"></script>\n  <script src="./aez-chat.js"></script>\n  <script src="./aez-mobile-ui-fix.js"></script>'
           if marker not in s:
               s = s.replace('</body>', '  ' + marker + '\n  ' + social + '\n</body>', 1)
           else:
@@ -28,34 +33,41 @@ jobs:
                   s = s.replace(marker, marker + '\n  <script src="./aez-social.js"></script>', 1)
               if './aez-chat.js' not in s:
                   s = s.replace('./aez-social.js"></script>', './aez-social.js"></script>\n  <script src="./aez-chat.js"></script>', 1)
-              if 'mobile-responsive.css' not in s:
-                  s = s.replace(marker, marker + '\n  <link rel="stylesheet" href="./mobile-responsive.css">', 1)
+              if './aez-mobile-ui-fix.js' not in s:
+                  s = s.replace(marker, marker + '\n  <script src="./aez-mobile-ui-fix.js"></script>', 1)
+
           mobile_marker = '<!-- AEZ MOBILE INSTALL -->'
           if mobile_marker not in s:
               s = s.replace('</body>', '  ' + mobile_marker + '\n  <script src="./aez-mobile-install.js"></script>\n</body>', 1)
+          elif './aez-mobile-install.js' not in s:
+              s = s.replace(mobile_marker, mobile_marker + '\n  <script src="./aez-mobile-install.js"></script>', 1)
+
           p.write_text(s, encoding='utf-8')
 
           sw = Path('sw.js')
           if sw.exists():
               x = sw.read_text(encoding='utf-8')
-              x = x.replace('aez-arena-social-v4', 'aez-arena-social-v7')
-              x = x.replace('aez-arena-social-v6', 'aez-arena-social-v7')
-              x = x.replace('aez-arena-v4', 'aez-arena-v7')
-              x = x.replace('aez-arena-v6', 'aez-arena-v7')
-              if "'./aez-social.js'" not in x:
-                  x = x.replace("  './index.html',", "  './index.html',\n  './aez-social.js',")
-              if "'./aez-chat.js'" not in x:
-                  x = x.replace("  './aez-social.js',", "  './aez-social.js',\n  './aez-chat.js',")
-              if "'./aez-mobile-install.js'" not in x:
-                  x = x.replace("  './aez-chat.js',", "  './aez-chat.js',\n  './aez-mobile-install.js',")
-              if "'./mobile-responsive.css'" not in x:
-                  x = x.replace("  './index.html',", "  './index.html',\n  './mobile-responsive.css',")
+              x = x.replace('aez-arena-social-v4', 'aez-arena-social-v8')
+              x = x.replace('aez-arena-social-v6', 'aez-arena-social-v8')
+              x = x.replace('aez-arena-social-v7', 'aez-arena-social-v8')
+              x = x.replace('aez-arena-v4', 'aez-arena-v8')
+              x = x.replace('aez-arena-v6', 'aez-arena-v8')
+              x = x.replace('aez-arena-v7', 'aez-arena-v8')
+              for item, after in [
+                  ("'./mobile-responsive.css'", "  './index.html',"),
+                  ("'./aez-social.js'", "  './index.html',"),
+                  ("'./aez-chat.js'", "  './aez-social.js',"),
+                  ("'./aez-mobile-install.js'", "  './aez-chat.js',"),
+                  ("'./aez-mobile-ui-fix.js'", "  './aez-mobile-install.js',")
+              ]:
+                  if item not in x and after in x:
+                      x = x.replace(after, after + '\n' + item + ',')
               sw.write_text(x, encoding='utf-8')
 
       - name: Commit patch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js mobile-responsive.css aez-social.js aez-chat.js aez-mobile-install.js
-          git diff --cached --quiet || git commit -m "Enable functional group chat"
+          git add index.html sw.js mobile-responsive.css aez-social.js aez-chat.js aez-mobile-install.js aez-mobile-ui-fix.js
+          git diff --cached --quiet || git commit -m "Persist mobile UI fixes"
           git push
