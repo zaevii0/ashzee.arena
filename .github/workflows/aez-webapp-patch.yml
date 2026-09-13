@@ -1,0 +1,41 @@
+name: Patch ÆZ Arena web app
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch web app
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<!-- AEZ SOCIAL INTELLIGENCE PATCH -->'
+          if marker not in s:
+              s = s.replace('</body>', '  ' + marker + '\n  <script src="./aez-social.js"></script>\n</body>', 1)
+              p.write_text(s, encoding='utf-8')
+
+          sw = Path('sw.js')
+          if sw.exists():
+              x = sw.read_text(encoding='utf-8')
+              x = x.replace("aez-arena-social-v4", "aez-arena-social-v5")
+              if "'./aez-social.js'" not in x:
+                  x = x.replace("  './index.html',", "  './index.html',\n  './aez-social.js',")
+              sw.write_text(x, encoding='utf-8')
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js
+          git diff --cached --quiet || git commit -m "Fix login and enable Social Intelligence"
+          git push
