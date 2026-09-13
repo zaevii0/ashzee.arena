@@ -1,0 +1,47 @@
+/* ÆZ Arena — mobile responsive layer */
+html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+body{padding-bottom:env(safe-area-inset-bottom);}
+button,input,select,textarea{font:inherit;}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+
+/* Social Intelligence mobile layout */
+#aezSocial{padding:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
+#aezSocial .sx{width:100%;max-width:none;min-height:100dvh;margin:0;border-radius:0;border-left:0;border-right:0;box-shadow:none;}
+#aezSocial .sx-head{padding:14px 15px;min-height:62px;}
+#aezSocial .sx-title{font-size:13px;}
+#aezSocial .sx-sub{font-size:8px;letter-spacing:.11em;}
+#aezSocial .sx-close{padding:10px 12px;min-height:42px;}
+#aezSocial .sx-tabs{padding:10px 12px;gap:7px;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:62px;z-index:3;}
+#aezSocial .sx-tabs::-webkit-scrollbar{display:none;}
+#aezSocial .sx-tab{min-height:40px;padding:9px 14px;font-size:12px;flex:0 0 auto;}
+#aezSocial .sx-body{padding:12px;}
+#aezSocial .sx-grid{grid-template-columns:1fr;gap:10px;}
+#aezSocial .sx-card{padding:13px;border-radius:15px;margin-bottom:10px;}
+#aezSocial .sx-row{flex-wrap:wrap;}
+#aezSocial .sx-input,.aez-mobile input,.aez-mobile select,#aezSocial .sx-text{font-size:16px;min-height:44px;box-sizing:border-box;}
+#aezSocial .sx-text{min-height:105px;}
+#aezSocial .sx-btn{min-height:44px;padding:10px 15px;}
+#aezSocial .sx-mini{min-height:40px;padding:8px 11px;}
+#aezSocial .sx-actions{gap:6px;}
+
+/* Stack group creation controls on narrow screens */
+@media(max-width:520px){
+  #aezSocial .sx-grid{display:block;}
+  #aezSocial #gName,#aezSocial #gVis,#aezSocial #gCreate{width:100%;max-width:none!important;}
+  #aezSocial #gCreate{margin-top:7px;}
+  #aezSocial .sx-item{padding:12px;}
+}
+
+/* Existing Arena shell: prevent desktop layouts from overflowing phones */
+@media(max-width:700px){
+  .sidebar{width:min(84vw,320px);}
+  .main-content,.content,.page-content{max-width:100%;overflow-x:hidden;}
+  table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  img,video,canvas,iframe{max-width:100%;}
+  .bottom-nav{padding-bottom:calc(6px + env(safe-area-inset-bottom));}
+}
+
+/* Better touch targets for phone users */
+@media(pointer:coarse){
+  .nav-item,.bottom-nav-item,.btn,.button,.action-btn{min-height:44px;}
+}
