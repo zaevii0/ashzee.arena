@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aez-arena-v8';
+const CACHE_NAME = 'aez-arena-v6';
 const APP_SHELL = [
   './',
   './index.html',

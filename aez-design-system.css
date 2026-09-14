@@ -186,6 +186,49 @@ body.light-mode #landing,body.light-mode #login,body.light-mode #adminLogin,body
   box-shadow:0 6px 16px color-mix(in srgb, var(--accent) 40%, transparent) !important;
 }
 
+/* ---------------- Legacy hardcoded-gold overrides (Phase 3 sweep) ----------------
+   These selectors previously hardcoded the old brass rgba(201,162,39,*) instead of
+   referencing a CSS variable, so the Phase 1 token swap didn't reach them. Re-pointed
+   to the accent system here rather than edited at the source, to keep this stylesheet
+   as the single place tracking the re-skin. */
+.entry-btn-admin{ background:color-mix(in srgb, var(--accent) 7%, transparent) !important; border-color:color-mix(in srgb, var(--accent) 28%, transparent) !important; }
+.entry-btn-admin:hover{ background:color-mix(in srgb, var(--accent) 12%, transparent) !important; border-color:color-mix(in srgb, var(--accent) 45%, transparent) !important; }
+.upload-well:hover{ border-color:var(--accent-secondary) !important; background:color-mix(in srgb, var(--accent) 4%, transparent) !important; }
+.admin-pending{ border-color:color-mix(in srgb, var(--accent) 35%, transparent) !important; color:var(--accent) !important; }
+.admin-page-btn.primary{ background:color-mix(in srgb, var(--accent) 10%, transparent) !important; border-color:color-mix(in srgb, var(--accent) 32%, transparent) !important; color:var(--bone) !important; }
+.admin-page-btn.primary:hover{ background:color-mix(in srgb, var(--accent) 16%, transparent) !important; border-color:color-mix(in srgb, var(--accent) 45%, transparent) !important; }
+.id-glass{ background:linear-gradient(145deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--accent-secondary) 10%, transparent), rgba(10,10,11,0.6)) !important; }
+.chip.active,.rtab.active,.wk-btn.active{ background:color-mix(in srgb, var(--accent) 16%, transparent) !important; color:var(--bone) !important; border-color:color-mix(in srgb, var(--accent) 35%, transparent) !important; }
+.tab-btn.active{ border-color:var(--accent) !important; }
+.idcard:before{ background:radial-gradient(circle, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%) !important; }
+.mobile-install-card{ border-color:color-mix(in srgb, var(--accent) 22%, transparent) !important; background:color-mix(in srgb, var(--accent) 5.5%, transparent) !important; }
+.mobile-install-btn{ border-color:color-mix(in srgb, var(--accent) 35%, transparent) !important; background:color-mix(in srgb, var(--accent) 10%, transparent) !important; }
+.pwa-step-num{ background:color-mix(in srgb, var(--accent) 12%, transparent) !important; border-color:color-mix(in srgb, var(--accent) 28%, transparent) !important; color:var(--accent) !important; }
+.gang-status.pending{ color:var(--accent) !important; border-color:color-mix(in srgb, var(--accent) 30%, transparent) !important; background:color-mix(in srgb, var(--accent) 7%, transparent) !important; }
+
+/* ---------------- Content patterns: lists, pills, tabs (shared across every view) ---------------- */
+.list-row{ border-radius:var(--radius-sm,9px); transition:background var(--transition) !important; }
+.list-row:hover{ background:color-mix(in srgb, var(--accent) 4%, transparent) !important; }
+.list-icon{ background:color-mix(in srgb, var(--accent) 10%, transparent) !important; color:var(--accent) !important; }
+.pill,.chip{
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  backdrop-filter:blur(10px) !important; -webkit-backdrop-filter:blur(10px) !important;
+}
+.rank-tabs,.tabs-row,.week-toggle,.filter-row{
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:999px !important;
+  padding:4px !important;
+  backdrop-filter:blur(var(--blur)) !important; -webkit-backdrop-filter:blur(var(--blur)) !important;
+  width:fit-content !important; max-width:100% !important;
+}
+.tabs-row{ border-radius:var(--radius-sm,9px) !important; } /* underline-style tabs keep a rectangular track */
+.stamp{
+  background:var(--glass-bg) !important; border:1px solid var(--glass-border) !important;
+  border-radius:999px !important; padding:5px 12px !important;
+}
+
 /* ---------------- Status badges / misc ---------------- */
 .stat-value{ color:var(--bone) !important; }
 .stat-delta{ color:var(--accent) !important; }
