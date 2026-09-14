@@ -18,24 +18,28 @@
 
 <style>
 :root{
-  --void:#0A0A0B;
-  --charcoal:#18181A;
-  --panel:#1F2023;
-  --graphite:#2C2D30;
+  /* ÆZ Arena — iOS glass design system (dark, default) */
+  --void:#06080C;
+  --charcoal:#0D1117;
+  --panel:rgba(20,25,34,0.65);
+  --graphite:rgba(30,37,48,0.72);
   --hair:rgba(255,255,255,0.08);
   --hair-strong:rgba(255,255,255,0.16);
-  --bone:#F1F0EC;
-  --ash:#9A9A9C;
-  --ash-dim:#67676A;
-  --silver:#B9BDC4;
-  --gold:#C9A227;
-  --gold-dim:#8F7419;
-  --blue:#5A82B4;
-  --blue-dim:#3C5A80;
-  --danger:#A65C5C;
+  --bone:#F5F7FA;
+  --ash:#94A3B8;
+  --ash-dim:#64748B;
+  --silver:#B9C2CE;
+  --gold:#4DA3FF;
+  --gold-dim:#3D82CC;
+  --blue:#7C83FF;
+  --blue-dim:#5B62D9;
+  --glass-blur:20px;
+  --shadow-soft:0 8px 32px rgba(0,0,0,0.35);
+  --danger:#E5484D;
   --radius-lg:20px;
   --radius-md:14px;
   --radius-sm:9px;
+  --radius-xl:28px;
   --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", sans-serif;
   --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 }
@@ -4611,7 +4615,9 @@ restoreSupabaseSession();
   function initTheme(){
     var saved=null;
     try{saved=localStorage.getItem('aez-theme');}catch(e){}
-    setTheme(saved==='light');
+    if(saved==='light'||saved==='dark'){ setTheme(saved==='light'); return; }
+    var prefersLight = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    setTheme(prefersLight);
   }
   function addToggle(){
     if(document.getElementById('themeToggle')) return;
@@ -4716,5 +4722,7 @@ restoreSupabaseSession();
   <script src="./aez-chat.js"></script>
   <!-- AEZ MOBILE INSTALL -->
   <script src="./aez-mobile-install.js"></script>
+  <!-- ÆZ DESIGN SYSTEM — loaded last so it wins the cascade over older, conflicting patch stylesheets above -->
+  <link rel="stylesheet" href="./aez-design-system.css">
 </body>
 </html>

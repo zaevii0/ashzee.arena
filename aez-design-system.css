@@ -1,0 +1,190 @@
+/* =====================================================================
+   ÆZ ARENA — DESIGN SYSTEM (Phase 1)
+   Single authoritative glass/iOS visual layer. Loaded LAST so it wins
+   over the older, conflicting aez-ios-design.css / aez-premium-ui.css /
+   aez-light-palette.css / mobile-responsive.css rules without deleting
+   them (those files still contain layout/behavioral rules this project
+   depends on — only visual re-skinning happens here).
+   No selectors here change markup, IDs, or JS-bound classes.
+   ===================================================================== */
+
+:root{
+  /* extended glass tokens (supplement the --void/--panel/etc set in index.html) */
+  --glass-bg: rgba(20,25,34,0.65);
+  --glass-bg-elevated: rgba(30,37,48,0.72);
+  --glass-border: rgba(255,255,255,0.10);
+  --accent: #4DA3FF;
+  --accent-secondary: #7C83FF;
+  --blur: 20px;
+  --transition: 220ms cubic-bezier(.22,.61,.36,1);
+}
+
+body.light-mode{
+  --void:#F4F7FB;
+  --charcoal:#EAF0F8;
+  --panel:rgba(255,255,255,0.65);
+  --graphite:rgba(255,255,255,0.8);
+  --hair:rgba(15,23,42,0.08);
+  --hair-strong:rgba(15,23,42,0.14);
+  --bone:#111827;
+  --ash:#64748B;
+  --ash-dim:#94A3B8;
+  --silver:#334155;
+  --gold:#3B82F6;      /* primary accent, blue */
+  --gold-dim:#2563EB;
+  --blue:#6366F1;      /* secondary accent, indigo */
+  --blue-dim:#4F46E5;
+  --danger:#DC2626;
+  --glass-bg: rgba(255,255,255,0.65);
+  --glass-bg-elevated: rgba(255,255,255,0.8);
+  --glass-border: rgba(15,23,42,0.08);
+  --accent:#3B82F6;
+  --accent-secondary:#6366F1;
+  --shadow-soft: 0 8px 32px rgba(30,41,59,0.10);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;scroll-behavior:auto !important;}
+}
+
+/* ---------------- Global surfaces ---------------- */
+body{ background:var(--void) !important; transition:background var(--transition), color var(--transition); }
+
+#landing,#login,#adminLogin,#signup,#gangRegister{
+  background:
+    radial-gradient(900px 560px at 50% -10%, rgba(77,163,255,0.10), transparent 65%),
+    radial-gradient(700px 500px at 100% 100%, rgba(124,131,255,0.06), transparent 70%),
+    var(--void) !important;
+}
+body.light-mode #landing,body.light-mode #login,body.light-mode #adminLogin,body.light-mode #signup,body.light-mode #gangRegister{
+  background:
+    radial-gradient(900px 560px at 50% -10%, rgba(59,130,246,0.08), transparent 65%),
+    radial-gradient(700px 500px at 100% 100%, rgba(99,102,241,0.05), transparent 70%),
+    var(--void) !important;
+}
+
+/* ---------------- Glass card primitive (login/signup/gang panels) ---------------- */
+.login-card{
+  background:var(--glass-bg-elevated) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:var(--radius-xl,28px) !important;
+  box-shadow:var(--shadow-soft,0 20px 60px rgba(0,0,0,0.35)) !important;
+  backdrop-filter:blur(var(--blur)) saturate(160%) !important;
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(160%) !important;
+  background-image:none !important;
+}
+
+/* ---------------- Generic dashboard/content cards ---------------- */
+.card{
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:var(--radius-lg,20px) !important;
+  backdrop-filter:blur(var(--blur)) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(150%) !important;
+  box-shadow:var(--shadow-soft,0 6px 24px rgba(0,0,0,0.25)) !important;
+  transition:transform var(--transition), border-color var(--transition), box-shadow var(--transition) !important;
+}
+.card.clickable:hover{ transform:translateY(-2px) !important; border-color:var(--accent) !important; }
+
+/* ---------------- Inputs ---------------- */
+.field input,.field select,.gang-register-grid input,.gang-register-grid select,textarea{
+  background:rgba(127,127,127,0.08) !important;
+  border:1px solid var(--glass-border) !important;
+  color:var(--bone) !important;
+  border-radius:var(--radius-md,14px) !important;
+  transition:border-color var(--transition), background var(--transition), box-shadow var(--transition) !important;
+}
+.field input:focus,.field select:focus,textarea:focus{
+  outline:none !important;
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent) !important;
+  background:rgba(127,127,127,0.12) !important;
+}
+
+/* ---------------- Buttons ---------------- */
+.enter-btn,.entry-btn,.entry-back-btn{
+  background:rgba(127,127,127,0.08) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:var(--radius-md,14px) !important;
+  transition:transform var(--transition), background var(--transition), box-shadow var(--transition) !important;
+}
+.enter-btn:hover,.entry-btn:hover{
+  background:rgba(127,127,127,0.14) !important;
+  box-shadow:0 10px 30px rgba(0,0,0,0.18) !important;
+}
+.enter-btn:active,.entry-btn:active,.enter-full:active{ transform:scale(0.97) !important; }
+.enter-full,.entry-btn-primary,button[type="submit"]{
+  background:linear-gradient(135deg,var(--accent),var(--accent-secondary)) !important;
+  color:#fff !important;
+  border:none !important;
+  border-radius:var(--radius-md,14px) !important;
+  box-shadow:0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent) !important;
+}
+.entry-btn-admin{
+  background:color-mix(in srgb, var(--accent-secondary) 14%, transparent) !important;
+  border:1px solid color-mix(in srgb, var(--accent-secondary) 35%, transparent) !important;
+}
+
+/* ---------------- Navigation ---------------- */
+.sidebar{
+  background:var(--glass-bg) !important;
+  border-right:1px solid var(--glass-border) !important;
+  backdrop-filter:blur(var(--blur)) saturate(160%) !important;
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(160%) !important;
+}
+.nav-item{ border-radius:var(--radius-sm,9px) !important; transition:background var(--transition), color var(--transition), border-color var(--transition) !important; }
+.nav-item:hover{ background:color-mix(in srgb, var(--accent) 8%, transparent) !important; }
+.nav-item.active{
+  background:color-mix(in srgb, var(--accent) 14%, transparent) !important;
+  border:1px solid color-mix(in srgb, var(--accent) 30%, transparent) !important;
+  color:var(--bone) !important;
+}
+.bottom-nav{
+  background:var(--glass-bg-elevated) !important;
+  border-top:1px solid var(--glass-border) !important;
+  backdrop-filter:blur(var(--blur)) saturate(160%) !important;
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(160%) !important;
+}
+.bn-item.active{ color:var(--accent) !important; }
+
+/* ---------------- Theme toggle: real sliding sun/moon switch ---------------- */
+#themeToggle{
+  position:fixed; top:18px; right:18px; z-index:10000;
+  width:64px; height:34px; padding:3px;
+  border:1px solid var(--glass-border) !important;
+  border-radius:999px !important;
+  background:var(--glass-bg-elevated) !important;
+  backdrop-filter:blur(var(--blur)) !important;
+  -webkit-backdrop-filter:blur(var(--blur)) !important;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:var(--shadow-soft) !important;
+  cursor:pointer;
+}
+#themeToggle .theme-icon{
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;line-height:1;z-index:2;pointer-events:none;
+  transition:opacity var(--transition) !important;
+}
+#themeToggle .theme-knob{
+  position:absolute; left:3px; width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent-secondary));
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  transition:transform 320ms cubic-bezier(.34,1.4,.64,1), background var(--transition) !important;
+}
+#themeToggle[aria-pressed="true"] .theme-knob{ transform:translateX(30px) !important; }
+#themeToggle[aria-pressed="false"] .moon-icon,
+#themeToggle[aria-pressed="true"] .sun-icon{ opacity:0.35 !important; }
+#themeToggle[aria-pressed="false"] .sun-icon,
+#themeToggle[aria-pressed="true"] .moon-icon{ opacity:1 !important; }
+
+/* ---------------- Status badges / misc ---------------- */
+.stat-value{ color:var(--bone) !important; }
+.stat-delta{ color:var(--accent) !important; }
+::selection{ background:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--bone); }
+::-webkit-scrollbar-thumb{ background:var(--glass-border) !important; }
+
+/* ---------------- Focus visibility (accessibility) ---------------- */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.nav-item:focus-visible,.card.clickable:focus-visible{
+  outline:2px solid var(--accent) !important;
+  outline-offset:2px !important;
+}
