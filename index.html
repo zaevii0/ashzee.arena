@@ -6,7 +6,7 @@
 <title>ÆZ Arena — Beyond the source code.</title>
 <!-- AEZ PWA INSTALLED -->
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0A0A0B">
+<meta name="theme-color" content="#06080C">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2190,21 +2190,16 @@ body.light-mode .gang-verify-box,body.light-mode .gang-admin-item,body.light-mod
 </div>
 
 <!-- BOTTOM NAV -->
+<!-- iOS-style bottom nav: 4 primary destinations + More (opens the existing
+     mobile drawer, which already mirrors every sidebar section, including
+     Admin Review when body.admin-capable is set). This mirrors real iOS
+     tab bars instead of a 13-item horizontal-scroll strip. -->
 <div class="bottom-nav">
   <a class="bn-item active" data-view="dashboard" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Home</span></a>
   <a class="bn-item" data-view="activities" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span>Activity</span></a>
   <a class="bn-item" data-view="intel" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/></svg><span>Intel</span></a>
-  <a class="bn-item" data-view="schedule" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Schedule</span></a>
-  <a class="bn-item" data-view="rankings" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M12 20V4M20 20v-7"/></svg><span>Ranks</span></a>
-  <a class="bn-item" data-view="points" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg><span>Points</span></a>
-  <a class="bn-item" data-view="blackop" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg><span>Black Op</span></a>
-  <a class="bn-item" data-view="codeclass" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13 6l-2 12"/></svg><span>Code Class</span></a>
-  <a class="bn-item" data-view="campaign" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v16M4 4h11l-1.5 4L15 12H4"/></svg><span>Campaign</span></a>
-  <a class="bn-item" data-view="casereview" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M4.2 8l3.4 2M4.2 16l3.4-2M12 22v-4M19.8 16l-3.4-2M19.8 8l-3.4 2"/><circle cx="12" cy="12" r="3"/></svg><span>Case Review</span></a>
   <a class="bn-item" data-view="profile" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg><span>Profile</span></a>
-  <a class="bn-item" data-view="passes" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg><span>Passes</span></a>
-  <a class="bn-item" data-view="rules" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l1 4H8l1-4Z"/><path d="M6 6h12l1 15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1L6 6Z"/></svg><span>Rules</span></a>
-  <a class="bn-item admin-mobile" data-view="admin" onclick="nav(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 7v5c0 5 3 8 8 9 5-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>Admin Review</span></a>
+  <button type="button" class="bn-item bn-more" aria-label="More" aria-controls="mobileDrawer" onclick="toggleMobileMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>More</span></button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

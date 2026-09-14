@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aez-arena-v5';
+const CACHE_NAME = 'aez-arena-v6';
 const APP_SHELL = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ const APP_SHELL = [
   './aez-ios-design.css',
   './aez-light-palette.css',
   './aez-premium-ui.css',
+  './aez-design-system.css',
   './manifest.json',
   './icon-180.png',
   './icon-192.png',

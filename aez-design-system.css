@@ -146,6 +146,8 @@ body.light-mode #landing,body.light-mode #login,body.light-mode #adminLogin,body
   -webkit-backdrop-filter:blur(var(--blur)) saturate(160%) !important;
 }
 .bn-item.active{ color:var(--accent) !important; }
+.bn-item.bn-more{ background:none !important; border:none !important; }
+.bn-item.bn-more:active{ transform:scale(0.94); }
 
 /* ---------------- Theme toggle: real sliding sun/moon switch ---------------- */
 #themeToggle{
@@ -177,11 +179,24 @@ body.light-mode #landing,body.light-mode #login,body.light-mode #adminLogin,body
 #themeToggle[aria-pressed="false"] .sun-icon,
 #themeToggle[aria-pressed="true"] .moon-icon{ opacity:1 !important; }
 
+.nav-group-label{ font-weight:600 !important; }
+.side-brand .glyph,.mobile-drawer-brand .glyph{
+  background:linear-gradient(135deg,var(--accent),var(--accent-secondary)) !important;
+  border:none !important; color:#fff !important; font-weight:800 !important;
+  box-shadow:0 6px 16px color-mix(in srgb, var(--accent) 40%, transparent) !important;
+}
+
 /* ---------------- Status badges / misc ---------------- */
 .stat-value{ color:var(--bone) !important; }
 .stat-delta{ color:var(--accent) !important; }
 ::selection{ background:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--bone); }
 ::-webkit-scrollbar-thumb{ background:var(--glass-border) !important; }
+
+.mark-glyph .dot{ background:var(--accent) !important; box-shadow:0 0 8px var(--accent) !important; }
+
+/* ---------------- Auth panel entrance (respects prefers-reduced-motion above) ---------------- */
+@keyframes aez-glass-in{ from{ opacity:0; transform:translateY(10px) scale(0.98); } to{ opacity:1; transform:none; } }
+.screen.active .login-card{ animation:aez-glass-in 320ms cubic-bezier(.22,.61,.36,1) both; }
 
 /* ---------------- Focus visibility (accessibility) ---------------- */
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.nav-item:focus-visible,.card.clickable:focus-visible{
