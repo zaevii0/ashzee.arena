@@ -18,6 +18,12 @@
     document.querySelectorAll('.mobile-install-card,.mobile-install-btn,.pwa-guide-veil').forEach(function(el){el.remove();});
   }
 
+  function renameEntryButton(){
+    document.querySelectorAll('.entry-btn span').forEach(function(el){
+      if((el.textContent||'').trim().toLowerCase()==='gang member') el.textContent='Enter the Arena';
+    });
+  }
+
   function findOriginal(tab){
     var selectors=[];
     if(tab.view) selectors.push('[data-view="'+tab.view+'"]');
@@ -133,7 +139,7 @@
     document.head.appendChild(style);
   }
 
-  function run(){removeUnwantedUI();var nav=document.querySelector('.bottom-nav');if(!nav)return;addStyle();createMobileNav(nav);syncActive();}
+  function run(){removeUnwantedUI();renameEntryButton();var nav=document.querySelector('.bottom-nav');if(!nav)return;addStyle();createMobileNav(nav);syncActive();}
 
   function observe(){run();if(window.MutationObserver&&!window.__aezMobileObserver){window.__aezMobileObserver=true;var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;window.requestAnimationFrame(function(){scheduled=false;run();});});window.__aezMobileObserverInstance=observer;observer.observe(document.body,{childList:true,subtree:true});}}
 
