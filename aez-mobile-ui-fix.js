@@ -1,4 +1,4 @@
-/* ÆZ Arena — iOS-style mobile navigation + UI reliability layer */
+/* ÆZ Arena — mobile UI reliability layer */
 (function(){
   'use strict';
 
@@ -23,58 +23,79 @@
     },true);
   }
 
-  function getNavItem(nav, selector, label){
-    var el=nav.querySelector(selector);
-    if(el) return el;
-    var children=Array.from(nav.querySelectorAll('.bn-item'));
-    return children.find(function(item){
-      return (item.textContent||'').trim().toLowerCase()===label.toLowerCase();
+  function isNamed(el,name){
+    if(!el) return false;
+    var view=(el.getAttribute('data-view')||'').trim().toLowerCase();
+    var text=(el.textContent||'').trim().toLowerCase();
+    return view===name.toLowerCase() || text===name.toLowerCase();
+  }
+
+  function findNavItem(nav, selector, label){
+    if(selector){
+      var selected=nav.querySelector(selector);
+      if(selected) return selected;
+    }
+    return Array.from(nav.querySelectorAll('.bn-item')).find(function(item){
+      return isNamed(item,label);
     }) || null;
   }
 
   function makeScheduleItem(nav){
-    var existing=nav.querySelector('[data-view="schedule"]');
+    var existing=nav.querySelector('.bn-item[data-view="schedule"]');
     if(existing) return existing;
-    var source=document.querySelector('.nav-item[data-view="schedule"],[data-view="schedule"]');
-    if(!source || source===nav) return null;
 
-    var item=source.cloneNode(true);
-    item.classList.remove('nav-item','active','sidebar-item');
-    item.classList.add('bn-item');
-    item.removeAttribute('aria-current');
-    item.removeAttribute('data-aez-social');
-    item.setAttribute('data-view','schedule');
-    item.setAttribute('aria-label','Schedule');
-    item.onclick=function(e){
-      e.preventDefault();
-      var original=document.querySelector('.nav-item[data-view="schedule"],[data-view="schedule"]');
-      if(original && original!==item) original.click();
-      else if(typeof window.nav==='function') window.nav(item);
-    };
-    return item;
+    var source=document.querySelector('.nav-item[data-view="schedule"],[data-view="schedule"]');
+    if(source && source.parentElement===nav) return source;
+
+    if(source){
+      var item=source.cloneNode(true);
+      item.classList.remove('nav-item','active','sidebar-item');
+      item.classList.add('bn-item');
+      item.removeAttribute('aria-current');
+      item.removeAttribute('data-aez-social');
+      item.setAttribute('data-view','schedule');
+      item.setAttribute('aria-label','Schedule');
+      item.onclick=function(e){
+        e.preventDefault();
+        var original=document.querySelector('.nav-item[data-view="schedule"],[data-view="schedule"]');
+        if(original && original!==item) original.click();
+        else if(typeof window.nav==='function') window.nav(item);
+      };
+      return item;
+    }
+
+    return null;
   }
 
   function normalizeBottomNav(){
     var nav=document.querySelector('.bottom-nav');
     if(!nav) return;
 
-    var home=getNavItem(nav,'[data-view="dashboard"]','Home');
-    var activity=getNavItem(nav,'[data-view="activities"]','Activity');
-    var profile=getNavItem(nav,'[data-view="profile"]','Profile');
-    var social=nav.querySelector('[data-aez-social]') || getNavItem(nav,'','Social');
-    var schedule=nav.querySelector('[data-view="schedule"]') || getNavItem(nav,'','Schedule') || makeScheduleItem(nav);
+    var home=findNavItem(nav,'[data-view="dashboard"]','Home');
+    var activity=findNavItem(nav,'[data-view="activities"]','Activity');
+    var schedule=findNavItem(nav,'[data-view="schedule"]','Schedule') || makeScheduleItem(nav);
+    var social=nav.querySelector('.bn-item[data-aez-social]') || nav.querySelector('[data-aez-social]');
+    if(!social){
+      social=document.querySelector('[data-aez-social]');
+    }
+    var profile=findNavItem(nav,'[data-view="profile"]','Profile');
 
     if(social && !social.classList.contains('bn-item')) social.classList.add('bn-item');
 
-    /* Hide every legacy destination. Intel and More never participate. */
-    Array.from(nav.querySelectorAll('.bn-item,.bn-more')).forEach(function(item){
-      item.classList.remove('aez-ios-primary');
-      item.style.display='none';
+    var ordered=[home,activity,schedule,social,profile].filter(Boolean);
+    var orderedSet=new Set(ordered);
+
+    /* Hide all legacy destinations. Intel and More are intentionally removed. */
+    nav.querySelectorAll('.bn-item,.bn-more').forEach(function(item){
+      if(!orderedSet.has(item)){
+        item.classList.remove('aez-ios-primary');
+        item.style.display='none';
+      }
     });
 
-    var ordered=[home,activity,schedule,social,profile].filter(Boolean);
-
+    /* Put the available destinations in the exact requested order. */
     ordered.forEach(function(item,index){
+      if(!item.classList.contains('bn-item')) item.classList.add('bn-item');
       item.classList.add('aez-ios-primary');
       item.style.display='flex';
       item.style.order=String(index);
@@ -86,23 +107,28 @@
       item.style.padding='4px 2px';
       item.style.borderRadius='14px';
       item.setAttribute('aria-label',NAV_LABELS[index]);
-      nav.appendChild(item);
+      if(item.parentElement!==nav) nav.appendChild(item);
     });
 
     nav.querySelectorAll('.bn-more').forEach(function(item){item.remove();});
-    nav.style.display='grid';
-    nav.style.gridTemplateColumns='repeat(5,minmax(0,1fr))';
-    nav.style.gridAutoFlow='column';
-    nav.style.overflow='hidden';
-    nav.style.gap='4px';
+
+    if(nav.dataset.aezNavLayout!=='5'){
+      nav.style.display='grid';
+      nav.style.gridTemplateColumns='repeat(5,minmax(0,1fr))';
+      nav.style.gridTemplateRows='1fr';
+      nav.style.gridAutoFlow='column';
+      nav.style.overflow='hidden';
+      nav.style.gap='4px';
+      nav.dataset.aezNavLayout='5';
+    }
   }
 
-  function addIOSNavigationStyle(){
-    if(document.getElementById('aezIOSNavigationStyle')) return;
+  function addUnifiedNavStyle(){
+    if(document.getElementById('aezUnifiedBottomNavStyle')) return;
     var style=document.createElement('style');
-    style.id='aezIOSNavigationStyle';
+    style.id='aezUnifiedBottomNavStyle';
     style.textContent=`
-@media (max-width:960px){
+@media(max-width:960px){
   body.authenticated .bottom-nav{
     position:fixed!important;
     left:max(8px,env(safe-area-inset-left))!important;
@@ -111,17 +137,17 @@
     width:auto!important;
     height:64px!important;
     min-height:64px!important;
-    padding:5px!important;
     display:grid!important;
     grid-template-columns:repeat(5,minmax(0,1fr))!important;
     grid-template-rows:1fr!important;
     gap:4px!important;
+    padding:5px!important;
     overflow:hidden!important;
     box-sizing:border-box!important;
     z-index:10050!important;
+    background:rgba(18,18,17,.82)!important;
     border:1px solid rgba(255,255,255,.10)!important;
     border-radius:20px!important;
-    background:rgba(20,20,19,.78)!important;
     box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07)!important;
     -webkit-backdrop-filter:blur(26px) saturate(145%)!important;
     backdrop-filter:blur(26px) saturate(145%)!important;
@@ -130,7 +156,6 @@
   body.authenticated .bottom-nav .aez-ios-primary{
     appearance:none!important;
     -webkit-appearance:none!important;
-    position:relative!important;
     display:flex!important;
     flex-direction:column!important;
     align-items:center!important;
@@ -152,17 +177,15 @@
     font-weight:600!important;
     line-height:1!important;
     letter-spacing:.025em!important;
-    text-decoration:none!important;
     white-space:nowrap!important;
     overflow:hidden!important;
+    text-decoration:none!important;
     transition:color .18s ease,background .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease!important;
     -webkit-tap-highlight-color:transparent!important;
     touch-action:manipulation!important;
   }
 
-  body.authenticated .bottom-nav .aez-ios-primary:active{
-    transform:scale(.94)!important;
-  }
+  body.authenticated .bottom-nav .aez-ios-primary:active{transform:scale(.94)!important;}
 
   body.authenticated .bottom-nav .aez-ios-primary svg{
     display:block!important;
@@ -185,7 +208,7 @@
     line-height:1!important;
   }
 
-  /* One shared iOS-style selected state for every destination. */
+  /* Every destination shares one iOS-style selected state. */
   body.authenticated .bottom-nav .aez-ios-primary.active,
   body.authenticated .bottom-nav .aez-ios-primary[aria-current="page"]{
     color:#e3c477!important;
@@ -200,7 +223,7 @@
     transform:translateY(-1px)!important;
   }
 
-  /* Social uses exactly the same visual system as the other four tabs. */
+  /* Social is intentionally identical to the other tabs. */
   body.authenticated .bottom-nav .aez-ios-primary[data-aez-social]{
     color:rgba(232,228,218,.58)!important;
     background:transparent!important;
@@ -216,16 +239,12 @@
   }
 
   body.authenticated .bottom-nav .bn-more,
-  body.authenticated .bottom-nav .bn-item:not(.aez-ios-primary){
-    display:none!important;
-  }
+  body.authenticated .bottom-nav .bn-item:not(.aez-ios-primary){display:none!important;}
 
-  .content,.main-content,.page-content{
-    padding-bottom:92px!important;
-  }
+  .content,.main-content,.page-content{padding-bottom:92px!important;}
 }
 
-@media (max-width:430px){
+@media(max-width:430px){
   body.authenticated .bottom-nav{
     left:6px!important;
     right:6px!important;
@@ -254,24 +273,28 @@
     document.head.appendChild(style);
   }
 
-  function observe(){
+  function run(){
     removeUnwantedUI();
-    addIOSNavigationStyle();
+    addUnifiedNavStyle();
     normalizeBottomNav();
     closeSocialOnNavigation();
+  }
 
-    if(window.MutationObserver){
-      if(window.__aezMobileObserver) return;
-      window.__aezMobileObserver=new MutationObserver(function(){
-        removeUnwantedUI();
-        normalizeBottomNav();
+  function observe(){
+    run();
+    if(window.MutationObserver && !window.__aezMobileObserver){
+      window.__aezMobileObserver=true;
+      var scheduled=false;
+      var observer=new MutationObserver(function(){
+        if(scheduled) return;
+        scheduled=true;
+        window.requestAnimationFrame(function(){
+          scheduled=false;
+          run();
+        });
       });
-      window.__aezMobileObserver.observe(document.body,{
-        childList:true,
-        subtree:true,
-        attributes:true,
-        attributeFilter:['class','aria-current']
-      });
+      window.__aezMobileObserverInstance=observer;
+      observer.observe(document.body,{childList:true,subtree:true});
     }
   }
 
