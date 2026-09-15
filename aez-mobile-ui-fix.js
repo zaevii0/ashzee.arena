@@ -64,7 +64,6 @@
       bar.className='aez-mobile-tabbar';
       bar.setAttribute('role','tablist');
       bar.setAttribute('aria-label','ÆZ Arena navigation');
-      nav.innerHTML='';
       nav.appendChild(bar);
     }
 
@@ -139,9 +138,33 @@
     document.head.appendChild(style);
   }
 
-  function run(){removeUnwantedUI();renameEntryButton();var nav=document.querySelector('.bottom-nav');if(!nav)return;addStyle();createMobileNav(nav);syncActive();}
+  function run(){
+    removeUnwantedUI();
+    renameEntryButton();
+    var nav=document.querySelector('.bottom-nav');
+    if(!nav)return;
+    addStyle();
+    createMobileNav(nav);
+    syncActive();
+  }
 
-  function observe(){run();if(window.MutationObserver&&!window.__aezMobileObserver){window.__aezMobileObserver=true;var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;window.requestAnimationFrame(function(){scheduled=false;run();});});window.__aezMobileObserverInstance=observer;observer.observe(document.body,{childList:true,subtree:true});}}
+  function observe(){
+    run();
+    if(window.MutationObserver&&!window.__aezMobileObserver){
+      window.__aezMobileObserver=true;
+      var scheduled=false;
+      var observer=new MutationObserver(function(){
+        if(scheduled)return;
+        scheduled=true;
+        window.requestAnimationFrame(function(){
+          scheduled=false;
+          run();
+        });
+      });
+      window.__aezMobileObserverInstance=observer;
+      observer.observe(document.body,{childList:true,subtree:true});
+    }
+  }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
   window.addEventListener('resize',run,{passive:true});
