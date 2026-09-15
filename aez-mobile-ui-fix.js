@@ -25,8 +25,63 @@ function bindEntry(g){
  g.addEventListener('submit',function(e){if(e.target.id!=='aegLoginForm')return;e.preventDefault();var id=document.getElementById('aegMemberId').value.trim(),pw=document.getElementById('aegPasscode').value;if(!id||!pw)return;var m=document.getElementById('aegLoginMsg');m.textContent='Authenticating…';if(typeof window.login==='function'){var oldEmail=document.getElementById('emailInput');var oldPw=document.getElementById('passwordInput');if(oldEmail&&oldPw){oldEmail.value=id;oldPw.value=pw;window.login();}else m.textContent='Secure authentication service unavailable. Please use the existing Arena access screen.';}else m.textContent='Secure authentication service unavailable.';});
 }
 function showRegistration(kind){var body=document.getElementById('aegFormBody');if(!body)return;var title=kind==='member'?'JOIN THE UNDERGROUND':kind==='gang'?'ESTABLISH YOUR SYNDICATE':'OBTAIN CLEARANCE';var sub=kind==='member'?'Create a personal ÆZ Arena identity.':kind==='gang'?'Create a new gang profile and submit it for approval.':'Submit your official identity for verification.';var fields=kind==='member'?'<div class="aeg-grid"><label>Member name<input required></label><label>Alias / Codename<input required></label></div><label>Facebook / Member ID<input required></label><label>Existing gang<input placeholder="Gang name or identifier" required></label><div class="aeg-grid"><label>Password / Passcode<input type="password" required></label><label>Confirm passcode<input type="password" required></label></div>':kind==='gang'?'<div class="aeg-grid"><label>Gang name<input required></label><label>Initials / Alias<input required></label></div><label>Motto<input required></label><label>Gang description<textarea rows="4" required></textarea></label><div class="aeg-grid"><label>Founding date<input type="date" required></label><label>Signature color / identity<input placeholder="Describe identity" required></label></div><label>Gang leaders / member information<textarea rows="4" placeholder="Names, roles, member details" required></textarea></label><label>Gang logo<input type="file" accept="image/*"></label>': '<div class="aeg-grid"><label>Full name<input required></label><label>Official position<input required placeholder="Arena Official / Division / etc."></label></div><label>Member / Facebook ID<input required></label><label>Required credentials<textarea rows="4" required></textarea></label><label>Additional verification information<textarea rows="4"></textarea></label>';body.innerHTML='<div class="aeg-kicker">REGISTRATION / 04</div><h2>'+title+'</h2><p>'+sub+'</p><form id="aegRegForm">'+fields+'<button class="aeg-primary aeg-submit" type="submit"><span>04</span> SUBMIT APPLICATION</button><div id="aegRegMsg" class="aeg-msg"></div></form>';level('form');document.getElementById('aegRegForm').addEventListener('submit',function(e){e.preventDefault();var msg=document.getElementById('aegRegMsg');msg.textContent='Securing transmission…';setTimeout(function(){level('confirm')},500);});}
-function bootEntry(){if(!document.body.classList.contains('authenticated'))entryGateway();}
+
+/* Keep exactly one Social control: the one in the authenticated mobile bottom navigation. */
+function fixSocialNavigation(){
+  if(!document.body.classList.contains('authenticated')) return;
+  var bottom=document.querySelector('.bottom-nav');
+
+  /* Remove Social controls from the sidebar and other page-level containers. */
+  document.querySelectorAll('.sidebar button,.sidebar a,.sidebar [role="button"],.sidebar .nav-item').forEach(function(el){
+    var text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+    if(text==='social' || text==='social intelligence') el.remove();
+  });
+
+  /* If there is no mobile navigation, there is nothing to create yet. */
+  if(!bottom) return;
+
+  var socials=Array.prototype.slice.call(bottom.querySelectorAll('button,a,[role="button"],.bn-item,.nav-item')).filter(function(el){
+    var text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+    return text==='social' || text==='social intelligence' || el.hasAttribute('data-aez-social');
+  });
+
+  var keeper=socials.find(function(el){return el.hasAttribute('data-aez-social');}) || socials[0] || null;
+
+  socials.forEach(function(el){
+    if(el!==keeper) el.remove();
+  });
+
+  if(!keeper){
+    keeper=document.createElement('button');
+    keeper.type='button';
+    keeper.className='bn-item aez-social-nav-item';
+    keeper.setAttribute('data-aez-social','1');
+    keeper.innerHTML='<span style="font-size:16px">◈</span><span>Social</span>';
+    bottom.appendChild(keeper);
+  }
+
+  keeper.classList.add('aez-social-nav-item');
+  keeper.onclick=function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof window.openAezSocial==='function') window.openAezSocial();
+    else {
+      var social=document.getElementById('aezSocial');
+      if(social) social.classList.add('open');
+    }
+  };
+}
+
+function injectSocialNavStyle(){
+  if(document.getElementById('aezSocialNavStyle')) return;
+  var s=document.createElement('style');
+  s.id='aezSocialNavStyle';
+  s.textContent='@media(max-width:960px){body.authenticated .aez-social-nav-item{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;color:var(--ash-dim,#64748B)!important;background:transparent!important;border:0!important;font-size:9.5px!important}body.authenticated .aez-social-nav-item.active{color:var(--bone,#F5F7FA)!important;background:rgba(232,233,235,.055)!important}}';
+  document.head.appendChild(s);
+}
+
+function bootEntry(){if(!document.body.classList.contains('authenticated'))entryGateway();else{var g=document.getElementById('aezEntryGateway');if(g)g.remove();fixSocialNavigation();injectSocialNavStyle();}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootEntry);else bootEntry();
 window.addEventListener('load',bootEntry);
-new MutationObserver(function(){if(!document.body.classList.contains('authenticated'))entryGateway();else{var g=document.getElementById('aezEntryGateway');if(g)g.remove();}}).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['class']});
+new MutationObserver(function(){if(!document.body.classList.contains('authenticated'))entryGateway();else{var g=document.getElementById('aezEntryGateway');if(g)g.remove();fixSocialNavigation();injectSocialNavStyle();}}).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['class'],childList:true});
 })();
