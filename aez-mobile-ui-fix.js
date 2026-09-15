@@ -1,87 +1,142 @@
-/* ÆZ Arena — Entry Gateway / resilient Secure Access patch */
+/* ÆZ Arena — mobile UI reliability layer */
 (function(){
-'use strict';
+  'use strict';
 
-/* Entry gateway visual shell. Existing authenticated application is left intact. */
-function entryGateway(){
-  if(document.getElementById('aezEntryGateway')) return;
-  if(document.body.classList.contains('authenticated')) return;
-  var g=document.createElement('main'); g.id='aezEntryGateway';
-  g.innerHTML='<div class="aeg-noise"></div><div class="aeg-orbit"></div><section class="aeg-panel aeg-entry" data-level="entry"><div class="aeg-mark">ÆZ</div><div class="aeg-kicker">CLASSIFIED NETWORK / 01</div><h1>ÆZ ARENA</h1><p>Beyond the source code. Beneath the surface.</p><button class="aeg-primary" data-aeg="access"><span>01</span> ENTER THE ARENA</button><div class="aeg-status"><i></i> NETWORK STANDBY</div></section><section class="aeg-panel aeg-access" data-level="access" hidden><button class="aeg-back" data-aeg="back">← Return to Entry</button><div class="aeg-kicker">ACCESS GATEWAY / 02</div><h2>Choose your clearance.</h2><div class="aeg-options"><button class="aeg-option" data-aeg="login"><b>A — ÆZ SECURE ACCESS</b><small>Already in the network? Identify yourself.</small></button><button class="aeg-option" data-aeg="register"><b>B — REGISTER</b><small>No record found? Establish your presence.</small></button></div></section><section class="aeg-panel aeg-login" data-level="login" hidden><button class="aeg-back" data-aeg="back">← Back</button><div class="aeg-kicker">SECURE ACCESS / 03</div><h2>Identify yourself.</h2><p class="aeg-sub">Registered agents only.</p><form id="aegLoginForm"><label>Agent / Member ID<input id="aegMemberId" autocomplete="username" required></label><label>Password / Passcode<input id="aegPasscode" type="password" autocomplete="current-password" required></label><label class="aeg-check"><input id="aegRemember" type="checkbox"> Remember this device</label><div class="aeg-links"><button type="button" data-aeg="forgot">Forgot credentials</button></div><button class="aeg-primary" type="submit"><span>03</span> AUTHENTICATE</button><div id="aegLoginMsg" class="aeg-msg"></div></form></section><section class="aeg-panel aeg-register" data-level="register" hidden><button class="aeg-back" data-aeg="back">← Back</button><div class="aeg-kicker">REGISTRATION / 03</div><h2>Establish your presence.</h2><div class="aeg-options"><button class="aeg-option" data-aeg="member"><b>01 — JOIN THE UNDERGROUND</b><small>Register as a Gang Member</small></button><button class="aeg-option" data-aeg="gang"><b>02 — ESTABLISH YOUR SYNDICATE</b><small>Register Your Gang</small></button><button class="aeg-option" data-aeg="official"><b>03 — OBTAIN CLEARANCE</b><small>Register as an Arena Official</small></button></div></section><section class="aeg-panel aeg-form" data-level="form" hidden><button class="aeg-back" data-aeg="back">← Back</button><div id="aegFormBody"></div></section><section class="aeg-panel aeg-confirm" data-level="confirm" hidden><div class="aeg-seal">✓</div><div class="aeg-kicker">TRANSMISSION RECEIVED</div><h2>Application secured.</h2><p>Your information has been submitted for review. Access remains restricted until verification is complete.</p><button class="aeg-primary" data-aeg="entry"><span>01</span> RETURN TO ENTRY</button></section></main>';
-  document.body.appendChild(g); injectEntryStyle(); bindEntry(g);
-}
-function injectEntryStyle(){if(document.getElementById('aezEntryStyle'))return;var s=document.createElement('style');s.id='aezEntryStyle';s.textContent='*{box-sizing:border-box}#aezEntryGateway{position:fixed;inset:0;z-index:999999;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 35%,#1b1d20 0,#090a0c 43%,#030304 100%);color:#f2f2f0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif}.aeg-noise{position:absolute;inset:0;opacity:.035;background-image:radial-gradient(#fff .6px,transparent .6px);background-size:4px 4px;pointer-events:none}.aeg-orbit{position:absolute;width:min(72vw,760px);height:min(72vw,760px);border:1px solid rgba(255,255,255,.06);border-radius:50%;box-shadow:0 0 100px rgba(255,255,255,.025);animation:aegPulse 8s ease-in-out infinite}.aeg-panel{width:min(620px,calc(100vw - 34px));max-height:calc(100vh - 34px);overflow:auto;padding:clamp(28px,5vw,58px);border:1px solid rgba(255,255,255,.12);border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));backdrop-filter:blur(30px) saturate(115%);box-shadow:0 35px 100px rgba(0,0,0,.65),inset 0 1px rgba(255,255,255,.08);animation:aegIn .45s cubic-bezier(.2,.8,.2,1)}.aeg-entry{text-align:center}.aeg-mark{width:58px;height:58px;margin:0 auto 26px;border:1px solid rgba(255,255,255,.22);border-radius:18px;display:grid;place-items:center;font-weight:700;letter-spacing:-.08em;background:rgba(255,255,255,.05);box-shadow:0 0 45px rgba(255,255,255,.07)}.aeg-kicker{font:10px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2em;color:#8e9094;margin-bottom:12px}.aeg-panel h1{font-size:clamp(42px,8vw,78px);letter-spacing:-.065em;margin:0;font-weight:700}.aeg-panel h2{font-size:clamp(28px,5vw,42px);letter-spacing:-.04em;margin:0 0 8px}.aeg-panel p{color:#a9aaad;line-height:1.6;margin:12px 0 32px}.aeg-sub{margin-top:0!important;font-size:13px}.aeg-primary,.aeg-option{width:100%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.055);color:#f4f4f2;border-radius:15px;cursor:pointer;transition:transform .18s ease,background .25s,border-color .25s,box-shadow .25s}.aeg-primary{padding:16px 18px;font-size:12px;font-weight:700;letter-spacing:.12em;text-align:left}.aeg-primary span{font-family:ui-monospace,monospace;color:#85878b;margin-right:12px}.aeg-primary:hover,.aeg-option:hover{transform:translateY(-2px);background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.34);box-shadow:0 12px 35px rgba(255,255,255,.06)}.aeg-primary:active,.aeg-option:active{transform:scale(.985)}.aeg-status{margin-top:22px;font:9px ui-monospace,monospace;color:#666;letter-spacing:.16em}.aeg-status i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#a9aaad;box-shadow:0 0 9px rgba(255,255,255,.5);margin-right:7px}.aeg-back{border:0;background:none;color:#777;padding:0 0 28px;cursor:pointer;font:11px ui-monospace,monospace;letter-spacing:.08em}.aeg-options{display:grid;gap:11px;margin-top:28px}.aeg-option{text-align:left;padding:19px 20px}.aeg-option b{display:block;font-size:13px;letter-spacing:.04em}.aeg-option small{display:block;color:#85878b;margin-top:7px;font-size:12px}.aeg-form form{display:grid;gap:15px;margin-top:26px}.aeg-form label,.aeg-login label{display:grid;gap:7px;color:#aaa;font-size:11px;letter-spacing:.06em}.aeg-form input,.aeg-login input,.aeg-form textarea,.aeg-form select{width:100%;padding:13px 14px;border:1px solid rgba(255,255,255,.11);border-radius:12px;background:rgba(0,0,0,.28);color:#eee;outline:none}.aeg-form input:focus,.aeg-login input:focus,.aeg-form textarea:focus,.aeg-form select:focus{border-color:rgba(255,255,255,.35);box-shadow:0 0 0 3px rgba(255,255,255,.035)}.aeg-check{display:flex!important;align-items:center;grid-template-columns:auto 1fr}.aeg-check input{width:auto}.aeg-links button{border:0;background:none;color:#777;text-decoration:underline;cursor:pointer;padding:0;font-size:11px}.aeg-msg{min-height:20px;color:#aaa;font-size:12px;line-height:1.5}.aeg-seal{width:52px;height:52px;border:1px solid rgba(255,255,255,.3);border-radius:50%;display:grid;place-items:center;margin-bottom:22px;font-size:20px}.aeg-confirm p{max-width:470px}.aeg-form .aeg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.aeg-note{font-size:11px!important;color:#777!important;margin:0!important}.aeg-submit{margin-top:8px}@keyframes aegIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}@keyframes aegPulse{0%,100%{transform:scale(.98);opacity:.7}50%{transform:scale(1.02);opacity:1}}@media(max-width:600px){.aeg-panel{padding:26px 20px;border-radius:22px}.aeg-form .aeg-grid{grid-template-columns:1fr}.aeg-panel h1{font-size:44px}.aeg-primary{padding:15px}.aeg-option{padding:17px}}';document.head.appendChild(s)}
-function level(name){var g=document.getElementById('aezEntryGateway');if(!g)return;g.querySelectorAll('.aeg-panel').forEach(function(x){x.hidden=x.dataset.level!==name});}
-function bindEntry(g){
- g.addEventListener('click',function(e){var b=e.target.closest('[data-aeg]');if(!b)return;var a=b.dataset.aeg;
-  if(a==='access')level('access');
-  else if(a==='login')level('login');
-  else if(a==='register')level('register');
-  else if(a==='back')level((g.querySelector('.aeg-panel:not([hidden])')||{}).dataset&&((g.querySelector('.aeg-panel:not([hidden])')||{}).dataset.level==='access'?'entry':(g.querySelector('.aeg-panel:not([hidden])')||{}).dataset.level==='login'||(g.querySelector('.aeg-panel:not([hidden])')||{}).dataset.level==='register'?'access':'register'));
-  else if(a==='entry')level('entry');
-  else if(a==='member'||a==='gang'||a==='official')showRegistration(a);
-  else if(a==='forgot'){var m=document.getElementById('aegLoginMsg');if(m)m.textContent='Credential recovery is handled by Arena Command. Please contact an administrator.';}
- });
- g.addEventListener('submit',function(e){if(e.target.id!=='aegLoginForm')return;e.preventDefault();var id=document.getElementById('aegMemberId').value.trim(),pw=document.getElementById('aegPasscode').value;if(!id||!pw)return;var m=document.getElementById('aegLoginMsg');m.textContent='Authenticating…';if(typeof window.login==='function'){var oldEmail=document.getElementById('emailInput');var oldPw=document.getElementById('passwordInput');if(oldEmail&&oldPw){oldEmail.value=id;oldPw.value=pw;window.login();}else m.textContent='Secure authentication service unavailable. Please use the existing Arena access screen.';}else m.textContent='Secure authentication service unavailable.';});
-}
-function showRegistration(kind){var body=document.getElementById('aegFormBody');if(!body)return;var title=kind==='member'?'JOIN THE UNDERGROUND':kind==='gang'?'ESTABLISH YOUR SYNDICATE':'OBTAIN CLEARANCE';var sub=kind==='member'?'Create a personal ÆZ Arena identity.':kind==='gang'?'Create a new gang profile and submit it for approval.':'Submit your official identity for verification.';var fields=kind==='member'?'<div class="aeg-grid"><label>Member name<input required></label><label>Alias / Codename<input required></label></div><label>Facebook / Member ID<input required></label><label>Existing gang<input placeholder="Gang name or identifier" required></label><div class="aeg-grid"><label>Password / Passcode<input type="password" required></label><label>Confirm passcode<input type="password" required></label></div>':kind==='gang'?'<div class="aeg-grid"><label>Gang name<input required></label><label>Initials / Alias<input required></label></div><label>Motto<input required></label><label>Gang description<textarea rows="4" required></textarea></label><div class="aeg-grid"><label>Founding date<input type="date" required></label><label>Signature color / identity<input placeholder="Describe identity" required></label></div><label>Gang leaders / member information<textarea rows="4" placeholder="Names, roles, member details" required></textarea></label><label>Gang logo<input type="file" accept="image/*"></label>': '<div class="aeg-grid"><label>Full name<input required></label><label>Official position<input required placeholder="Arena Official / Division / etc."></label></div><label>Member / Facebook ID<input required></label><label>Required credentials<textarea rows="4" required></textarea></label><label>Additional verification information<textarea rows="4"></textarea></label>';body.innerHTML='<div class="aeg-kicker">REGISTRATION / 04</div><h2>'+title+'</h2><p>'+sub+'</p><form id="aegRegForm">'+fields+'<button class="aeg-primary aeg-submit" type="submit"><span>04</span> SUBMIT APPLICATION</button><div id="aegRegMsg" class="aeg-msg"></div></form>';level('form');document.getElementById('aegRegForm').addEventListener('submit',function(e){e.preventDefault();var msg=document.getElementById('aegRegMsg');msg.textContent='Securing transmission…';setTimeout(function(){level('confirm')},500);});}
+  var TABS = [
+    {key:'home', label:'Home', view:'dashboard', icon:'<path d="M3 10.8 12 3l9 7.8"/><path d="M5.5 9.5V21h13V9.5"/><path d="M9.5 21v-6h5v6"/>'},
+    {key:'activity', label:'Activity', view:'activities', icon:'<path d="M4 18h16"/><path d="M6 15V9"/><path d="M12 15V5"/><path d="M18 15v-3"/>'},
+    {key:'schedule', label:'Schedule', view:'schedule', icon:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 10h18"/>'},
+    {key:'social', label:'Social', view:null, icon:'<path d="M7.5 19.5 4 21l1.5-3.5A7.5 7.5 0 1 1 19 12"/><path d="M8 11h.01M12 11h.01M16 11h.01"/>'},
+    {key:'profile', label:'Profile', view:'profile', icon:'<circle cx="12" cy="8" r="3.5"/><path d="M5 21c.7-4 3-6 7-6s6.3 2 7 6"/>'}
+  ];
 
-/* Keep exactly one Social control: the one in the authenticated mobile bottom navigation. */
-function fixSocialNavigation(){
-  if(!document.body.classList.contains('authenticated')) return;
-  var bottom=document.querySelector('.bottom-nav');
-
-  /* Remove Social controls from the sidebar and other page-level containers. */
-  document.querySelectorAll('.sidebar button,.sidebar a,.sidebar [role="button"],.sidebar .nav-item').forEach(function(el){
-    var text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
-    if(text==='social' || text==='social intelligence') el.remove();
-  });
-
-  /* If there is no mobile navigation, there is nothing to create yet. */
-  if(!bottom) return;
-
-  var socials=Array.prototype.slice.call(bottom.querySelectorAll('button,a,[role="button"],.bn-item,.nav-item')).filter(function(el){
-    var text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
-    return text==='social' || text==='social intelligence' || el.hasAttribute('data-aez-social');
-  });
-
-  var keeper=socials.find(function(el){return el.hasAttribute('data-aez-social');}) || socials[0] || null;
-
-  socials.forEach(function(el){
-    if(el!==keeper) el.remove();
-  });
-
-  if(!keeper){
-    keeper=document.createElement('button');
-    keeper.type='button';
-    keeper.className='bn-item aez-social-nav-item';
-    keeper.setAttribute('data-aez-social','1');
-    keeper.innerHTML='<span style="font-size:16px">◈</span><span>Social</span>';
-    bottom.appendChild(keeper);
+  function removeUnwantedUI(){
+    ['themeToggle','mobileInstallCard','pwaGuide'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.remove();
+    });
+    document.querySelectorAll('.mobile-install-card,.mobile-install-btn,.pwa-guide-veil').forEach(function(el){el.remove();});
   }
 
-  keeper.classList.add('aez-social-nav-item');
-  keeper.onclick=function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    if(typeof window.openAezSocial==='function') window.openAezSocial();
-    else {
+  function findOriginal(tab){
+    var selectors=[];
+    if(tab.view) selectors.push('[data-view="'+tab.view+'"]');
+    if(tab.key==='social') selectors.push('[data-aez-social]');
+    selectors.push('.nav-item');
+    var candidates=[];
+    selectors.forEach(function(selector){
+      document.querySelectorAll(selector).forEach(function(el){
+        if(!candidates.includes(el)) candidates.push(el);
+      });
+    });
+    return candidates.find(function(el){
+      if(tab.key==='social') return el.hasAttribute('data-aez-social') || /^social$/i.test((el.textContent||'').trim());
+      var view=(el.getAttribute('data-view')||'').toLowerCase();
+      var text=(el.textContent||'').trim().toLowerCase();
+      return view===tab.view || text===tab.label.toLowerCase();
+    }) || null;
+  }
+
+  function activateOriginal(tab){
+    var original=findOriginal(tab);
+    if(original && !original.classList.contains('aez-mobile-tab')){
+      original.click();
+      return;
+    }
+    if(tab.key==='social'){
       var social=document.getElementById('aezSocial');
       if(social) social.classList.add('open');
+      return;
     }
-  };
-}
+    if(typeof window.nav==='function') window.nav({getAttribute:function(name){return name==='data-view'?tab.view:null;}});
+  }
 
-function injectSocialNavStyle(){
-  if(document.getElementById('aezSocialNavStyle')) return;
-  var s=document.createElement('style');
-  s.id='aezSocialNavStyle';
-  s.textContent='@media(max-width:960px){body.authenticated .aez-social-nav-item{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;color:var(--ash-dim,#64748B)!important;background:transparent!important;border:0!important;font-size:9.5px!important}body.authenticated .aez-social-nav-item.active{color:var(--bone,#F5F7FA)!important;background:rgba(232,233,235,.055)!important}}';
-  document.head.appendChild(s);
-}
+  function createMobileNav(nav){
+    var bar=nav.querySelector('.aez-mobile-tabbar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.className='aez-mobile-tabbar';
+      bar.setAttribute('role','tablist');
+      bar.setAttribute('aria-label','ÆZ Arena navigation');
+      nav.innerHTML='';
+      nav.appendChild(bar);
+    }
 
-function bootEntry(){if(!document.body.classList.contains('authenticated'))entryGateway();else{var g=document.getElementById('aezEntryGateway');if(g)g.remove();fixSocialNavigation();injectSocialNavStyle();}}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootEntry);else bootEntry();
-window.addEventListener('load',bootEntry);
-new MutationObserver(function(){if(!document.body.classList.contains('authenticated'))entryGateway();else{var g=document.getElementById('aezEntryGateway');if(g)g.remove();fixSocialNavigation();injectSocialNavStyle();}}).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['class'],childList:true});
+    TABS.forEach(function(tab){
+      var button=bar.querySelector('[data-aez-mobile-tab="'+tab.key+'"]');
+      if(!button){
+        button=document.createElement('button');
+        button.type='button';
+        button.className='aez-mobile-tab';
+        button.setAttribute('data-aez-mobile-tab',tab.key);
+        button.setAttribute('aria-label',tab.label);
+        button.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+tab.icon+'</svg><span>'+tab.label+'</span>';
+        button.addEventListener('click',function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          if(tab.key==='social'){
+            var social=document.getElementById('aezSocial');
+            if(social) social.classList.add('open');
+            var original=findOriginal(tab);
+            if(original && !original.classList.contains('aez-mobile-tab')) original.click();
+          }else{
+            var social=document.getElementById('aezSocial');
+            if(social) social.classList.remove('open');
+            activateOriginal(tab);
+          }
+          setActive(tab.key);
+        });
+        bar.appendChild(button);
+      }
+    });
+    return bar;
+  }
+
+  function setActive(key){
+    document.querySelectorAll('.aez-mobile-tab').forEach(function(btn){
+      var active=btn.getAttribute('data-aez-mobile-tab')===key;
+      btn.classList.toggle('active',active);
+      btn.setAttribute('aria-selected',active?'true':'false');
+    });
+  }
+
+  function syncActive(){
+    var activeTab='home';
+    TABS.forEach(function(tab){
+      var original=findOriginal(tab);
+      if(original && (original.classList.contains('active') || original.getAttribute('aria-current')==='page')) activeTab=tab.key;
+    });
+    var social=document.getElementById('aezSocial');
+    if(social && social.classList.contains('open')) activeTab='social';
+    setActive(activeTab);
+  }
+
+  function addStyle(){
+    if(document.getElementById('aezGuaranteedMobileNavStyle')) return;
+    var style=document.createElement('style');
+    style.id='aezGuaranteedMobileNavStyle';
+    style.textContent=`
+@media(max-width:960px){
+  body.authenticated .bottom-nav{position:fixed!important;left:max(7px,env(safe-area-inset-left))!important;right:max(7px,env(safe-area-inset-right))!important;bottom:max(7px,env(safe-area-inset-bottom))!important;width:auto!important;height:68px!important;min-height:68px!important;display:block!important;padding:5px!important;margin:0!important;box-sizing:border-box!important;z-index:10050!important;overflow:hidden!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:21px!important;background:rgba(19,20,19,.82)!important;box-shadow:0 18px 50px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.075)!important;-webkit-backdrop-filter:blur(28px) saturate(145%)!important;backdrop-filter:blur(28px) saturate(145%)!important}
+  body.authenticated .aez-mobile-tabbar{width:100%!important;height:56px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:3px!important}
+  body.authenticated .aez-mobile-tab{appearance:none!important;-webkit-appearance:none!important;border:1px solid transparent!important;outline:none!important;border-radius:15px!important;min-width:0!important;width:100%!important;height:56px!important;padding:4px 2px!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;background:transparent!important;color:rgba(235,231,221,.58)!important;font-family:inherit!important;font-size:8.5px!important;font-weight:600!important;letter-spacing:.02em!important;line-height:1!important;white-space:nowrap!important;-webkit-tap-highlight-color:transparent!important;touch-action:manipulation!important;transition:background .18s ease,color .18s ease,border-color .18s ease,transform .12s ease,box-shadow .18s ease!important}
+  body.authenticated .aez-mobile-tab svg{width:19px!important;height:19px!important;flex:0 0 19px!important;display:block!important;opacity:.82!important}
+  body.authenticated .aez-mobile-tab span{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  body.authenticated .aez-mobile-tab.active{color:#e3c477!important;background:linear-gradient(145deg,rgba(224,194,122,.16),rgba(224,194,122,.055))!important;border-color:rgba(224,194,122,.25)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 5px 16px rgba(0,0,0,.22)!important}
+  body.authenticated .aez-mobile-tab.active svg{opacity:1!important;transform:translateY(-1px)}
+  body.authenticated .aez-mobile-tab:active{transform:scale(.94)!important}
+  body.authenticated .content,body.authenticated .main-content,body.authenticated .page-content{padding-bottom:98px!important}
+}
+@media(max-width:430px){body.authenticated .bottom-nav{left:6px!important;right:6px!important;bottom:max(6px,env(safe-area-inset-bottom))!important;height:64px!important;min-height:64px!important;border-radius:19px!important;padding:4px!important}.aez-mobile-tabbar,.aez-mobile-tab{height:54px!important}.aez-mobile-tab{border-radius:14px!important;font-size:8px!important;gap:2px!important}.aez-mobile-tab svg{width:18px!important;height:18px!important;flex-basis:18px!important}}
+@media(min-width:961px){body.authenticated .aez-mobile-tabbar{display:none!important}}
+`;
+    document.head.appendChild(style);
+  }
+
+  function run(){removeUnwantedUI();var nav=document.querySelector('.bottom-nav');if(!nav)return;addStyle();createMobileNav(nav);syncActive();}
+
+  function observe(){run();if(window.MutationObserver&&!window.__aezMobileObserver){window.__aezMobileObserver=true;var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;window.requestAnimationFrame(function(){scheduled=false;run();});});window.__aezMobileObserverInstance=observer;observer.observe(document.body,{childList:true,subtree:true});}}
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
+  window.addEventListener('resize',run,{passive:true});
 })();
