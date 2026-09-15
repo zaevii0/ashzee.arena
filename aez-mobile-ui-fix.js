@@ -74,11 +74,32 @@ function cleanupSocialShortcut(){
   if(s)s.remove();
 }
 
+function removeUnwantedUI(){
+  var toggle=document.getElementById('themeToggle');
+  if(toggle) toggle.remove();
+  var installCard=document.getElementById('mobileInstallCard');
+  if(installCard) installCard.remove();
+  var installGuide=document.getElementById('pwaGuide');
+  if(installGuide) installGuide.remove();
+  document.querySelectorAll('.mobile-install-card,.mobile-install-btn,.pwa-guide-veil').forEach(function(el){el.remove();});
+}
+
+function closeSocialOnNavigation(){
+  document.addEventListener('click',function(e){
+    var target=e.target.closest('[data-view]');
+    if(!target || target.hasAttribute('data-aez-social')) return;
+    var social=document.getElementById('aezSocial');
+    if(social) social.classList.remove('open');
+  },true);
+}
+
 function observe(){
   loadMobileCascade();
   cleanupSocialShortcut();
-  new MutationObserver(function(){loadMobileCascade();cleanupSocialShortcut();}).observe(document.body,{attributes:true,childList:true,subtree:true,attributeFilter:['class']});
-  window.addEventListener('resize',function(){loadMobileCascade();cleanupSocialShortcut();});
+  removeUnwantedUI();
+  closeSocialOnNavigation();
+  new MutationObserver(function(){loadMobileCascade();cleanupSocialShortcut();removeUnwantedUI();}).observe(document.body,{attributes:true,childList:true,subtree:true,attributeFilter:['class']});
+  window.addEventListener('resize',function(){loadMobileCascade();cleanupSocialShortcut();removeUnwantedUI();});
 }
 
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',observe); else observe();
