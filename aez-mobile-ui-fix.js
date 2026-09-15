@@ -18,6 +18,18 @@
     document.querySelectorAll('.mobile-install-card,.mobile-install-btn,.pwa-guide-veil').forEach(function(el){el.remove();});
   }
 
+  // Remove duplicate standalone "Social" controls while preserving the
+  // single Social tab generated inside the mobile navigation bar.
+  function removeDuplicateSocial(){
+    document.querySelectorAll('button,a,[role="button"],.nav-item,.menu-item,.action-btn').forEach(function(el){
+      if(el.classList.contains('aez-mobile-tab') || el.closest('.aez-mobile-tabbar') || el.closest('.bottom-nav')) return;
+      var text=(el.textContent||'').replace(/\s+/g,' ').trim();
+      if(text !== 'Social') return;
+      if(el.hasAttribute('data-aez-social')) return;
+      el.remove();
+    });
+  }
+
   function findOriginal(tab){
     var selectors=[];
     if(tab.view) selectors.push('[data-view="'+tab.view+'"]');
@@ -204,6 +216,7 @@
 
   function run(){
     removeUnwantedUI();
+    removeDuplicateSocial();
     var nav=document.querySelector('.bottom-nav');
     if(!nav) return;
     addStyle();
