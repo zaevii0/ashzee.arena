@@ -18,14 +18,13 @@
     document.querySelectorAll('.mobile-install-card,.mobile-install-btn,.pwa-guide-veil').forEach(function(el){el.remove();});
   }
 
-  // Remove duplicate standalone "Social" controls while preserving the
-  // single Social tab generated inside the mobile navigation bar.
+  // Remove every standalone Social/Social Intelligence control.
+  // The only Social control allowed to remain is the generated mobile tab.
   function removeDuplicateSocial(){
     document.querySelectorAll('button,a,[role="button"],.nav-item,.menu-item,.action-btn').forEach(function(el){
       if(el.classList.contains('aez-mobile-tab') || el.closest('.aez-mobile-tabbar') || el.closest('.bottom-nav')) return;
-      var text=(el.textContent||'').replace(/\s+/g,' ').trim();
-      if(text !== 'Social') return;
-      if(el.hasAttribute('data-aez-social')) return;
+      var text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(text !== 'social' && text !== 'social intelligence') return;
       el.remove();
     });
   }
