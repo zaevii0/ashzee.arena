@@ -15,6 +15,13 @@
     document.querySelectorAll('.mobile-install-card,.mobile-install-btn,.pwa-guide-veil').forEach(function(el){el.remove();});
   }
 
+  function removeRegisterGangButton(){
+    document.querySelectorAll('button,a,[role="button"],.entry-btn,.entry-btn-primary').forEach(function(el){
+      var text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(text==='register gang') el.remove();
+    });
+  }
+
   function renameEntryButton(){
     document.querySelectorAll('.entry-btn-primary,.entry-btn').forEach(function(btn){
       var span=btn.querySelector('span');
@@ -74,7 +81,7 @@ body{background:#06080C!important;color:#F5F7FA!important}
     document.head.appendChild(style);
   }
 
-  function run(){removeUnwantedUI();forceDarkEntry();renameEntryButton();var nav=document.querySelector('.bottom-nav');if(nav){addStyle();createMobileNav(nav);syncActive();}}
+  function run(){removeUnwantedUI();removeRegisterGangButton();forceDarkEntry();renameEntryButton();var nav=document.querySelector('.bottom-nav');if(nav){addStyle();createMobileNav(nav);syncActive();}}
   function observe(){run();if(window.MutationObserver&&!window.__aezMobileObserver){window.__aezMobileObserver=true;var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;window.requestAnimationFrame(function(){scheduled=false;run();});});window.__aezMobileObserverInstance=observer;observer.observe(document.body,{childList:true,subtree:true});}setTimeout(renameEntryButton,50);setTimeout(renameEntryButton,250);setTimeout(renameEntryButton,1000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
   window.addEventListener('resize',run,{passive:true});
