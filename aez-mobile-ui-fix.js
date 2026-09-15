@@ -81,8 +81,99 @@ body{background:#06080C!important;color:#F5F7FA!important}
     document.head.appendChild(style);
   }
 
-  function run(){removeUnwantedUI();removeRegisterGangButton();forceDarkEntry();renameEntryButton();var nav=document.querySelector('.bottom-nav');if(nav){addStyle();createMobileNav(nav);syncActive();}}
-  function observe(){run();if(window.MutationObserver&&!window.__aezMobileObserver){window.__aezMobileObserver=true;var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;window.requestAnimationFrame(function(){scheduled=false;run();});});window.__aezMobileObserverInstance=observer;observer.observe(document.body,{childList:true,subtree:true});}setTimeout(renameEntryButton,50);setTimeout(renameEntryButton,250);setTimeout(renameEntryButton,1000);}
+  function textMatch(el, values){
+    if(!el || el.id==='aezEntryAccessChoice')return false;
+    var text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+    return values.indexOf(text)!==-1;
+  }
+
+  function findEntryAction(values){
+    var selectors='button,a,[role="button"],.entry-btn,.entry-btn-primary';
+    var nodes=document.querySelectorAll(selectors);
+    for(var i=0;i<nodes.length;i++){
+      var el=nodes[i];
+      if(el.closest('#aezEntryAccessChoice'))continue;
+      if(textMatch(el,values))return el;
+    }
+    return null;
+  }
+
+  function showEntryAccessChoice(){
+    var existing=document.getElementById('aezEntryAccessChoice');
+    if(existing){existing.classList.add('open');return;}
+    var page=document.createElement('section');
+    page.id='aezEntryAccessChoice';
+    page.setAttribute('aria-label','Arena access selection');
+    page.innerHTML=`
+      <div class="aez-access-inner">
+        <div class="aez-access-kicker">ÆZ ARENA</div>
+        <h1>Enter the Arena</h1>
+        <p class="aez-access-sub">Choose how you want to enter the network.</p>
+        <div class="aez-access-actions">
+          <button type="button" class="aez-access-btn" data-aez-access="login">
+            <span class="aez-access-index">01</span><span class="aez-access-label">Login</span><span class="aez-access-arrow">→</span>
+          </button>
+          <button type="button" class="aez-access-btn" data-aez-access="register">
+            <span class="aez-access-index">02</span><span class="aez-access-label">Register</span><span class="aez-access-arrow">→</span>
+          </button>
+        </div>
+        <button type="button" class="aez-access-back" data-aez-access="back">Return to Entry</button>
+      </div>`;
+    document.body.appendChild(page);
+
+    var style=document.getElementById('aezEntryAccessStyle');
+    if(!style){
+      style=document.createElement('style');style.id='aezEntryAccessStyle';
+      style.textContent=`
+#aezEntryAccessChoice{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;text-align:center;padding:28px 20px;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.045),transparent 38%),#06080C;color:#F5F7FA;overflow:auto}
+#aezEntryAccessChoice.open{display:flex}
+#aezEntryAccessChoice .aez-access-inner{width:min(92vw,520px);margin:auto}
+#aezEntryAccessChoice .aez-access-kicker{font:600 11px/1.2 var(--font-mono,monospace);letter-spacing:.24em;color:#64748B;margin-bottom:22px}
+#aezEntryAccessChoice h1{font-size:clamp(30px,7vw,54px);line-height:1.05;letter-spacing:-.04em;font-weight:650;margin:0 0 12px}
+#aezEntryAccessChoice .aez-access-sub{color:#94A3B8;font-size:14px;line-height:1.6;margin:0 auto 38px;max-width:390px}
+#aezEntryAccessChoice .aez-access-actions{display:grid;gap:12px;width:100%}
+#aezEntryAccessChoice .aez-access-btn{position:relative;width:100%;min-height:68px;padding:16px 52px 16px 20px;border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(20,25,34,.68);color:#F5F7FA;display:flex;align-items:center;gap:14px;text-align:left;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 14px 38px rgba(0,0,0,.25);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:.18s ease}
+#aezEntryAccessChoice .aez-access-btn:hover{border-color:rgba(224,194,122,.34);background:rgba(28,31,39,.82);transform:translateY(-1px)}
+#aezEntryAccessChoice .aez-access-btn:active{transform:scale(.985)}
+#aezEntryAccessChoice .aez-access-index{font:600 10px/1 var(--font-mono,monospace);color:#64748B;min-width:22px}
+#aezEntryAccessChoice .aez-access-label{font-size:15px;font-weight:650;letter-spacing:.04em}
+#aezEntryAccessChoice .aez-access-arrow{position:absolute;right:20px;color:#C8A95A;font-size:18px}
+#aezEntryAccessChoice .aez-access-back{margin-top:24px;border:0;background:transparent;color:#64748B;font:500 11px/1.4 var(--font-mono,monospace);letter-spacing:.06em;padding:10px;cursor:pointer}
+#aezEntryAccessChoice .aez-access-back:hover{color:#F5F7FA}
+@media(max-width:430px){#aezEntryAccessChoice{padding:22px 16px}#aezEntryAccessChoice .aez-access-sub{margin-bottom:30px}#aezEntryAccessChoice .aez-access-btn{min-height:62px;border-radius:15px}}
+`;
+      document.head.appendChild(style);
+    }
+
+    page.querySelectorAll('[data-aez-access]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var action=btn.getAttribute('data-aez-access');
+        if(action==='back'){page.classList.remove('open');return;}
+        page.classList.remove('open');
+        var target=action==='login'
+          ? findEntryAction(['æz secure access','secure access','login'])
+          : findEntryAction(['register']);
+        if(target)target.click();
+      });
+    });
+  }
+
+  function bindEntryAccess(){
+    document.querySelectorAll('.enter-btn,.entry-btn-primary,.entry-btn').forEach(function(btn){
+      if(btn.__aezEntryAccessBound)return;
+      var text=(btn.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(text!=='enter the arena')return;
+      btn.__aezEntryAccessBound=true;
+      btn.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        showEntryAccessChoice();
+      },true);
+    });
+  }
+
+  function run(){removeUnwantedUI();removeRegisterGangButton();forceDarkEntry();renameEntryButton();bindEntryAccess();var nav=document.querySelector('.bottom-nav');if(nav){addStyle();createMobileNav(nav);syncActive();}}
+  function observe(){run();if(window.MutationObserver&&!window.__aezMobileObserver){window.__aezMobileObserver=true;var scheduled=false;var observer=new MutationObserver(function(){if(scheduled)return;scheduled=true;window.requestAnimationFrame(function(){scheduled=false;run();});});window.__aezMobileObserverInstance=observer;observer.observe(document.body,{childList:true,subtree:true});}setTimeout(renameEntryButton,50);setTimeout(renameEntryButton,250);setTimeout(renameEntryButton,1000);setTimeout(bindEntryAccess,50);setTimeout(bindEntryAccess,250);setTimeout(bindEntryAccess,1000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
   window.addEventListener('resize',run,{passive:true});
 })();
