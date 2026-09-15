@@ -19,9 +19,22 @@
   }
 
   function renameEntryButton(){
-    document.querySelectorAll('.entry-btn span').forEach(function(el){
-      if((el.textContent||'').trim().toLowerCase()==='gang member') el.textContent='Enter the Arena';
+    var changed=false;
+    document.querySelectorAll('.entry-btn-primary').forEach(function(btn){
+      var span=btn.querySelector('span');
+      if(span){
+        span.textContent='Enter the Arena';
+        changed=true;
+      }
+      btn.setAttribute('aria-label','Enter the Arena');
     });
+    document.querySelectorAll('.entry-btn span').forEach(function(el){
+      if((el.textContent||'').trim().toLowerCase()==='gang member'){
+        el.textContent='Enter the Arena';
+        changed=true;
+      }
+    });
+    return changed;
   }
 
   function findOriginal(tab){
@@ -142,10 +155,11 @@
     removeUnwantedUI();
     renameEntryButton();
     var nav=document.querySelector('.bottom-nav');
-    if(!nav)return;
-    addStyle();
-    createMobileNav(nav);
-    syncActive();
+    if(nav){
+      addStyle();
+      createMobileNav(nav);
+      syncActive();
+    }
   }
 
   function observe(){
@@ -164,6 +178,11 @@
       window.__aezMobileObserverInstance=observer;
       observer.observe(document.body,{childList:true,subtree:true});
     }
+    /* Entry Selection can be rebuilt after logout, so make the label fix
+       explicit even when the landing page is recreated by index.html. */
+    setTimeout(renameEntryButton,50);
+    setTimeout(renameEntryButton,250);
+    setTimeout(renameEntryButton,1000);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
