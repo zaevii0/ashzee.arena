@@ -271,3 +271,239 @@ body.light-mode #themeToggle{background:rgba(255,255,255,.62)!important;border-c
   #themeToggle{top:10px!important;right:10px!important;transform:scale(.92);transform-origin:top right;}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important;}}
+
+/* ================================================================
+   ÆZ ARENA — NOIR COMMAND REDESIGN
+   Visual-only layer inspired by cinematic detective / private-network
+   interfaces: warm brass, charcoal glass, dossier panels, restrained glow.
+   Existing IDs, JS hooks, Supabase flows and navigation remain untouched.
+   ================================================================ */
+:root{
+  --noir-bg:#050607;
+  --noir-panel:rgba(12,15,17,.72);
+  --noir-panel-2:rgba(18,21,24,.78);
+  --noir-line:rgba(226,205,151,.13);
+  --noir-line-strong:rgba(226,205,151,.24);
+  --noir-gold:#d9b867;
+  --noir-gold-hi:#f0d995;
+  --noir-muted:#8d8c84;
+  --noir-text:#f3f0e7;
+}
+
+html,body{background:var(--noir-bg)!important;}
+body{
+  color:var(--noir-text)!important;
+  background:
+    radial-gradient(900px 520px at 76% 2%,rgba(217,184,103,.075),transparent 68%),
+    radial-gradient(800px 560px at 12% 96%,rgba(255,255,255,.025),transparent 70%),
+    #050607!important;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.24;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(circle at center,black,transparent 88%);
+}
+
+/* --- shell --- */
+#app{background:transparent!important;}
+.sidebar{
+  width:238px!important;padding:20px 13px!important;
+  background:linear-gradient(180deg,rgba(8,10,11,.91),rgba(8,9,10,.78))!important;
+  border-right:1px solid var(--noir-line)!important;
+  box-shadow:18px 0 60px rgba(0,0,0,.28)!important;
+  backdrop-filter:blur(30px) saturate(115%)!important;
+}
+.side-brand{padding:7px 10px 25px!important;gap:11px!important;}
+.side-brand .glyph{
+  width:34px!important;height:34px!important;border-radius:10px!important;
+  background:linear-gradient(145deg,#4a402a,#151515)!important;
+  border-color:rgba(230,205,143,.24)!important;color:var(--noir-gold-hi)!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.12)!important;
+}
+.side-brand .name{font-size:14px!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#e7dfcb!important;}
+.nav-group{margin-bottom:18px!important;}
+.nav-group-label{font-size:8.5px!important;letter-spacing:.2em!important;color:rgba(217,184,103,.48)!important;padding:0 11px 7px!important;}
+.nav-item{
+  min-height:39px!important;padding:9px 11px!important;margin:2px 0!important;border-radius:11px!important;
+  color:#8e908d!important;font-size:12px!important;letter-spacing:.01em!important;
+}
+.nav-item svg{width:15px!important;height:15px!important;color:inherit!important;opacity:.78!important;}
+.nav-item:hover{background:rgba(217,184,103,.055)!important;color:#e8e1d2!important;transform:translateX(2px)!important;}
+.nav-item.active{
+  background:linear-gradient(100deg,rgba(217,184,103,.18),rgba(217,184,103,.045))!important;
+  border-color:rgba(217,184,103,.18)!important;color:#f0dcaa!important;
+  box-shadow:inset 2px 0 0 var(--noir-gold),0 7px 20px rgba(0,0,0,.18)!important;
+}
+.nav-item.active svg{color:var(--noir-gold-hi)!important;opacity:1!important;}
+
+.topbar{
+  height:66px!important;padding:0 28px!important;
+  background:rgba(5,7,8,.64)!important;border-bottom:1px solid rgba(226,205,151,.10)!important;
+  backdrop-filter:blur(28px) saturate(125%)!important;
+}
+.top-mark{font-size:13px!important;letter-spacing:.22em!important;color:var(--noir-gold-hi)!important;}
+.top-clock{font-size:9px!important;letter-spacing:.13em!important;color:#6f716e!important;text-transform:uppercase!important;}
+.icon-btn{width:34px!important;height:34px!important;background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.08)!important;}
+.icon-btn svg{width:14px!important;height:14px!important;}
+.icon-btn:hover{background:rgba(217,184,103,.075)!important;border-color:rgba(217,184,103,.2)!important;}
+.avatar-chip{background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.08)!important;}
+.avatar-chip .av{background:linear-gradient(145deg,#776344,#17181a)!important;}
+.avatar-chip .lvl{color:#b8b3a7!important;font-size:10px!important;}
+
+.content{max-width:1500px!important;padding:31px clamp(22px,3vw,42px) 52px!important;}
+.page-head{margin-bottom:18px!important;align-items:flex-end!important;}
+.page-head h1{font-size:25px!important;letter-spacing:-.035em!important;color:#eeeae1!important;}
+.page-head .page-sub{font-size:11px!important;color:#777972!important;letter-spacing:.015em!important;}
+.stamp{font-size:8px!important;letter-spacing:.16em!important;border-radius:999px!important;padding:6px 10px!important;transform:none!important;}
+.stamp.active{color:#dfc47d!important;border-color:rgba(217,184,103,.26)!important;background:rgba(217,184,103,.065)!important;}
+
+/* --- cards / dossier surfaces --- */
+.grid{gap:13px!important;}
+.card,.idcard,.pass-card,.sheet,.modal-pane,.admin-application-card,.admin-detail-card,.admin-detail-empty{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.014) 54%,rgba(217,184,103,.024))!important;
+  border:1px solid rgba(255,255,255,.075)!important;
+  border-radius:15px!important;
+  box-shadow:0 20px 60px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.035)!important;
+  backdrop-filter:blur(26px) saturate(120%)!important;
+}
+.card{padding:20px!important;}
+.card:hover{border-color:rgba(217,184,103,.16)!important;}
+
+/* cinematic welcome panel */
+.welcome-card{
+  min-height:205px!important;position:relative!important;overflow:hidden!important;
+  background:
+    linear-gradient(90deg,rgba(5,7,8,.96) 0%,rgba(5,7,8,.88) 36%,rgba(5,7,8,.46) 70%,rgba(5,7,8,.72) 100%),
+    linear-gradient(180deg,rgba(217,184,103,.06),transparent),
+    url('./aez-noir-city.svg') center/cover no-repeat!important;
+}
+.welcome-card::before{
+  content:"CASE FILE · ACTIVE";position:absolute;right:18px;top:16px;font:700 8px/1 var(--font-mono);letter-spacing:.18em;color:rgba(217,184,103,.55);
+}
+.welcome-card::after{
+  content:"";position:absolute;right:-80px;bottom:-100px;width:330px;height:330px;border-radius:50%;border:1px solid rgba(217,184,103,.08);box-shadow:0 0 0 22px rgba(217,184,103,.018),0 0 0 46px rgba(217,184,103,.012);pointer-events:none;
+}
+.welcome-card>div:first-child{position:relative;z-index:2;max-width:72%;}
+.welcome-card h2{font-size:23px!important;font-weight:560!important;letter-spacing:-.035em!important;color:#f1eee6!important;}
+.welcome-card .meta{gap:25px!important;margin-top:18px!important;}
+.meta-item .l{font-size:8px!important;letter-spacing:.17em!important;color:rgba(217,184,103,.55)!important;}
+.meta-item .v{font-size:12px!important;color:#ddd8cd!important;}
+.id-glass{width:116px!important;height:84px!important;border-radius:13px!important;background:rgba(7,8,9,.45)!important;border-color:rgba(217,184,103,.22)!important;z-index:2!important;}
+.id-glass .lv{font-size:7px!important;letter-spacing:.17em!important;color:#7c7a72!important;}
+.id-glass .lv-val{font-size:26px!important;color:var(--noir-gold-hi)!important;}
+
+.stat-label,.l,.k{font-size:8.5px!important;letter-spacing:.15em!important;color:rgba(217,184,103,.55)!important;}
+.stat-value{font-size:31px!important;letter-spacing:-.05em!important;color:#efe9dc!important;}
+.stat-delta{font-size:10px!important;color:#9b8150!important;}
+.stat-delta.down{color:#817c75!important;}
+.list-row{padding:10px 0!important;border-color:rgba(255,255,255,.055)!important;}
+.list-left{gap:10px!important;}
+.list-icon{width:31px!important;height:31px!important;border-radius:9px!important;background:rgba(217,184,103,.055)!important;border:1px solid rgba(217,184,103,.11)!important;}
+.list-icon svg{width:14px!important;height:14px!important;color:#d5b66f!important;}
+.list-title{font-size:11.5px!important;color:#ddd9d0!important;}
+.list-sub{font-size:9.5px!important;color:#777972!important;}
+.pill{font-size:8px!important;letter-spacing:.08em!important;padding:5px 8px!important;background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.09)!important;color:#96968f!important;}
+.pill.live{color:#d8c07d!important;border-color:rgba(217,184,103,.22)!important;background:rgba(217,184,103,.065)!important;}
+
+/* dashboard proportions closer to the reference */
+#view-dashboard .card.span-8{grid-column:span 8;}
+#view-dashboard .card.span-4{grid-column:span 4;}
+#view-dashboard .card.span-3{grid-column:span 3;}
+#view-dashboard .card.span-6{grid-column:span 6;}
+#view-dashboard .card.span-4:nth-of-type(2){min-height:205px;}
+#view-dashboard .card.span-3{min-height:126px;}
+#view-dashboard .card.span-6{min-height:180px;}
+
+/* --- buttons / controls --- */
+.enter-full,.enter-btn,.admin-btn.approve,.admin-page-btn,button.primary,button[type="submit"]{
+  background:linear-gradient(135deg,#e6ca7f,#a47b32)!important;color:#17130a!important;
+  border-color:rgba(255,231,166,.28)!important;border-radius:11px!important;
+  box-shadow:0 9px 25px rgba(166,126,48,.15),inset 0 1px rgba(255,255,255,.32)!important;
+}
+button,.entry-btn{transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease!important;}
+button:hover{transform:translateY(-1px);}
+
+/* --- forms / login as detective dossier --- */
+#landing,#login,#adminLogin,#signup,#gangRegister{
+  background:
+    linear-gradient(90deg,rgba(3,5,6,.86),rgba(3,5,6,.56)),
+    url('./aez-noir-city.svg') center/cover no-repeat!important;
+}
+#landing::before,#login::before,#adminLogin::before,#signup::before,#gangRegister::before{
+  content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 65% 35%,transparent 0 26%,rgba(0,0,0,.52) 80%);
+}
+.login-card{
+  border-radius:17px!important;padding:30px!important;max-width:430px!important;
+  background:linear-gradient(145deg,rgba(20,23,25,.82),rgba(7,9,10,.72))!important;
+  border-color:rgba(217,184,103,.19)!important;
+  box-shadow:0 35px 100px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.055)!important;
+}
+.login-head .glyph{font-size:17px!important;letter-spacing:.13em!important;color:#e9d18f!important;}
+.login-head .sub{font-size:8px!important;letter-spacing:.16em!important;color:rgba(217,184,103,.55)!important;}
+.field label{font-size:9px!important;letter-spacing:.11em!important;color:#9c9a92!important;text-transform:uppercase!important;}
+.field input,.field select,.rules-search,textarea{
+  min-height:44px!important;border-radius:10px!important;background:rgba(255,255,255,.045)!important;
+  border-color:rgba(255,255,255,.075)!important;color:#eeeae1!important;
+}
+.field input:focus,.field select:focus,.rules-search:focus,textarea:focus{border-color:rgba(217,184,103,.38)!important;box-shadow:0 0 0 3px rgba(217,184,103,.06)!important;}
+.status-row{border-radius:11px!important;background:rgba(255,255,255,.025)!important;border-color:rgba(255,255,255,.065)!important;}
+.login-note{font-size:9px!important;color:#777872!important;line-height:1.55!important;}
+.login-switch a{color:#d6b568!important;}
+
+/* --- dossier tabs --- */
+.rtab,.tab-btn,.seg-btn,.chip{border-color:rgba(217,184,103,.13)!important;background:rgba(255,255,255,.03)!important;color:#96958d!important;}
+.rtab.active,.tab-btn.active,.seg-btn.active,.chip.active{background:rgba(217,184,103,.11)!important;color:#e5cc8a!important;border-color:rgba(217,184,103,.23)!important;}
+
+/* --- tables / admin --- */
+table{border-color:rgba(255,255,255,.06)!important;}
+th{color:rgba(217,184,103,.58)!important;font-size:8px!important;letter-spacing:.14em!important;}
+td{border-color:rgba(255,255,255,.055)!important;color:#c5c2b9!important;font-size:10.5px!important;}
+.num-mono.pos{color:#d9bd76!important;}.num-mono.neg{color:#9d8982!important;}
+
+/* --- profile ID card gets an actual credential/dossier feel --- */
+.idcard{max-width:760px!important;margin:0 auto!important;padding:24px!important;position:relative!important;overflow:hidden!important;background:linear-gradient(135deg,rgba(20,22,23,.9),rgba(7,8,9,.84))!important;}
+.idcard::before{content:"CONFIDENTIAL · AEZ COMMAND";position:absolute;right:22px;top:22px;font:700 8px var(--font-mono);letter-spacing:.16em;color:rgba(217,184,103,.46);}
+.idcard-head .org{font-size:9px!important;letter-spacing:.18em!important;color:#b6b2a7!important;}
+.idcard-name{font-size:31px!important;letter-spacing:-.045em!important;color:#f0eadf!important;}
+.idcard-div{font-size:10px!important;color:#8b8b83!important;}
+.idcard-grid>div{border-color:rgba(255,255,255,.055)!important;}
+.idcard-grid .v{color:#d5d1c8!important;}
+
+/* --- mobile: retain app usability while matching the noir reference --- */
+@media(max-width:900px){
+  .sidebar{display:none!important;}
+  .content{padding:22px 15px 90px!important;}
+  .topbar{padding:0 15px!important;}
+  .grid{grid-template-columns:repeat(6,1fr)!important;}
+  .card.span-8,.card.span-6{grid-column:span 6!important;}
+  .card.span-4,.card.span-3{grid-column:span 3!important;}
+  .welcome-card>div:first-child{max-width:100%!important;}
+  .welcome-card{min-height:250px!important;}
+}
+@media(max-width:600px){
+  .top-clock{display:none!important;}
+  .grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;}
+  .card.span-8,.card.span-6,.card.span-4,.card.span-3,.card.span-12{grid-column:1/-1!important;}
+  #view-dashboard .card.span-3{grid-column:span 1!important;min-height:112px!important;}
+  .card{padding:16px!important;border-radius:14px!important;}
+  .stat-value{font-size:27px!important;}
+  .welcome-card{min-height:270px!important;padding:18px!important;}
+  .welcome-card .meta{gap:13px!important;}
+  .id-glass{width:96px!important;height:70px!important;}
+}
+
+/* light mode remains warm, not blue */
+body.light-mode{
+  --noir-bg:#f2efe7;
+  --noir-text:#22211e;
+  background:#f2efe7!important;
+}
+body.light-mode #app{background:#f2efe7!important;}
+body.light-mode .sidebar{background:rgba(245,243,237,.86)!important;border-color:rgba(102,82,40,.13)!important;}
+body.light-mode .topbar{background:rgba(247,245,240,.72)!important;border-color:rgba(102,82,40,.10)!important;}
+body.light-mode .card,body.light-mode .idcard{background:rgba(255,255,255,.72)!important;border-color:rgba(80,68,45,.11)!important;box-shadow:0 18px 50px rgba(68,60,45,.09),inset 0 1px rgba(255,255,255,.7)!important;}
+body.light-mode .welcome-card{background:linear-gradient(90deg,rgba(247,245,239,.94),rgba(247,245,239,.7)),url('./aez-noir-city.svg') center/cover!important;}
+body.light-mode .page-head h1,body.light-mode .welcome-card h2,body.light-mode .stat-value{color:#27251f!important;}
+body.light-mode .page-sub,body.light-mode .list-sub{color:#77736a!important;}
