@@ -30,12 +30,16 @@
   }
 
   function forceDarkEntry(){
-    if(document.getElementById('aezGuaranteedEntryStyle')) return;
-    var style=document.createElement('style');
-    style.id='aezGuaranteedEntryStyle';
+    var style=document.getElementById('aezGuaranteedEntryStyle');
+    if(!style){
+      style=document.createElement('style');
+      style.id='aezGuaranteedEntryStyle';
+      document.head.appendChild(style);
+    }
     style.textContent=`
 html{color-scheme:dark!important;background:#06080C!important}
 body{background:#06080C!important;color:#F5F7FA!important}
+body.light-mode{--void:#06080C!important;--charcoal:#0D1117!important;--panel:rgba(20,25,34,.65)!important;--graphite:rgba(30,37,48,.72)!important;--hair:rgba(255,255,255,.08)!important;--hair-strong:rgba(255,255,255,.16)!important;--bone:#F5F7FA!important;--ash:#94A3B8!important;--ash-dim:#64748B!important;--silver:#B9C2CE!important;--gold:#4DA3FF!important;--gold-dim:#3D82CC!important;--blue:#7C83FF!important;--blue-dim:#5B62D9!important;color-scheme:dark!important;background:#06080C!important;color:#F5F7FA!important}
 #landing,#login,#signup,#adminLogin{background:#06080C!important;color:#F5F7FA!important}
 #landing{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important}
 #landing .wordmark,#landing .tagline,#landing .mark-glyph,#landing .landing-foot,#landing .enter-btn,#landing .entry-choice-grid{margin-left:auto!important;margin-right:auto!important;text-align:center!important}
@@ -46,9 +50,11 @@ body{background:#06080C!important;color:#F5F7FA!important}
 #landing .tagline{color:#94A3B8!important}
 #landing .mark-glyph{color:#64748B!important}
 #landing .landing-foot{color:#64748B!important}
+body.light-mode #landing{background:radial-gradient(ellipse 900px 500px at 50% 0%,rgba(201,162,39,.06),transparent 60%),#06080C!important}
+body.light-mode #landing .wordmark{background:linear-gradient(180deg,#F5F6F7 10%,#9B9FA6 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+body.light-mode #landing .enter-btn{background:rgba(232,233,235,.055)!important;color:#F5F7FA!important}
 @media(prefers-color-scheme:light){html,body,#landing,#login,#signup,#adminLogin{background:#06080C!important;color:#F5F7FA!important}#landing .entry-btn,#landing .enter-btn{color:#F5F7FA!important}}
 `;
-    document.head.appendChild(style);
   }
 
   function findOriginal(tab){
@@ -93,7 +99,6 @@ body{background:#06080C!important;color:#F5F7FA!important}
       bar.setAttribute('aria-label','ÆZ Arena navigation');
       nav.appendChild(bar);
     }
-
     TABS.forEach(function(tab){
       var button=bar.querySelector('[data-aez-mobile-tab="'+tab.key+'"]');
       if(!button){
@@ -199,5 +204,10 @@ body{background:#06080C!important;color:#F5F7FA!important}
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
+  window.addEventListener('load',function(){
+    document.body.classList.remove('light-mode');
+    forceDarkEntry();
+    renameEntryButton();
+  });
   window.addEventListener('resize',run,{passive:true});
 })();
