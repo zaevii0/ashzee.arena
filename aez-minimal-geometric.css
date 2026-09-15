@@ -1,0 +1,95 @@
+/* ÆZ Arena — Minimal Geometric UI System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  --aez-font:Inter,'Plus Jakarta Sans',sans-serif;
+  --aez-text:#111827;
+  --aez-muted:#6B7280;
+  --aez-icon:#4B5563;
+  --aez-border:#F3F4F6;
+  --aez-amber:#FBBF24;
+}
+
+html,body,button,input,select,textarea{font-family:var(--aez-font)!important;}
+
+.page-head h1,.section-title,h1.section-title,h2.section-title,.page-title{
+  font-weight:700!important;
+  font-size:1.5rem!important;
+  letter-spacing:-.025em!important;
+  color:#111827!important;
+}
+
+.page-head .page-sub,.section-sub,.description,.helper-text,.muted-text{
+  font-weight:400!important;
+  font-size:.875rem!important;
+  color:#6B7280!important;
+  line-height:1.625!important;
+}
+
+button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-mobile-tab,.icon-btn{
+  font-weight:500!important;
+  font-size:.75rem!important;
+  color:#374151;
+}
+@media(min-width:640px){
+  button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-mobile-tab,.icon-btn{font-size:.875rem!important;}
+}
+
+button svg,a svg,.nav-item svg,.icon-btn svg,.tab-btn svg,.filter-btn svg,.seg-btn svg,.wk-btn svg,.rtab svg,.action-icon svg,.list-icon svg{
+  width:1.25rem!important;
+  height:1.25rem!important;
+  fill:none!important;
+  stroke:var(--aez-icon)!important;
+  stroke-width:2!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  flex:none;
+}
+
+.nav-item svg,.aez-mobile-tab svg,.main-nav svg,.bottom-nav svg{
+  width:1.5rem!important;
+  height:1.5rem!important;
+}
+
+.icon-btn svg,.action-icon svg{stroke:#4B5563!important;}
+.icon-btn,.action-icon{color:#4B5563!important;}
+
+button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
+}
+
+.field input,.field select,.rules-search,.admin-search-input,.admin-search-category,input,select,textarea{
+  border:1px solid #F3F4F6!important;
+  border-radius:.75rem!important;
+}
+
+.card,.admin-application-card,.admin-detail-card,.admin-detail-empty,.activity-card,.title-row,.day-col,.idcard-grid>div{
+  border:1px solid #F3F4F6!important;
+  border-radius:1rem!important;
+}
+
+.card,.admin-application-card,.admin-detail-card{padding:1.25rem!important;}
+
+.enter-full,.profile-edit-btn,.admin-page-btn.primary,.primary-action,.aez-primary-action{
+  background:#FBBF24!important;
+  color:#111827!important;
+  border:0!important;
+  padding:1rem!important;
+  border-radius:9999px!important;
+  box-shadow:0 4px 10px rgba(17,24,39,.12)!important;
+  font-weight:600!important;
+}
+
+.enter-full svg,.profile-edit-btn svg,.admin-page-btn.primary svg,.primary-action svg,.aez-primary-action svg{
+  stroke:#111827!important;
+}
+
+.aez-mobile-tab{gap:.5rem!important;}
+.aez-mobile-tab svg{width:1.5rem!important;height:1.5rem!important;}
+.aez-mobile-tab.active{color:#111827!important;background:rgba(251,191,36,.14)!important;border-color:rgba(251,191,36,.35)!important;}
+.aez-mobile-tab.active svg{stroke:#111827!important;}
+
+.icon-btn{border:1px solid #F3F4F6!important;border-radius:.75rem!important;}
