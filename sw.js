@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aez-arena-v8';
+const CACHE_NAME = 'aez-arena-v9';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,11 +6,12 @@ const APP_SHELL = [
   './aez-social.js',
   './aez-chat.js',
   './aez-mobile-install.js',
-'./aez-mobile-ui-fix.js',
+  './aez-mobile-ui-fix.js',
   './aez-ios-design.css',
   './aez-light-palette.css',
   './aez-premium-ui.css',
   './aez-design-system.css',
+  './aez-minimal-geometric.css',
   './manifest.json',
   './icon-180.png',
   './icon-192.png',
