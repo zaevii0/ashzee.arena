@@ -63,7 +63,7 @@
   window.openAezSocial=openSocial;
   function addNav(){
     var side=document.querySelector('.sidebar'); if(side&&!side.querySelector('[data-aez-social]')){var b=document.createElement('button');b.className='nav-item';b.dataset.aezSocial='1';b.innerHTML='<span style="font-size:15px">◈</span><span>Social Intelligence</span>';b.onclick=openSocial;side.appendChild(b);}
-    var bottom=document.querySelector('.bottom-nav');if(bottom&&!bottom.querySelector('[data-aez-social]')){var b2=document.createElement('button');b2.className='bottom-nav-item';b2.dataset.aezSocial='1';b2.innerHTML='<span style="font-size:16px">◈</span><span>Social</span>';b2.onclick=openSocial;bottom.appendChild(b2);}
+    var bottom=document.querySelector('.bottom-nav');if(bottom&&!bottom.querySelector('[data-aez-social]')){var b2=document.createElement('button');b2.className='bn-item';b2.dataset.aezSocial='1';b2.innerHTML='<span style="font-size:16px">◈</span><span>Social</span>';b2.onclick=openSocial;bottom.appendChild(b2);}
   }
   async function loadTab(tab){var body=document.getElementById('sxBody');if(!body)return;body.innerHTML='<div class="sx-empty">Querying secure network…</div>';try{if(tab==='feed')await feed(body);else if(tab==='groups')await groups(body);else if(tab==='messages')await messages(body);else await agents(body);}catch(e){console.error(e);body.innerHTML='<div class="sx-empty">Network query failed. Please try again.</div>';}}
   async function feed(body){
