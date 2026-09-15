@@ -19,22 +19,36 @@
   }
 
   function renameEntryButton(){
-    var changed=false;
     document.querySelectorAll('.entry-btn-primary').forEach(function(btn){
       var span=btn.querySelector('span');
-      if(span){
-        span.textContent='Enter the Arena';
-        changed=true;
-      }
+      if(span) span.textContent='Enter the Arena';
       btn.setAttribute('aria-label','Enter the Arena');
     });
     document.querySelectorAll('.entry-btn span').forEach(function(el){
-      if((el.textContent||'').trim().toLowerCase()==='gang member'){
-        el.textContent='Enter the Arena';
-        changed=true;
-      }
+      if((el.textContent||'').trim().toLowerCase()==='gang member') el.textContent='Enter the Arena';
     });
-    return changed;
+  }
+
+  function forceDarkEntry(){
+    if(document.getElementById('aezGuaranteedEntryStyle')) return;
+    var style=document.createElement('style');
+    style.id='aezGuaranteedEntryStyle';
+    style.textContent=`
+html{color-scheme:dark!important;background:#06080C!important}
+body{background:#06080C!important;color:#F5F7FA!important}
+#landing,#login,#signup,#adminLogin{background:#06080C!important;color:#F5F7FA!important}
+#landing{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important}
+#landing .wordmark,#landing .tagline,#landing .mark-glyph,#landing .landing-foot,#landing .enter-btn,#landing .entry-choice-grid{margin-left:auto!important;margin-right:auto!important;text-align:center!important}
+#landing .entry-choice-grid{align-items:center!important;justify-content:center!important}
+#landing .entry-btn{display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;color:#F5F7FA!important;background:rgba(20,25,34,.65)!important;border-color:rgba(255,255,255,.14)!important}
+#landing .entry-btn span{display:block!important;width:100%!important;text-align:center!important;color:#F5F7FA!important}
+#landing .enter-btn{color:#F5F7FA!important;background:rgba(232,233,235,.055)!important;border-color:rgba(255,255,255,.16)!important}
+#landing .tagline{color:#94A3B8!important}
+#landing .mark-glyph{color:#64748B!important}
+#landing .landing-foot{color:#64748B!important}
+@media(prefers-color-scheme:light){html,body,#landing,#login,#signup,#adminLogin{background:#06080C!important;color:#F5F7FA!important}#landing .entry-btn,#landing .enter-btn{color:#F5F7FA!important}}
+`;
+    document.head.appendChild(style);
   }
 
   function findOriginal(tab){
@@ -153,6 +167,7 @@
 
   function run(){
     removeUnwantedUI();
+    forceDarkEntry();
     renameEntryButton();
     var nav=document.querySelector('.bottom-nav');
     if(nav){
@@ -178,8 +193,6 @@
       window.__aezMobileObserverInstance=observer;
       observer.observe(document.body,{childList:true,subtree:true});
     }
-    /* Entry Selection can be rebuilt after logout, so make the label fix
-       explicit even when the landing page is recreated by index.html. */
     setTimeout(renameEntryButton,50);
     setTimeout(renameEntryButton,250);
     setTimeout(renameEntryButton,1000);
