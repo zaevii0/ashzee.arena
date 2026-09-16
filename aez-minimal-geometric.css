@@ -87,20 +87,27 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
   stroke:#111827!important;
 }
 
+/* Mobile tabs: glass dock stays intact; selected tab has no square/tile. */
 .aez-mobile-tab{gap:.5rem!important;}
 .aez-mobile-tab svg{width:1.5rem!important;height:1.5rem!important;}
 .aez-mobile-tab.active{
-  color:#111827!important;
+  color:#E5C978!important;
   background:transparent!important;
   border-color:transparent!important;
   box-shadow:none!important;
+  transform:none!important;
 }
-.aez-mobile-tab.active svg{stroke:currentColor!important;}
+.aez-mobile-tab.active svg{
+  stroke:currentColor!important;
+  transform:none!important;
+  filter:none!important;
+}
 .aez-mobile-tab:active,.aez-mobile-tab:focus,.aez-mobile-tab:focus-visible,.aez-mobile-tab:hover{
   background:transparent!important;
   border-color:transparent!important;
   box-shadow:none!important;
   outline:none!important;
+  transform:none!important;
 }
 
 .icon-btn{border:1px solid #F3F4F6!important;border-radius:.75rem!important;}
@@ -119,7 +126,7 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
     border-color:transparent!important;
     box-shadow:none!important;
     transform:none!important;
-    color:var(--gold,#E5C978)!important;
+    color:#E5C978!important;
   }
   .bottom-nav .bn-item:not(.bn-more) svg,
   .bottom-nav .bn-item:not(.bn-more).active svg{
