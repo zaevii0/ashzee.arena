@@ -8,9 +8,14 @@
   --aez-icon:#B9C2CE;
   --aez-border:rgba(255,255,255,.08);
   --aez-amber:#E5C978;
+  --aez-bg:#06080C;
+  --aez-panel:rgba(20,25,34,.65);
+  color-scheme:dark;
 }
 
 html,body,button,input,select,textarea{font-family:var(--aez-font)!important;}
+html,body{background:#06080C!important;color:#F5F7FA!important;color-scheme:dark!important;}
+body{background-color:#06080C!important;}
 
 .page-head h1,.section-title,h1.section-title,h2.section-title,.page-title{
   font-weight:700!important;
@@ -36,134 +41,52 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-mobile-tab,.ic
 }
 
 button svg,a svg,.nav-item svg,.icon-btn svg,.tab-btn svg,.filter-btn svg,.seg-btn svg,.wk-btn svg,.rtab svg,.action-icon svg,.list-icon svg{
-  width:1.25rem!important;
-  height:1.25rem!important;
-  fill:none!important;
-  stroke:var(--aez-icon)!important;
-  stroke-width:2!important;
-  stroke-linecap:round!important;
-  stroke-linejoin:round!important;
-  flex:none;
+  width:1.25rem!important;height:1.25rem!important;fill:none!important;stroke:var(--aez-icon)!important;
+  stroke-width:2!important;stroke-linecap:round!important;stroke-linejoin:round!important;flex:none;
 }
-
-.nav-item svg,.aez-mobile-tab svg,.main-nav svg,.bottom-nav svg{
-  width:1.5rem!important;
-  height:1.5rem!important;
-}
-
+.nav-item svg,.aez-mobile-tab svg,.main-nav svg,.bottom-nav svg{width:1.5rem!important;height:1.5rem!important;}
 .icon-btn svg,.action-icon svg{stroke:var(--aez-icon)!important;}
 .icon-btn,.action-icon{color:var(--aez-icon)!important;}
 
-button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:.5rem;
-}
+button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;}
 
 .field input,.field select,.rules-search,.admin-search-input,.admin-search-category,input,select,textarea{
-  border:1px solid var(--aez-border)!important;
-  border-radius:.75rem!important;
-  background:rgba(12,16,22,.72)!important;
-  color:var(--aez-text)!important;
+  border:1px solid var(--aez-border)!important;border-radius:.75rem!important;
+  background:rgba(12,16,22,.72)!important;color:var(--aez-text)!important;
 }
-
-.field input::placeholder,.field select::placeholder,input::placeholder,textarea::placeholder{
-  color:#64748B!important;
-}
+.field input::placeholder,.field select::placeholder,input::placeholder,textarea::placeholder{color:#64748B!important;}
 
 .card,.admin-application-card,.admin-detail-card,.admin-detail-empty,.activity-card,.title-row,.day-col,.idcard-grid>div{
-  border:1px solid var(--aez-border)!important;
-  border-radius:1rem!important;
-  background:rgba(20,25,34,.65)!important;
-  color:var(--aez-text)!important;
+  border:1px solid var(--aez-border)!important;border-radius:1rem!important;
+  background:rgba(20,25,34,.65)!important;color:var(--aez-text)!important;
 }
-
 .card,.admin-application-card,.admin-detail-card{padding:1.25rem!important;}
 
 .enter-full,.profile-edit-btn,.admin-page-btn.primary,.primary-action,.aez-primary-action{
-  background:#E5C978!important;
-  color:#090B0F!important;
-  border:0!important;
-  padding:1rem!important;
-  border-radius:9999px!important;
-  box-shadow:0 4px 18px rgba(0,0,0,.28)!important;
-  font-weight:600!important;
+  background:#E5C978!important;color:#090B0F!important;border:0!important;padding:1rem!important;
+  border-radius:9999px!important;box-shadow:0 4px 18px rgba(0,0,0,.28)!important;font-weight:600!important;
 }
+.enter-full svg,.profile-edit-btn svg,.admin-page-btn.primary svg,.primary-action svg,.aez-primary-action svg{stroke:#090B0F!important;}
 
-.enter-full svg,.profile-edit-btn svg,.admin-page-btn.primary svg,.primary-action svg,.aez-primary-action svg{
-  stroke:#090B0F!important;
-}
-
-/* Mobile tabs: glass dock stays intact; selected tab has no square/tile. */
 .aez-mobile-tab{gap:.5rem!important;}
 .aez-mobile-tab svg{width:1.5rem!important;height:1.5rem!important;}
-.aez-mobile-tab.active{
-  color:#E5C978!important;
-  background:transparent!important;
-  border-color:transparent!important;
-  box-shadow:none!important;
-  transform:none!important;
-}
-.aez-mobile-tab.active svg{
-  stroke:currentColor!important;
-  transform:none!important;
-  filter:none!important;
-}
-.aez-mobile-tab:active,.aez-mobile-tab:focus,.aez-mobile-tab:focus-visible,.aez-mobile-tab:hover{
-  background:transparent!important;
-  border-color:transparent!important;
-  box-shadow:none!important;
-  outline:none!important;
-  transform:none!important;
-}
-
+.aez-mobile-tab.active{color:#E5C978!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important;transform:none!important;}
+.aez-mobile-tab.active svg{stroke:currentColor!important;transform:none!important;filter:none!important;}
+.aez-mobile-tab:active,.aez-mobile-tab:focus,.aez-mobile-tab:focus-visible,.aez-mobile-tab:hover{background:transparent!important;border-color:transparent!important;box-shadow:none!important;outline:none!important;transform:none!important;}
 .icon-btn{border:1px solid var(--aez-border)!important;border-radius:.75rem!important;background:rgba(20,25,34,.55)!important;}
 
-/* Mobile glass dock: remove only the selected-item tile/highlight and movement. */
 @media(max-width:960px){
-  .bottom-nav .bn-item:not(.bn-more){
-    background:transparent!important;
-    border-color:transparent!important;
-    box-shadow:none!important;
-    transform:none!important;
-    transition:color .2s ease!important;
-  }
-  .bottom-nav .bn-item:not(.bn-more).active{
-    background:transparent!important;
-    border-color:transparent!important;
-    box-shadow:none!important;
-    transform:none!important;
-    color:#E5C978!important;
-  }
-  .bottom-nav .bn-item:not(.bn-more) svg,
-  .bottom-nav .bn-item:not(.bn-more).active svg{
-    transform:none!important;
-    filter:none!important;
-    transition:none!important;
-  }
-  .bottom-nav .bn-item:not(.bn-more):active,
-  .bottom-nav .bn-item:not(.bn-more):focus,
-  .bottom-nav .bn-item:not(.bn-more):focus-visible,
-  .bottom-nav .bn-item:not(.bn-more):hover{
-    background:transparent!important;
-    border-color:transparent!important;
-    box-shadow:none!important;
-    outline:none!important;
-    transform:none!important;
-  }
+  .bottom-nav .bn-item:not(.bn-more){background:transparent!important;border-color:transparent!important;box-shadow:none!important;transform:none!important;transition:color .2s ease!important;}
+  .bottom-nav .bn-item:not(.bn-more).active{background:transparent!important;border-color:transparent!important;box-shadow:none!important;transform:none!important;color:#E5C978!important;}
+  .bottom-nav .bn-item:not(.bn-more) svg,.bottom-nav .bn-item:not(.bn-more).active svg{transform:none!important;filter:none!important;transition:none!important;}
+  .bottom-nav .bn-item:not(.bn-more):active,.bottom-nav .bn-item:not(.bn-more):focus,.bottom-nav .bn-item:not(.bn-more):focus-visible,.bottom-nav .bn-item:not(.bn-more):hover{background:transparent!important;border-color:transparent!important;box-shadow:none!important;outline:none!important;transform:none!important;}
+}
+
+/* Force dark surfaces even if another stylesheet or browser preference tries to apply light UI. */
+body *{color-scheme:dark;}
+.sidebar,.bottom-nav,.app-shell,.main-content,.content-area,.view,.page,.panel,.modal,.drawer,.dropdown,.menu,.popover,.search-panel,.profile-card,.stat-card,.table-wrap,.table-card,.activity-list,.rank-card,.intel-card,.chat-panel,.chat-list,.chat-window,.settings-card{
+  background-color:transparent;
 }
 
 /* PWA install UI is intentionally hidden; the app itself remains a PWA. */
-.mobile-install-card,
-#mobileInstallCard,
-.mobile-install-btn,
-#mobileInstallBtn,
-.pwa-install-card,
-#pwaInstallCard,
-.pwa-guide-veil,
-#pwaGuide{
-  display:none!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-}
+.mobile-install-card,#mobileInstallCard,.mobile-install-btn,#mobileInstallBtn,.pwa-install-card,#pwaInstallCard,.pwa-guide-veil,#pwaGuide{display:none!important;visibility:hidden!important;pointer-events:none!important;}
