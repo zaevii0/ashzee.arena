@@ -3,11 +3,11 @@
 
 :root{
   --aez-font:Inter,'Plus Jakarta Sans',sans-serif;
-  --aez-text:#111827;
-  --aez-muted:#6B7280;
-  --aez-icon:#4B5563;
-  --aez-border:#F3F4F6;
-  --aez-amber:#FBBF24;
+  --aez-text:#F5F7FA;
+  --aez-muted:#94A3B8;
+  --aez-icon:#B9C2CE;
+  --aez-border:rgba(255,255,255,.08);
+  --aez-amber:#E5C978;
 }
 
 html,body,button,input,select,textarea{font-family:var(--aez-font)!important;}
@@ -16,20 +16,20 @@ html,body,button,input,select,textarea{font-family:var(--aez-font)!important;}
   font-weight:700!important;
   font-size:1.5rem!important;
   letter-spacing:-.025em!important;
-  color:#111827!important;
+  color:var(--aez-text)!important;
 }
 
 .page-head .page-sub,.section-sub,.description,.helper-text,.muted-text{
   font-weight:400!important;
   font-size:.875rem!important;
-  color:#6B7280!important;
+  color:var(--aez-muted)!important;
   line-height:1.625!important;
 }
 
 button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-mobile-tab,.icon-btn{
   font-weight:500!important;
   font-size:.75rem!important;
-  color:#374151;
+  color:var(--aez-icon);
 }
 @media(min-width:640px){
   button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-mobile-tab,.icon-btn{font-size:.875rem!important;}
@@ -51,8 +51,8 @@ button svg,a svg,.nav-item svg,.icon-btn svg,.tab-btn svg,.filter-btn svg,.seg-b
   height:1.5rem!important;
 }
 
-.icon-btn svg,.action-icon svg{stroke:#4B5563!important;}
-.icon-btn,.action-icon{color:#4B5563!important;}
+.icon-btn svg,.action-icon svg{stroke:var(--aez-icon)!important;}
+.icon-btn,.action-icon{color:var(--aez-icon)!important;}
 
 button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
   display:inline-flex;
@@ -62,29 +62,37 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
 }
 
 .field input,.field select,.rules-search,.admin-search-input,.admin-search-category,input,select,textarea{
-  border:1px solid #F3F4F6!important;
+  border:1px solid var(--aez-border)!important;
   border-radius:.75rem!important;
+  background:rgba(12,16,22,.72)!important;
+  color:var(--aez-text)!important;
+}
+
+.field input::placeholder,.field select::placeholder,input::placeholder,textarea::placeholder{
+  color:#64748B!important;
 }
 
 .card,.admin-application-card,.admin-detail-card,.admin-detail-empty,.activity-card,.title-row,.day-col,.idcard-grid>div{
-  border:1px solid #F3F4F6!important;
+  border:1px solid var(--aez-border)!important;
   border-radius:1rem!important;
+  background:rgba(20,25,34,.65)!important;
+  color:var(--aez-text)!important;
 }
 
 .card,.admin-application-card,.admin-detail-card{padding:1.25rem!important;}
 
 .enter-full,.profile-edit-btn,.admin-page-btn.primary,.primary-action,.aez-primary-action{
-  background:#FBBF24!important;
-  color:#111827!important;
+  background:#E5C978!important;
+  color:#090B0F!important;
   border:0!important;
   padding:1rem!important;
   border-radius:9999px!important;
-  box-shadow:0 4px 10px rgba(17,24,39,.12)!important;
+  box-shadow:0 4px 18px rgba(0,0,0,.28)!important;
   font-weight:600!important;
 }
 
 .enter-full svg,.profile-edit-btn svg,.admin-page-btn.primary svg,.primary-action svg,.aez-primary-action svg{
-  stroke:#111827!important;
+  stroke:#090B0F!important;
 }
 
 /* Mobile tabs: glass dock stays intact; selected tab has no square/tile. */
@@ -110,7 +118,7 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
   transform:none!important;
 }
 
-.icon-btn{border:1px solid #F3F4F6!important;border-radius:.75rem!important;}
+.icon-btn{border:1px solid var(--aez-border)!important;border-radius:.75rem!important;background:rgba(20,25,34,.55)!important;}
 
 /* Mobile glass dock: remove only the selected-item tile/highlight and movement. */
 @media(max-width:960px){
