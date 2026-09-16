@@ -16,117 +16,152 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Patch session restoration
+      - name: Patch persistent session restoration
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
 
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
 
-          start = text.find('async function restoreSupabaseSession(){')
-          end_marker = "var ADMIN_GANGS=['NUDE Gang','DD Gang','SEBI Gang','STESI Gang','BBM Gang','SARAH Gang'];"
-          end = text.find(end_marker, start)
+          marker = '/* ÆZ Arena — persistent approved session restoration */'
+          if marker in text:
+              print('Persistent login patch already present.')
+              raise SystemExit(0)
 
-          if start < 0 or end < 0:
-              raise SystemExit('Could not locate the Supabase session restoration block.')
+          block = r'''<script>
+/* ÆZ Arena — persistent approved session restoration */
+(function(){
+  'use strict';
 
-          new_block = r'''async function restoreSupabaseSession(){
-  /* Restore an existing Supabase session on refresh instead of forcing the
-     member back through the landing/login screen. The dashboard is shown
-     only after the session is confirmed and the profile is approved. */
-  if(!supabaseReady){
-    document.body.classList.remove('authenticated');
-    currentAgent=null;
-    currentProfile=null;
-    showScreen('landing');
-    return;
-  }
+  async function restoreApprovedSession(){
+    if(typeof supabaseReady==='undefined' || !supabaseReady || !supabaseClient) return;
 
-  var sessionResult=await supabaseClient.auth.getSession();
-  var session=sessionResult.data && sessionResult.data.session;
+    try{
+      var result=await supabaseClient.auth.getSession();
+      var session=result && result.data && result.data.session;
+      if(!session || !session.user) return;
 
-  if(!session || !session.user){
-    document.body.classList.remove('authenticated');
-    currentAgent=null;
-    currentProfile=null;
-    arenaEntryMode='member';
-    showScreen('landing');
-    return;
-  }
+      var profileResult=await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id',session.user.id)
+        .single();
 
-  var profileResult=await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id',session.user.id)
-    .single();
+      if(profileResult.error || !profileResult.data){
+        await supabaseClient.auth.signOut();
+        return;
+      }
 
-  if(profileResult.error || !profileResult.data){
-    await supabaseClient.auth.signOut();
-    document.body.classList.remove('authenticated');
-    currentAgent=null;
-    currentProfile=null;
-    showScreen('login');
-    return;
-  }
+      var profile=profileResult.data;
+      if(profile.status!=='approved'){
+        await supabaseClient.auth.signOut();
+        return;
+      }
 
-  var profile=profileResult.data;
-  if(profile.status!=='approved'){
-    await supabaseClient.auth.signOut();
-    document.body.classList.remove('authenticated');
-    currentAgent=null;
-    currentProfile=null;
-    showScreen('login');
-    return;
-  }
+      currentProfile=profile;
+      currentAgent=profileToAgent(profile);
+      applyAgentToUI(currentAgent);
+      removeAuthScreensAndShowApp();
+      nav(document.querySelector('.nav-item[data-view="dashboard"]'));
+      if(typeof animateCounters==='function') animateCounters();
 
-  currentProfile=profile;
-  currentAgent=profileToAgent(profile);
-  applyAgentToUI(currentAgent);
-  removeAuthScreensAndShowApp();
-  nav(document.querySelector('.nav-item[data-view="dashboard"]'));
-  animateCounters();
-}
-
-/* React to real auth changes after the initial session has been restored.
-   Refreshes are handled by restoreSupabaseSession() above. */
-if(supabaseReady){
-  supabaseClient.auth.onAuthStateChange(function(event, session){
-    if(event==='SIGNED_OUT' || !session){
-      document.body.classList.remove('authenticated');
-      currentAgent=null;
-      currentProfile=null;
-      if(aezLoggingOut){ return; }
-      showScreen('landing');
-      return;
+      /* Restore the last authenticated app screen after the dashboard exists. */
+      setTimeout(function(){
+        if(typeof window.__aezRestoreRefreshState==='function'){
+          window.__aezRestoreRefreshState();
+        }
+      },150);
+    }catch(err){
+      console.warn('ÆZ session restore failed:',err);
     }
+  }
 
-    if(event==='TOKEN_REFRESHED' && session && session.user && currentProfile){
-      return;
-    }
-  });
-}
+  /* A real SIGNED_OUT event is the only auth event that should return the
+     member to the entry page. A normal refresh keeps the Supabase session. */
+  if(typeof supabaseReady!=='undefined' && supabaseReady && supabaseClient){
+    supabaseClient.auth.onAuthStateChange(function(event){
+      if(event==='SIGNED_OUT'){
+        if(typeof showEntryPageOnly==='function') showEntryPageOnly();
+      }
+    });
+  }
 
+  function boot(){
+    restoreApprovedSession();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+})();
+</script>
 '''
 
-          updated = text[:start] + new_block + text[end:]
+          # Put the restoration code immediately before </body>, after all
+          # existing app/auth functions have been defined.
+          pos=text.rfind('</body>')
+          if pos<0:
+              raise SystemExit('Could not locate </body> in index.html')
 
-          if 'getSession()' not in updated or 'async function restoreSupabaseSession()' not in updated:
-              raise SystemExit('Session restoration patch verification failed.')
+          text=text[:pos]+block+text[pos:]
+          path.write_text(text,encoding='utf-8')
+          print('Persistent approved session restoration inserted.')
+          PY
 
-          path.write_text(updated, encoding='utf-8')
-          print('Persistent login patch applied.')
+      - name: Patch refresh-state helper
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('aez-refresh-guard.js')
+          text=path.read_text(encoding='utf-8')
+
+          if 'window.__aezRestoreRefreshState' in text:
+              print('Refresh-state helper already present.')
+              raise SystemExit(0)
+
+          text=text.replace(
+              "function restore(){",
+              "function restore(){",
+              1
+          )
+
+          # Expose a one-shot restore function for the auth-session bootstrap.
+          insert="""
+window.__aezRestoreRefreshState=function(){
+  var state=get();if(!state)return false;
+  if(!document.body.classList.contains('authenticated'))return false;
+  var target=document.querySelector('[data-view=\"'+state.view+'\"]');
+  if(target){try{target.click()}catch(e){}}
+  if(state.social){
+    var socialBtn=document.querySelector('[data-aez-social]');
+    if(socialBtn){try{socialBtn.click()}catch(e){}}
+    var panel=document.getElementById('aezSocial');
+    if(panel){panel.classList.add('open');panel.style.display='block';}
+  }
+  setTimeout(function(){try{window.scrollTo(0,state.y||0)}catch(e){}},120);
+  try{sessionStorage.removeItem(KEY)}catch(e){}
+  return true;
+};
+"""
+          anchor="function boot(){"
+          text=text.replace(anchor,insert+"\n"+anchor,1)
+          path.write_text(text,encoding='utf-8')
+          print('Refresh-state helper exposed.')
           PY
 
       - name: Verify
         shell: bash
         run: |
-          grep -q "async function restoreSupabaseSession()" index.html
+          grep -q "persistent approved session restoration" index.html
           grep -q "supabaseClient.auth.getSession()" index.html
-          grep -q "event==='SIGNED_OUT'" index.html
           grep -q "profile.status!=='approved'" index.html
+          grep -q "event==='SIGNED_OUT'" index.html
+          grep -q "__aezRestoreRefreshState" aez-refresh-guard.js
           echo "ÆZ persistent login verification passed."
 
       - name: Commit
@@ -134,7 +169,7 @@ if(supabaseReady){
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add index.html aez-refresh-guard.js
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
