@@ -153,3 +153,6 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
     transform:none!important;
   }
 }
+
+/* PWA install card removed from the mobile navigation. */
+.mobile-install-card{display:none!important;}
