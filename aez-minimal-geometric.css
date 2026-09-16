@@ -154,5 +154,16 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
   }
 }
 
-/* PWA install card removed from the mobile navigation. */
-.mobile-install-card{display:none!important;}
+/* PWA install UI is intentionally hidden; the app itself remains a PWA. */
+.mobile-install-card,
+#mobileInstallCard,
+.mobile-install-btn,
+#mobileInstallBtn,
+.pwa-install-card,
+#pwaInstallCard,
+.pwa-guide-veil,
+#pwaGuide{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
