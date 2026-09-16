@@ -54,7 +54,7 @@ grant execute on function public.is_aez_admin() to authenticated;
 
 grant select, insert, update on public.gang_registrations to authenticated;
 
- drop policy if exists "Gang officers can view own registration" on public.gang_registrations;
+drop policy if exists "Gang officers can view own registration" on public.gang_registrations;
 create policy "Gang officers can view own registration"
 on public.gang_registrations
 for select to authenticated
@@ -67,6 +67,7 @@ for insert to authenticated
 with check (
   auth.uid() = officer_user_id
   and lower(email) = lower(coalesce(auth.jwt()->>'email',''))
+  and status = 'pending'
 );
 
 drop policy if exists "Owners and admins can review gang registrations" on public.gang_registrations;
