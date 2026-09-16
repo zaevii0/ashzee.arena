@@ -89,7 +89,52 @@ button,.nav-item,.tab-btn,.filter-btn,.seg-btn,.wk-btn,.rtab,.aez-gateway-btn{
 
 .aez-mobile-tab{gap:.5rem!important;}
 .aez-mobile-tab svg{width:1.5rem!important;height:1.5rem!important;}
-.aez-mobile-tab.active{color:#111827!important;background:rgba(251,191,36,.14)!important;border-color:rgba(251,191,36,.35)!important;}
-.aez-mobile-tab.active svg{stroke:#111827!important;}
+.aez-mobile-tab.active{
+  color:#111827!important;
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+.aez-mobile-tab.active svg{stroke:currentColor!important;}
+.aez-mobile-tab:active,.aez-mobile-tab:focus,.aez-mobile-tab:focus-visible,.aez-mobile-tab:hover{
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
 
 .icon-btn{border:1px solid #F3F4F6!important;border-radius:.75rem!important;}
+
+/* Mobile glass dock: remove only the selected-item tile/highlight and movement. */
+@media(max-width:960px){
+  .bottom-nav .bn-item:not(.bn-more){
+    background:transparent!important;
+    border-color:transparent!important;
+    box-shadow:none!important;
+    transform:none!important;
+    transition:color .2s ease!important;
+  }
+  .bottom-nav .bn-item:not(.bn-more).active{
+    background:transparent!important;
+    border-color:transparent!important;
+    box-shadow:none!important;
+    transform:none!important;
+    color:var(--gold,#E5C978)!important;
+  }
+  .bottom-nav .bn-item:not(.bn-more) svg,
+  .bottom-nav .bn-item:not(.bn-more).active svg{
+    transform:none!important;
+    filter:none!important;
+    transition:none!important;
+  }
+  .bottom-nav .bn-item:not(.bn-more):active,
+  .bottom-nav .bn-item:not(.bn-more):focus,
+  .bottom-nav .bn-item:not(.bn-more):focus-visible,
+  .bottom-nav .bn-item:not(.bn-more):hover{
+    background:transparent!important;
+    border-color:transparent!important;
+    box-shadow:none!important;
+    outline:none!important;
+    transform:none!important;
+  }
+}
